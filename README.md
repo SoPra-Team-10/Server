@@ -2,3 +2,6 @@
 # Server
 Server Component.
 
+## External Librarys
+ * [SopraNetwork](https://github.com/SoPra-Team-10/Network)
+ * [nlohmann::json](https://github.com/nlohmann/json)

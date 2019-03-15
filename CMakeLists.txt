@@ -15,7 +15,8 @@ endif ()
 # Building
 project(Server VERSION 0.0.1 DESCRIPTION "Server for SoPra")
 
-set(SOURCES )
+set(SOURCES
+        ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp)
 
 set(LIBS SopraNetwork pthread)
 

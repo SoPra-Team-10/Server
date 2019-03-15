@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <SopraNetwork/WebSocketServer.hpp>
+
 int main() {
-    std::cout << "Test" << std::endl;
+    network::WebSocketServer server{80, "test"};
 }
