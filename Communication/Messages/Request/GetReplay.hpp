@@ -8,10 +8,10 @@
 #ifndef SERVER_GETREPLAY_HPP
 #define SERVER_GETREPLAY_HPP
 
+namespace communication::messages::request {
+    class GetReplay {
 
-class GetReplay {
-
-};
-
+    };
+}
 
 #endif //SERVER_GETREPLAY_HPP

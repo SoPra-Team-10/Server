@@ -6,3 +6,7 @@
  */
 
 #include "Snapshot.hpp"
+
+namespace communication::messages::broadcast {
+
+}

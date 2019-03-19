@@ -6,3 +6,7 @@
  */
 
 #include "ContinueRequest.hpp"
+
+namespace communication::messages::request {
+
+}

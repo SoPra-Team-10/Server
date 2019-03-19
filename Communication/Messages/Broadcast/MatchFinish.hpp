@@ -8,10 +8,10 @@
 #ifndef SERVER_MATCHFINISH_HPP
 #define SERVER_MATCHFINISH_HPP
 
+namespace communication::messages::broadcast {
+    class MatchFinish {
 
-class MatchFinish {
-
-};
-
+    };
+}
 
 #endif //SERVER_MATCHFINISH_HPP

@@ -6,3 +6,7 @@
  */
 
 #include "GetReplay.hpp"
+
+namespace communication::messages::request {
+
+}

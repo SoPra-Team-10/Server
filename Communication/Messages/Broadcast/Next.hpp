@@ -8,10 +8,10 @@
 #ifndef SERVER_NEXT_HPP
 #define SERVER_NEXT_HPP
 
+namespace communication::messages::broadcast {
+    class Next {
 
-class Next {
-
-};
-
+    };
+}
 
 #endif //SERVER_NEXT_HPP

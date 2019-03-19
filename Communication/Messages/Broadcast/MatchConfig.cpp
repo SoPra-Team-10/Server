@@ -6,3 +6,7 @@
  */
 
 #include "MatchConfig.hpp"
+
+namespace communication::messages::broadcast {
+
+}

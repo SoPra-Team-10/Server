@@ -6,3 +6,7 @@
  */
 
 #include "SendDebug.hpp"
+
+namespace communication::messages::request {
+
+}

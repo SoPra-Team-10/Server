@@ -8,10 +8,10 @@
 #ifndef SERVER_PAUSEREQUEST_HPP
 #define SERVER_PAUSEREQUEST_HPP
 
+namespace communication::messages::request {
+    class PauseRequest {
 
-class PauseRequest {
-
-};
-
+    };
+}
 
 #endif //SERVER_PAUSEREQUEST_HPP

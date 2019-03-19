@@ -8,10 +8,10 @@
 #ifndef SERVER_SENDDEBUG_HPP
 #define SERVER_SENDDEBUG_HPP
 
+namespace communication::messages::request {
+    class SendDebug {
 
-class SendDebug {
-
-};
-
+    };
+}
 
 #endif //SERVER_SENDDEBUG_HPP

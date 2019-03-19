@@ -8,10 +8,10 @@
 #ifndef SERVER_RECONNECT_HPP
 #define SERVER_RECONNECT_HPP
 
+namespace communication::messages::unicast {
+    class Reconnect {
 
-class Reconnect {
-
-};
-
+    };
+}
 
 #endif //SERVER_RECONNECT_HPP

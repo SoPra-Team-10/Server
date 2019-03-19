@@ -6,3 +6,7 @@
  */
 
 #include "PauseRequest.hpp"
+
+namespace communication::messages::request {
+
+}

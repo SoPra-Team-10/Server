@@ -6,3 +6,7 @@
  */
 
 #include "GlobalDebug.hpp"
+
+namespace communication::messages::broadcast {
+
+}

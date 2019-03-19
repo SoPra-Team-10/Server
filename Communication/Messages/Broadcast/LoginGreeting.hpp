@@ -8,10 +8,10 @@
 #ifndef SERVER_LOGINGREETING_HPP
 #define SERVER_LOGINGREETING_HPP
 
+namespace communication::messages::broadcast {
+    class LoginGreeting {
 
-class LoginGreeting {
-
-};
-
+    };
+}
 
 #endif //SERVER_LOGINGREETING_HPP

@@ -8,10 +8,10 @@
 #ifndef SERVER_PAUSERESPONSE_HPP
 #define SERVER_PAUSERESPONSE_HPP
 
+namespace communication::messages::broadcast {
+    class PauseResponse {
 
-class PauseResponse {
-
-};
-
+    };
+}
 
 #endif //SERVER_PAUSERESPONSE_HPP

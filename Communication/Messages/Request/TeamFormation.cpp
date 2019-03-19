@@ -6,3 +6,7 @@
  */
 
 #include "TeamFormation.hpp"
+
+namespace communication::messages::request {
+
+}

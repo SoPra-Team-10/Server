@@ -8,10 +8,10 @@
 #ifndef SERVER_JOINRESPONSE_HPP
 #define SERVER_JOINRESPONSE_HPP
 
+namespace communication::messages::unicast {
+    class JoinResponse {
 
-class JoinResponse {
-
-};
-
+    };
+}
 
 #endif //SERVER_JOINRESPONSE_HPP

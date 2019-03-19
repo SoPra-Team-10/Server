@@ -8,10 +8,10 @@
 #ifndef SERVER_TEAMFORMATION_HPP
 #define SERVER_TEAMFORMATION_HPP
 
+namespace communication::messages::request {
+    class TeamFormation {
 
-class TeamFormation {
-
-};
-
+    };
+}
 
 #endif //SERVER_TEAMFORMATION_HPP

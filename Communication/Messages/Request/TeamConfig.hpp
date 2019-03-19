@@ -8,10 +8,10 @@
 #ifndef SERVER_TEAMCONFIG_HPP
 #define SERVER_TEAMCONFIG_HPP
 
+namespace communication::messages::request {
+    class TeamConfig {
 
-class TeamConfig {
-
-};
-
+    };
+}
 
 #endif //SERVER_TEAMCONFIG_HPP

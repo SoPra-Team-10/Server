@@ -6,3 +6,7 @@
  */
 
 #include "MatchFinish.hpp"
+
+namespace communication::messages::broadcast {
+
+}

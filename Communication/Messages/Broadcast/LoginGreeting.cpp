@@ -6,3 +6,7 @@
  */
 
 #include "LoginGreeting.hpp"
+
+namespace communication::messages::broadcast {
+
+}

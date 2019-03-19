@@ -6,3 +6,7 @@
  */
 
 #include "Next.hpp"
+
+namespace communication::messages::broadcast {
+
+}

@@ -6,3 +6,7 @@
  */
 
 #include "JoinResponse.hpp"
+
+namespace communication::messages::unicast {
+
+}

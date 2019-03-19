@@ -6,3 +6,7 @@
  */
 
 #include "PrivateDebug.hpp"
+
+namespace communication::messages::unicast {
+
+}

@@ -6,3 +6,7 @@
  */
 
 #include "PauseResponse.hpp"
+
+namespace communication::messages::broadcast {
+
+}

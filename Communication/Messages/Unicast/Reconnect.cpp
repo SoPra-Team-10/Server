@@ -6,3 +6,7 @@
  */
 
 #include "Reconnect.hpp"
+
+namespace communication::messages::unicast {
+
+}

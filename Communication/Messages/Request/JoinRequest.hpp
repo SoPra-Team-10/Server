@@ -8,10 +8,10 @@
 #ifndef SERVER_JOINREQUEST_HPP
 #define SERVER_JOINREQUEST_HPP
 
+namespace communication::messages::request {
+    class JoinRequest {
 
-class JoinRequest {
-
-};
-
+    };
+}
 
 #endif //SERVER_JOINREQUEST_HPP

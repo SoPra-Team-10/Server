@@ -8,10 +8,10 @@
 #ifndef SERVER_SNAPSHOT_HPP
 #define SERVER_SNAPSHOT_HPP
 
+namespace communication::messages::broadcast {
+    class Snapshot {
 
-class Snapshot {
-
-};
-
+    };
+}
 
 #endif //SERVER_SNAPSHOT_HPP

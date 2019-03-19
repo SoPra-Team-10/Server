@@ -6,3 +6,7 @@
  */
 
 #include "Replay.hpp"
+
+namespace communication::messages::broadcast {
+
+}

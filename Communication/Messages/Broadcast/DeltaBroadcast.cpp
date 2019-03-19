@@ -6,3 +6,7 @@
  */
 
 #include "DeltaBroadcast.hpp"
+
+namespace communication::messages::broadcast {
+
+}

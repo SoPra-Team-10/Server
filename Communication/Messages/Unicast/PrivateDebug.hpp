@@ -8,10 +8,10 @@
 #ifndef SERVER_PRIVATEDEBUG_HPP
 #define SERVER_PRIVATEDEBUG_HPP
 
+namespace communication::messages::unicast {
+    class PrivateDebug {
 
-class PrivateDebug {
-
-};
-
+    };
+}
 
 #endif //SERVER_PRIVATEDEBUG_HPP

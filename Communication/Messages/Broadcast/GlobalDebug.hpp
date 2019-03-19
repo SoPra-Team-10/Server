@@ -8,10 +8,10 @@
 #ifndef SERVER_GLOBALDEBUG_HPP
 #define SERVER_GLOBALDEBUG_HPP
 
+namespace communication::messages::broadcast {
+    class GlobalDebug {
 
-class GlobalDebug {
-
-};
-
+    };
+}
 
 #endif //SERVER_GLOBALDEBUG_HPP

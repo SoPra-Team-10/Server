@@ -6,3 +6,7 @@
  */
 
 #include "TeamConfig.hpp"
+
+namespace communication::messages::request {
+
+}

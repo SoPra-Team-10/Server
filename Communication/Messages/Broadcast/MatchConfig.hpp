@@ -8,10 +8,10 @@
 #ifndef SERVER_MATCHCONFIG_HPP
 #define SERVER_MATCHCONFIG_HPP
 
+namespace communication::messages::broadcast {
+    class MatchConfig {
 
-class MatchConfig {
-
-};
-
+    };
+}
 
 #endif //SERVER_MATCHCONFIG_HPP

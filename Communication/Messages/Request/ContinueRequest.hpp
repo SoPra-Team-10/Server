@@ -8,10 +8,10 @@
 #ifndef SERVER_CONTINUEREQUEST_HPP
 #define SERVER_CONTINUEREQUEST_HPP
 
+namespace communication::messages::request {
+    class ContinueRequest {
 
-class ContinueRequest {
-
-};
-
+    };
+}
 
 #endif //SERVER_CONTINUEREQUEST_HPP

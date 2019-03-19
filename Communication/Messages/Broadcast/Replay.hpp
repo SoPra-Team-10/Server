@@ -8,10 +8,10 @@
 #ifndef SERVER_REPLAY_HPP
 #define SERVER_REPLAY_HPP
 
+namespace communication::messages::broadcast {
+    class Replay {
 
-class Replay {
-
-};
-
+    };
+}
 
 #endif //SERVER_REPLAY_HPP

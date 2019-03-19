@@ -6,3 +6,7 @@
  */
 
 #include "JoinRequest.hpp"
+
+namespace communication::messages::request {
+
+}
