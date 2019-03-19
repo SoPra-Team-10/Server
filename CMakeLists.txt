@@ -15,7 +15,31 @@ endif ()
 # Building
 project(Server VERSION 0.0.1 DESCRIPTION "Server for SoPra")
 
+set(MESSAGE_TYPE_SOURCES
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/DeltaBroadcast.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/GlobalDebug.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/LoginGreeting.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/MatchConfig.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/MatchFinish.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/MatchStart.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/Next.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/PauseResponse.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/Replay.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/Snapshot.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/ContinueRequest.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/DeltaRequest.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/GetReplay.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/JoinRequest.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/PauseRequest.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/SendDebug.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/TeamConfig.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/TeamFormation.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/JoinResponse.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/PrivateDebug.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/Reconnect.cpp)
+
 set(SOURCES
+        ${MESSAGE_TYPE_SOURCES}
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp)
 
 set(LIBS SopraNetwork pthread)
