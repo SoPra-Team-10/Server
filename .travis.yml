@@ -14,4 +14,4 @@ before_install:
 
 script:
   - docker run server
-  - sonar-scanner
+  #- sonar-scanner
