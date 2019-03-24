@@ -1,8 +1,17 @@
+dist: trusty
+
 services:
   - docker
+
+addons:
+  sonarcloud:
+    organization: "sopra-team-10"
+    token:
+      secure: $SONAR_TOKEN
 
 before_install:
   - docker build -t server .
 
 script:
   - docker run server
+  #- sonar-scanner
