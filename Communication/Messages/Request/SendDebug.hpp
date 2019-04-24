@@ -15,7 +15,7 @@ namespace communication::messages::request {
     class SendDebug {
     public:
         SendDebug() = default;
-        SendDebug(std::string information);
+        explicit SendDebug(std::string information);
         auto getInformation() const -> std::string;
 
         static auto getName() -> std::string;
