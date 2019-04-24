@@ -34,6 +34,7 @@ namespace communication::messages::request {
 
     class TeamConfig {
     public:
+        TeamConfig() = default;
         TeamConfig(std::string name, std::string motto, std::string colorPrimary, std::string colorSecondary,
                    std::string image, int goblins, int trolls, int elfs, int nifflers, Player seeker,
                    Player keeper, Player chaser1, Player chaser2, Player chaser3,
