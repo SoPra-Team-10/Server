@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto Next::getName() -> std::string {
+        return "next";
+    }
 }

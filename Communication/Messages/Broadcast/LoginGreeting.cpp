@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto LoginGreeting::getName() -> std::string {
+        return "loginGreeting";
+    }
 }

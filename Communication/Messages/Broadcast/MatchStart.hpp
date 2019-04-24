@@ -8,8 +8,15 @@
 #ifndef SERVER_MATCHSTART_HPP
 #define SERVER_MATCHSTART_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::broadcast {
     class MatchStart {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

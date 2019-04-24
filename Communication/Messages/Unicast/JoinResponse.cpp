@@ -9,4 +9,7 @@
 
 namespace communication::messages::unicast {
 
+    auto JoinResponse::getName() -> std::string {
+        return "joinResponse";
+    }
 }

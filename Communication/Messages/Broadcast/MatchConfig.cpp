@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto MatchConfig::getName() -> std::string {
+        return "matchConfig";
+    }
 }

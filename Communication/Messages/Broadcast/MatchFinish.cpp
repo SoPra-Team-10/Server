@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto MatchFinish::getName() -> std::string {
+        return "matchFinish";
+    }
 }

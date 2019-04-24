@@ -8,8 +8,15 @@
 #ifndef SERVER_CONTINUEREQUEST_HPP
 #define SERVER_CONTINUEREQUEST_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::request {
     class ContinueRequest {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

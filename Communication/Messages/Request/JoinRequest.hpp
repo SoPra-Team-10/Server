@@ -8,8 +8,15 @@
 #ifndef SERVER_JOINREQUEST_HPP
 #define SERVER_JOINREQUEST_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::request {
     class JoinRequest {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

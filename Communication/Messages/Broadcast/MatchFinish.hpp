@@ -8,8 +8,15 @@
 #ifndef SERVER_MATCHFINISH_HPP
 #define SERVER_MATCHFINISH_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::broadcast {
     class MatchFinish {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

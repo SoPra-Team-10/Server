@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto JoinRequest::getName() -> std::string {
+        return "joinRequest";
+    }
 }

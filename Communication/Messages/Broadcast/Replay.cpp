@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto Replay::getName() -> std::string {
+        return "replay";
+    }
 }

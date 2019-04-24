@@ -8,8 +8,15 @@
 #ifndef SERVER_JOINRESPONSE_HPP
 #define SERVER_JOINRESPONSE_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::unicast {
     class JoinResponse {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

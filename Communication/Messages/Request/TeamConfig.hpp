@@ -8,8 +8,15 @@
 #ifndef SERVER_TEAMCONFIG_HPP
 #define SERVER_TEAMCONFIG_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::request {
     class TeamConfig {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

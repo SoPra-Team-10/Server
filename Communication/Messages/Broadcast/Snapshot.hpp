@@ -8,8 +8,15 @@
 #ifndef SERVER_SNAPSHOT_HPP
 #define SERVER_SNAPSHOT_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::broadcast {
     class Snapshot {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

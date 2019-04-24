@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto TeamFormation::getName() -> std::string {
+        return "teamFormation";
+    }
 }
