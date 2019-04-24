@@ -12,6 +12,17 @@
 #include <Lib/json.hpp>
 
 namespace communication::messages::broadcast {
+    class TeamSnaphot {
+    public:
+        enum class FanType {
+            GOBLIN, TROLL, ELF, NIFFLER
+        };
+
+    private:
+        //int points;
+        //std::vector<std::pair<FanType, bool>> fans;
+    };
+
     class Snapshot {
     public:
 
