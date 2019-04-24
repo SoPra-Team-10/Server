@@ -171,7 +171,7 @@ namespace communication::messages::broadcast {
         j["probabilities"]["catchQuaffle"] = matchConfig.getProbCatchQuaffle();
         j["probabilities"]["wrestQuaffle"] = matchConfig.getProbWrestQuaffle();
         j["probabilities"]["extraMove"]["thinderblast"] = matchConfig.getProbExtraThinderblast();
-        j["probabilities"]["extraMove"]["cleansweep11"] = matchConfig.getProbExtraThinderblast();
+        j["probabilities"]["extraMove"]["cleansweep11"] = matchConfig.getProbExtraCleansweep();
         j["probabilities"]["extraMove"]["comet260"] = matchConfig.getProbExtraComet();
         j["probabilities"]["extraMove"]["nimbus2001"] = matchConfig.getProbExtraNimbus();
         j["probabilities"]["extraMove"]["firebolt"] = matchConfig.getProbExtraFirebolt();
