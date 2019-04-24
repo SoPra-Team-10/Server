@@ -15,7 +15,7 @@ namespace communication::messages::unicast {
     class PrivateDebug {
     public:
         PrivateDebug() = default;
-        explicit PrivateDebug(const std::string &information);
+        explicit PrivateDebug(std::string information);
         auto getInformation() const -> std::string;
 
         static auto getName() -> std::string;
