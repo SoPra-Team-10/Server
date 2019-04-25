@@ -11,7 +11,7 @@
 #include <string>
 #include <Lib/json.hpp>
 
-#include "../types.hpp"
+#include "Communication/Messages/Common/types.hpp"
 
 namespace communication::messages::request {
     class Player {
