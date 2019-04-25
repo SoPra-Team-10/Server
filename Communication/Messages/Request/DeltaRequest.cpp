@@ -6,6 +6,7 @@
  */
 
 #include "DeltaRequest.hpp"
+#include <Util/OptionalSerialization.hpp>
 
 namespace communication::messages::request {
 
@@ -13,43 +14,48 @@ namespace communication::messages::request {
         return "deltaRequest";
     }
 
-    DeltaRequest::DeltaRequest(types::DeltaType deltaType, bool success, int xPosOld, int yPosOld, int xPosNew,
-                               int yPosNew, types::EntityId activeEntity, types::EntityId passiveEntity) : deltaType(
-            deltaType), success(success), xPosOld(xPosOld), yPosOld(yPosOld), xPosNew(xPosNew), yPosNew(yPosNew),
-                                                                                                           activeEntity(
-                                                                                                                   activeEntity),
-                                                                                                           passiveEntity(
-                                                                                                                   passiveEntity) {}
+    DeltaRequest::DeltaRequest(types::DeltaType deltaType,
+                               std::optional<bool> success,
+                               std::optional<int> xPosOld,
+                               std::optional<int> yPosOld,
+                               std::optional<int> xPosNew,
+                               std::optional<int> yPosNew,
+                               std::optional<types::EntityId> activeEntity,
+                               std::optional<types::EntityId> passiveEntity) :
+            deltaType(deltaType), success(success), xPosOld(xPosOld),
+            yPosOld(yPosOld), xPosNew(xPosNew), yPosNew(yPosNew),
+            activeEntity(activeEntity),
+            passiveEntity(passiveEntity) {}
 
     types::DeltaType DeltaRequest::getDeltaType() const {
         return deltaType;
     }
 
-    bool DeltaRequest::isSuccess() const {
+    std::optional<bool> DeltaRequest::isSuccess() const {
         return success;
     }
 
-    int DeltaRequest::getXPosOld() const {
+    std::optional<int> DeltaRequest::getXPosOld() const {
         return xPosOld;
     }
 
-    int DeltaRequest::getYPosOld() const {
+    std::optional<int> DeltaRequest::getYPosOld() const {
         return yPosOld;
     }
 
-    int DeltaRequest::getXPosNew() const {
+    std::optional<int> DeltaRequest::getXPosNew() const {
         return xPosNew;
     }
 
-    int DeltaRequest::getYPosNew() const {
+    std::optional<int> DeltaRequest::getYPosNew() const {
         return yPosNew;
     }
 
-    types::EntityId DeltaRequest::getActiveEntity() const {
+    std::optional<types::EntityId> DeltaRequest::getActiveEntity() const {
         return activeEntity;
     }
 
-    types::EntityId DeltaRequest::getPassiveEntity() const {
+    std::optional<types::EntityId> DeltaRequest::getPassiveEntity() const {
         return passiveEntity;
     }
 
@@ -60,20 +66,35 @@ namespace communication::messages::request {
         j["yPosOld"] = deltaRequest.getYPosOld();
         j["xPosNew"] = deltaRequest.getXPosNew();
         j["yPosNew"] = deltaRequest.getYPosNew();
-        j["activeEntity"] = types::toString(deltaRequest.getActiveEntity()),
-        j["passiveEntity"] = types::toString(deltaRequest.getPassiveEntity());
+        if (deltaRequest.getActiveEntity().has_value()) {
+            j["activeEntity"] = types::toString(deltaRequest.getActiveEntity().value());
+        } else {
+            j["activeEntity"] = nullptr;
+        }
+        if (deltaRequest.getPassiveEntity().has_value()) {
+            j["passiveEntity"] = types::toString(deltaRequest.getPassiveEntity().value());
+        } else {
+            j["passiveEntity"] = nullptr;
+        }
     }
 
     void from_json(const nlohmann::json &j, DeltaRequest &deltaRequest) {
+        std::optional<types::EntityId> active = std::nullopt, passive = std::nullopt;
+        if (!j.at("activeEntity").is_null()) {
+            active = types::fromStringEntityId(j.at("activeEntity").get<std::string>());
+        }
+        if (!j.at("passiveEntity").is_null()) {
+            passive = types::fromStringEntityId(j.at("passiveEntity").get<std::string>());
+        }
+
         deltaRequest = DeltaRequest{
-            types::fromStringDeltaType(j.at("deltaType").get<std::string>()),
-            j.at("success").get<bool>(),
-            j.at("xPosOld").get<int>(),
-            j.at("yPosOld").get<int>(),
-            j.at("xPosNew").get<int>(),
-            j.at("yPosNew").get<int>(),
-            types::fromStringEntityId(j.at("activeEntity").get<std::string>()),
-            types::fromStringEntityId(j.at("passiveEntity").get<std::string>())
+                types::fromStringDeltaType(j.at("deltaType").get<std::string>()),
+                j.at("success").get<std::optional<bool>>(),
+                j.at("xPosOld").get<std::optional<int>>(),
+                j.at("yPosOld").get<std::optional<int>>(),
+                j.at("xPosNew").get<std::optional<int>>(),
+                j.at("yPosNew").get<std::optional<int>>(),
+                active, passive
         };
     }
 }
