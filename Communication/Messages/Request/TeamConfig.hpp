@@ -11,25 +11,21 @@
 #include <string>
 #include <Lib/json.hpp>
 
+#include "../types.hpp"
+
 namespace communication::messages::request {
     class Player {
     public:
-        enum class Broom {
-            THINDERBLAST, CLEANSWEEP11, COMET260, NIMBUS2001, FIREBOLT
-        };
-        enum class Sex {
-            M, F
-        };
         Player() = default;
-        Player(std::string name, Broom broom, Sex sex);
+        Player(std::string name, types::Broom broom, types::Sex sex);
         std::string getName() const;
-        Broom getBroom() const;
-        Sex getSex() const;
+        types::Broom getBroom() const;
+        types::Sex getSex() const;
 
     private:
         std::string name;
-        Broom broom;
-        Sex sex;
+        types::Broom broom;
+        types::Sex sex;
     };
 
     class TeamConfig {

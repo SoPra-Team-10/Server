@@ -15,7 +15,7 @@ namespace communication::messages::broadcast {
     }
 
     MatchFinish::MatchFinish(int endRound, int leftPoints, int rightPoints, std::string winnerUserName,
-                             MatchFinish::VictoryReason victoryReason) : endRound(endRound), leftPoints(leftPoints),
+                             types::VictoryReason victoryReason) : endRound(endRound), leftPoints(leftPoints),
                                                                          rightPoints(rightPoints),
                                                                          winnerUserName(std::move(winnerUserName)),
                                                                          victoryReason(victoryReason) {}
@@ -36,7 +36,7 @@ namespace communication::messages::broadcast {
         return winnerUserName;
     }
 
-    MatchFinish::VictoryReason MatchFinish::getVictoryReason() const {
+    types::VictoryReason MatchFinish::getVictoryReason() const {
         return victoryReason;
     }
 }

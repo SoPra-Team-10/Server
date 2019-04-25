@@ -14,9 +14,6 @@
 namespace communication::messages::broadcast {
     class TeamSnaphot {
     public:
-        enum class FanType {
-            GOBLIN, TROLL, ELF, NIFFLER
-        };
 
     private:
         //int points;

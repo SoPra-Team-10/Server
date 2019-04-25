@@ -128,75 +128,75 @@ namespace communication::messages::request {
         return beater2;
     }
 
-    Player::Player(std::string name, Player::Broom broom, Player::Sex sex) : name(std::move(name)), broom(broom),
+    Player::Player(std::string name, types::Broom broom, types::Sex sex) : name(std::move(name)), broom(broom),
                                                                              sex(sex) {}
 
     std::string Player::getName() const {
         return name;
     }
 
-    Player::Broom Player::getBroom() const {
+    types::Broom Player::getBroom() const {
         return broom;
     }
 
-    Player::Sex Player::getSex() const {
+    types::Sex Player::getSex() const {
         return sex;
     }
 
     void to_json(nlohmann::json &j, const Player &player) {
         j["name"] = player.getName();
         switch (player.getBroom()) {
-            case Player::Broom::THINDERBLAST:
+            case types::Broom::THINDERBLAST:
                 j["broom"] = "thinderblast";
                 break;
-            case Player::Broom::CLEANSWEEP11:
+            case types::Broom::CLEANSWEEP11:
                 j["broom"] = "cleansweep-11";
                 break;
-            case Player::Broom::COMET260:
+            case types::Broom::COMET260:
                 j["broom"] = "comet-260";
                 break;
-            case Player::Broom::NIMBUS2001:
+            case types::Broom::NIMBUS2001:
                 j["broom"] = "nimbus-2001";
                 break;
-            case Player::Broom::FIREBOLT:
+            case types::Broom::FIREBOLT:
                 j["broom"] = "firebolt";
                 break;
         }
         switch (player.getSex()) {
-            case Player::Sex::M:
+            case types::Sex::M:
                 j["sex"] = "m";
                 break;
-            case Player::Sex::F:
+            case types::Sex::F:
                 j["sex"] = "f";
                 break;
         }
     }
 
     void from_json(const nlohmann::json &j, Player &player) {
-        Player::Broom broom;
-        Player::Sex sex;
+        types::Broom broom;
+        types::Sex sex;
         const auto &broomS = j.at("broom").get<std::string>();
         const auto &sexS = j.at("sex").get<std::string>();
         const auto &name = j.at("name").get<std::string>();
 
         if (broomS == "thinderblast") {
-            broom = Player::Broom::THINDERBLAST;
+            broom = types::Broom::THINDERBLAST;
         } else if (broomS == "cleansweep-11") {
-            broom = Player::Broom::CLEANSWEEP11;
+            broom = types::Broom::CLEANSWEEP11;
         } else if (broomS == "comet-260") {
-            broom = Player::Broom::COMET260;
+            broom = types::Broom::COMET260;
         } else if (broomS == "nimbus-2001") {
-            broom = Player::Broom::NIMBUS2001;
+            broom = types::Broom::NIMBUS2001;
         } else if (broomS == "firebolt") {
-            broom = Player::Broom::FIREBOLT;
+            broom = types::Broom::FIREBOLT;
         } else {
             throw std::runtime_error{"Not a valid broom"};
         }
 
         if (sexS == "m") {
-            sex = Player::Sex::M;
+            sex = types::Sex::M;
         } else if (sexS == "f") {
-            sex = Player::Sex::F;
+            sex = types::Sex::F;
         } else {
             throw std::runtime_error{"Not a valid sex"};
         }
