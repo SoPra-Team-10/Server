@@ -36,6 +36,9 @@ namespace communication {
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>
                 (std::chrono::system_clock::now().time_since_epoch());
 
+        // Formats the timestamp according to the standard
+        // (time has only second accuracy, that's why there is this
+        // stream magic)
         std::stringstream sstream;
         sstream << std::put_time(localTime,"%F %T:")
             << std::setfill('0') <<std::setw(3) << (ms.count() % 1000);

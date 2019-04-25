@@ -19,6 +19,10 @@ namespace communication::messages::unicast {
         return "privateDebug";
     }
 
+    void PrivateDebug::setInformation(const std::string &information) {
+        this->information = information;
+    }
+
     void to_json(nlohmann::json &j, const PrivateDebug &privateDebug) {
         j = nlohmann::json{{"information", privateDebug.getInformation()}};
     }
