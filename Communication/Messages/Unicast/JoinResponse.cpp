@@ -19,4 +19,14 @@ namespace communication::messages::unicast {
     auto JoinResponse::getMessage() const -> std::string {
         return this->message;
     }
+
+    void to_json(nlohmann::json &j, const JoinResponse &joinResponse) {
+        j["message"] = joinResponse.getMessage();
+    }
+
+    void from_json(const nlohmann::json &j, JoinResponse &joinResponse) {
+        joinResponse = JoinResponse{
+            j.at("message").get<std::string>()
+        };
+    }
 }

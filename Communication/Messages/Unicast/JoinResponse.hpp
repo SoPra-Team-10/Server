@@ -22,6 +22,9 @@ namespace communication::messages::unicast {
     private:
         std::string message;
     };
+
+    void to_json(nlohmann::json &j, const JoinResponse &joinResponse);
+    void from_json(const nlohmann::json &j, JoinResponse &joinResponse);
 }
 
 #endif //SERVER_JOINRESPONSE_HPP
