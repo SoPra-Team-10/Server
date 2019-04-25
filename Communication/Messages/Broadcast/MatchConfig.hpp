@@ -15,7 +15,6 @@ namespace communication::messages::broadcast {
     class MatchConfig {
     public:
         MatchConfig() = default;
-
         MatchConfig(int maxRounds, int playerTurnTimeout, int fanTurnTimeout, int playerPhaseTime, int fanPhaseTime,
                     int ballPhaseTime, float probGoal, float probThrowSuccess, float probKnockOut, float probFoolAway,
                     float probCatchSnitch, float probCatchQuaffle, float probWrestQuaffle, float probExtraThinderblast,

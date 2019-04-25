@@ -13,7 +13,7 @@
 
 namespace communication::messages::request {
     JoinRequest::JoinRequest(std::string lobby, std::string userName, std::string password,
-                             bool isArtificialIntelligence, std::optional<std::string> mods) :
+                             bool isArtificialIntelligence, std::vector<std::string> mods) :
                              lobby{std::move(lobby)}, userName{std::move(userName)}, password{std::move(password)},
                              isArtificialIntelligence{isArtificialIntelligence}, mods{std::move(mods)} {}
 
@@ -33,11 +33,29 @@ namespace communication::messages::request {
         return this->isArtificialIntelligence;
     }
 
-    auto JoinRequest::getMods() const -> std::optional<std::string> {
+    auto JoinRequest::getMods() const -> std::vector<std::string> {
         return this->mods;
     }
 
     auto JoinRequest::getName() -> std::string {
         return "joinRequest";
+    }
+
+    void to_json(nlohmann::json &j, const JoinRequest &joinRequest) {
+        j["lobby"] = joinRequest.getLobby();
+        j["userName"] = joinRequest.getUserName();
+        j["password"] = joinRequest.getPassword();
+        j["isArtificialIntelligence"] = joinRequest.getIsAi();
+        j["mods"] = joinRequest.getMods();
+    }
+
+    void from_json(const nlohmann::json &j, JoinRequest &joinRequest) {
+        joinRequest = JoinRequest{
+            j.at("lobby").get<std::string>(),
+            j.at("userName").get<std::string>(),
+            j.at("password").get<std::string>(),
+            j.at("isArtificialIntelligence").get<bool>(),
+            j.at("mods")
+        };
     }
 }

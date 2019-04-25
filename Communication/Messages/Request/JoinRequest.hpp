@@ -16,19 +16,22 @@ namespace communication::messages::request {
     public:
         JoinRequest() = default;
         JoinRequest(std::string lobby, std::string userName, std::string password,
-                bool isArtificialIntelligence = false, std::optional<std::string> mods = std::nullopt);
+                bool isArtificialIntelligence = false, std::vector<std::string> mods = {});
         auto getLobby() const -> std::string;
         auto getUserName() const -> std::string;
         auto getPassword() const -> std::string;
         auto getIsAi() const -> bool;
-        auto getMods() const -> std::optional<std::string>;
+        auto getMods() const -> std::vector<std::string>;
 
         static auto getName() -> std::string;
     private:
         std::string lobby, userName, password; // Very secure, much hash
         bool isArtificialIntelligence;
-        std::optional<std::string> mods;
+        std::vector<std::string> mods; //@TODO add to enum
     };
+
+    void to_json(nlohmann::json &j, const JoinRequest &joinRequest);
+    void from_json(const nlohmann::json &j, JoinRequest &joinRequest);
 }
 
 #endif //SERVER_JOINREQUEST_HPP

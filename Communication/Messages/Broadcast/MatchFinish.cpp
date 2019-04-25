@@ -39,4 +39,24 @@ namespace communication::messages::broadcast {
     types::VictoryReason MatchFinish::getVictoryReason() const {
         return victoryReason;
     }
+
+    void to_json(nlohmann::json &j, const MatchFinish &matchFinish) {
+        j["endRound"] = matchFinish.getEndRound();
+        j["leftPoints"] = matchFinish.getLeftPoints();
+        j["rightPoints"] = matchFinish.getRightPoints();
+        j["winnerUserName"] = matchFinish.getWinnerUserName();
+        j["victoryReason"] =
+                types::toString(matchFinish.getVictoryReason());
+    }
+
+    void from_json(const nlohmann::json &j, MatchFinish &matchFinish) {
+        matchFinish = MatchFinish{
+            j.at("endRound").get<int>(),
+            j.at("leftPoints").get<int>(),
+            j.at("rightPoints").get<int>(),
+            j.at("winnerUserName").get<std::string>(),
+            types::fromStringVictoryReason(
+                    j.at("victoryReason").get<std::string>())
+        };
+    }
 }

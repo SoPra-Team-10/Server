@@ -311,3 +311,45 @@ auto communication::messages::types::fromStringPhaseType(const std::string &s)
         throw std::runtime_error{"Not a valid PhaseType"};
     }
 }
+
+auto communication::messages::types::toString(communication::messages::types::VictoryReason victoryReason)
+        -> std::string {
+    switch (victoryReason) {
+        case VictoryReason::DISQUALIFICATION:
+            return "disqualification";
+        case VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS:
+            return "bothDisqualificationMostPoints";
+        case VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_SNITCH_CATCH:
+            return "bothDisqualificationPointsEqualSnitchCatch";
+        case VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_LAST_DISQUALIFICATION:
+            return "bothDisqualificationPointsEqualLastDisqualification";
+        case VictoryReason::MOST_POINTS:
+            return "mostPoints";
+        case VictoryReason::POINTS_EQUAL_SNITCH_CATCH:
+            return "pointsEqualSnitchCatch";
+        case VictoryReason::VIOLATION_OF_PROTOCOL:
+            return "violationOfProtocol";
+    }
+    throw std::runtime_error{"We shouln't really be here"};
+}
+
+auto communication::messages::types::fromStringVictoryReason(
+        const std::string &s) -> communication::messages::types::VictoryReason {
+    if (s == "disqualification") {
+        return VictoryReason::DISQUALIFICATION;
+    } else if (s == "bothDisqualificationMostPoints") {
+        return VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS;
+    } else if (s == "bothDisqualificationPointsEqualSnitchCatch") {
+        return VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_SNITCH_CATCH;
+    } else if (s == "bothDisqualificationPointsEqualLastDisqualification") {
+        return VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_LAST_DISQUALIFICATION;
+    } else if (s == "mostPoints") {
+        return VictoryReason::MOST_POINTS;
+    } else if (s == "pointsEqualSnitchCatch") {
+        return VictoryReason::POINTS_EQUAL_SNITCH_CATCH;
+    } else if (s == "violationOfProtocol") {
+        return VictoryReason::VIOLATION_OF_PROTOCOL;
+    } else {
+        throw std::runtime_error{"Not a valid VictoryReason"};
+    }
+}

@@ -21,13 +21,9 @@ namespace communication::messages::broadcast {
                     types::VictoryReason victoryReason);
 
         int getEndRound() const;
-
         int getLeftPoints() const;
-
         int getRightPoints() const;
-
         std::string getWinnerUserName() const;
-
         types::VictoryReason getVictoryReason() const;
 
         static auto getName() -> std::string;
@@ -36,6 +32,9 @@ namespace communication::messages::broadcast {
         std::string winnerUserName;
         types::VictoryReason victoryReason;
     };
+
+    void to_json(nlohmann::json &j, const MatchFinish &matchFinish);
+    void from_json(const nlohmann::json &j, MatchFinish &matchFinish);
 }
 
 #endif //SERVER_MATCHFINISH_HPP

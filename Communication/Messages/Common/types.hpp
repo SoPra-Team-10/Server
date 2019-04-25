@@ -38,6 +38,9 @@ namespace communication::messages::types {
         VIOLATION_OF_PROTOCOL
     };
 
+    auto toString(VictoryReason victoryReason) -> std::string;
+    auto fromStringVictoryReason(const std::string &s) -> VictoryReason;
+
     enum class FanType {
         GOBLIN, TROLL, ELF, NIFFLER
     };
