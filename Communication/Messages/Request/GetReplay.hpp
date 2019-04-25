@@ -14,11 +14,11 @@
 namespace communication::messages::request {
     class GetReplay {
     public:
-
         static auto getName() -> std::string;
-    private:
-
     };
+
+    void to_json(nlohmann::json &j, const GetReplay&);
+    void from_json(const nlohmann::json&, GetReplay&);
 }
 
 #endif //SERVER_GETREPLAY_HPP

@@ -12,4 +12,12 @@ namespace communication::messages::request {
     auto GetReplay::getName() -> std::string {
         return "getReplay";
     }
+
+    void to_json(nlohmann::json &j, const GetReplay&) {
+        j = nlohmann::json::object();
+    }
+
+    void from_json(const nlohmann::json&, GetReplay&) {
+
+    }
 }
