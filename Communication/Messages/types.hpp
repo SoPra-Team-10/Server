@@ -61,6 +61,9 @@ namespace communication::messages::types {
         SNITCH_SNATCH, TROLL_ROAR, ELF_TELEPORTATION,
         GOBLIN_SHOCK, BAN, BLUDGER_KNOCKOUT, MOVE
     };
+
+    auto toString(DeltaType deltaType) -> std::string;
+    auto fromStringDeltaType(const std::string &s) -> DeltaType;
 }
 
 #endif //SERVER_TYPES_HPP

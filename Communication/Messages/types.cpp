@@ -196,3 +196,56 @@ auto communication::messages::types::fromStringSex(const std::string &s) -> comm
         throw std::runtime_error{"Not a valid sex"};
     }
 }
+
+auto communication::messages::types::toString(communication::messages::types::DeltaType deltaType) -> std::string {
+    switch (deltaType) {
+        case DeltaType::SNITCH_CATCH:
+            return "snitchCatch";
+        case DeltaType::BLUDGER_BEATING:
+            return "bludgerBeating";
+        case DeltaType::QUAFFLE_THROW:
+            return "quaffleThrow";
+        case DeltaType::SNITCH_SNATCH:
+            return "snitchSnatch";
+        case DeltaType::TROLL_ROAR:
+            return "trollRoar";
+        case DeltaType::ELF_TELEPORTATION:
+            return "elfTeleportation";
+        case DeltaType::GOBLIN_SHOCK:
+            return "goblinShock";
+        case DeltaType::BAN:
+            return "ban";
+        case DeltaType::BLUDGER_KNOCKOUT:
+            return "bludgerKnockout";
+        case DeltaType::MOVE:
+            return "move";
+    }
+    throw std::runtime_error{"We shouln't really be here"};
+}
+
+auto communication::messages::types::fromStringDeltaType(const std::string &s)
+        -> communication::messages::types::DeltaType {
+    if (s == "snitchCatch") {
+        return DeltaType::SNITCH_CATCH;
+    } else if (s == "bludgerBeating") {
+        return DeltaType::BLUDGER_BEATING;
+    } else if (s == "quaffleThrow") {
+        return DeltaType::QUAFFLE_THROW;
+    } else if (s == "snitchSnatch") {
+        return DeltaType::SNITCH_SNATCH;
+    } else if (s == "trollRoar") {
+        return DeltaType::TROLL_ROAR;
+    } else if (s == "elfTeleportation") {
+        return DeltaType::ELF_TELEPORTATION;
+    } else if (s == "goblinShock") {
+        return DeltaType::GOBLIN_SHOCK;
+    } else if (s == "ban") {
+        return DeltaType::BAN;
+    } else if (s == "bludgerKnockout") {
+        return DeltaType::BLUDGER_KNOCKOUT;
+    } else if (s == "move") {
+        return DeltaType::MOVE;
+    } else {
+        throw std::runtime_error{"Not a valid deltaType"};
+    }
+}
