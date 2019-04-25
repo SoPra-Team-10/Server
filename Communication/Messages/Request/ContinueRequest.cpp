@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto ContinueRequest::getName() -> std::string {
+        return "continueRequest";
+    }
 }

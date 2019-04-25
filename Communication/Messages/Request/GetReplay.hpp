@@ -8,8 +8,15 @@
 #ifndef SERVER_GETREPLAY_HPP
 #define SERVER_GETREPLAY_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::request {
     class GetReplay {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

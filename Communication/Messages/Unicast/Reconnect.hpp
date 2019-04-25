@@ -8,8 +8,15 @@
 #ifndef SERVER_RECONNECT_HPP
 #define SERVER_RECONNECT_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::unicast {
     class Reconnect {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

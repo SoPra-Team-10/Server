@@ -8,8 +8,15 @@
 #ifndef SERVER_PAUSEREQUEST_HPP
 #define SERVER_PAUSEREQUEST_HPP
 
+#include <string>
+#include <Lib/json.hpp>
+
 namespace communication::messages::request {
     class PauseRequest {
+    public:
+
+        static auto getName() -> std::string;
+    private:
 
     };
 }

@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto GetReplay::getName() -> std::string {
+        return "getReplay";
+    }
 }

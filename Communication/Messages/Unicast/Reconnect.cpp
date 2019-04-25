@@ -9,4 +9,7 @@
 
 namespace communication::messages::unicast {
 
+    auto Reconnect::getName() -> std::string {
+        return "reconnect";
+    }
 }

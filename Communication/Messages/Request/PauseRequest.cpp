@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto PauseRequest::getName() -> std::string {
+        return "pauseRequest";
+    }
 }

@@ -1,3 +1,5 @@
+#include <utility>
+
 /**
  * @file PrivateDebug.cpp
  * @author paul
@@ -9,7 +11,7 @@
 
 namespace communication::messages::unicast {
 
-    PrivateDebug::PrivateDebug(const std::string &information) : information{information} {}
+    PrivateDebug::PrivateDebug(std::string information) : information{std::move(information)} {}
 
     auto PrivateDebug::getInformation() const -> std::string {
         return this->information;

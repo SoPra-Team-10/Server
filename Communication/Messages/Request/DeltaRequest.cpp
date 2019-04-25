@@ -9,4 +9,7 @@
 
 namespace communication::messages::request {
 
+    auto DeltaRequest::getName() -> std::string {
+        return "deltaRequest";
+    }
 }

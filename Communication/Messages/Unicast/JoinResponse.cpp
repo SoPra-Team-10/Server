@@ -6,7 +6,17 @@
  */
 
 #include "JoinResponse.hpp"
+#include <utility>
 
 namespace communication::messages::unicast {
 
+    auto JoinResponse::getName() -> std::string {
+        return "joinResponse";
+    }
+
+    JoinResponse::JoinResponse(std::string message) : message{std::move(message)} {}
+
+    auto JoinResponse::getMessage() const -> std::string {
+        return this->message;
+    }
 }

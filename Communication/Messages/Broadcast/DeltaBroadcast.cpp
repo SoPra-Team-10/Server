@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto DeltaBroadcast::getName() -> std::string {
+        return "deltaBroadcast";
+    }
 }

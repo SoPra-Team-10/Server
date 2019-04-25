@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto Snapshot::getName() -> std::string {
+        return "snapshot";
+    }
 }

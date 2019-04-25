@@ -9,4 +9,21 @@
 
 namespace communication::messages::broadcast {
 
+    GlobalDebug::GlobalDebug(std::string information) : information{std::move(information)} {}
+
+    auto GlobalDebug::getInformation() const -> std::string {
+        return this->information;
+    }
+
+    auto GlobalDebug::getName() -> std::string {
+        return "globalDebug";
+    }
+
+    void to_json(nlohmann::json &j, const GlobalDebug &globalDebug) {
+        j = nlohmann::json{{"information", globalDebug.getInformation()}};
+    }
+
+    void from_json(const nlohmann::json &j, GlobalDebug &globalDebug) {
+        globalDebug = GlobalDebug{j.at("information").get<std::string>()};
+    }
 }

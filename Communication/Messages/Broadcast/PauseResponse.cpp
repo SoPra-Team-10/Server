@@ -9,4 +9,7 @@
 
 namespace communication::messages::broadcast {
 
+    auto PauseResponse::getName() -> std::string {
+        return "pauseResponse";
+    }
 }
