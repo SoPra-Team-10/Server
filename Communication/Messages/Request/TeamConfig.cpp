@@ -145,61 +145,17 @@ namespace communication::messages::request {
 
     void to_json(nlohmann::json &j, const Player &player) {
         j["name"] = player.getName();
-        switch (player.getBroom()) {
-            case types::Broom::THINDERBLAST:
-                j["broom"] = "thinderblast";
-                break;
-            case types::Broom::CLEANSWEEP11:
-                j["broom"] = "cleansweep-11";
-                break;
-            case types::Broom::COMET260:
-                j["broom"] = "comet-260";
-                break;
-            case types::Broom::NIMBUS2001:
-                j["broom"] = "nimbus-2001";
-                break;
-            case types::Broom::FIREBOLT:
-                j["broom"] = "firebolt";
-                break;
-        }
-        switch (player.getSex()) {
-            case types::Sex::M:
-                j["sex"] = "m";
-                break;
-            case types::Sex::F:
-                j["sex"] = "f";
-                break;
-        }
+        j["broom"] = types::toString(player.getBroom());
+        j["sex"] = types::toString(player.getSex());
     }
 
     void from_json(const nlohmann::json &j, Player &player) {
-        types::Broom broom;
-        types::Sex sex;
         const auto &broomS = j.at("broom").get<std::string>();
         const auto &sexS = j.at("sex").get<std::string>();
         const auto &name = j.at("name").get<std::string>();
 
-        if (broomS == "thinderblast") {
-            broom = types::Broom::THINDERBLAST;
-        } else if (broomS == "cleansweep-11") {
-            broom = types::Broom::CLEANSWEEP11;
-        } else if (broomS == "comet-260") {
-            broom = types::Broom::COMET260;
-        } else if (broomS == "nimbus-2001") {
-            broom = types::Broom::NIMBUS2001;
-        } else if (broomS == "firebolt") {
-            broom = types::Broom::FIREBOLT;
-        } else {
-            throw std::runtime_error{"Not a valid broom"};
-        }
-
-        if (sexS == "m") {
-            sex = types::Sex::M;
-        } else if (sexS == "f") {
-            sex = types::Sex::F;
-        } else {
-            throw std::runtime_error{"Not a valid sex"};
-        }
+        types::Broom broom = types::fromStringBroom(broomS);
+        types::Sex sex = types::fromStringSex(sexS);
 
         player = Player{name, broom, sex};
     }

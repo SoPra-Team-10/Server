@@ -36,7 +36,8 @@ set(MESSAGE_TYPE_SOURCES
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Request/TeamFormation.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/JoinResponse.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/PrivateDebug.cpp
-        ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/Reconnect.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/Reconnect.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/types.cpp)
 
 set(SOURCES
         ${MESSAGE_TYPE_SOURCES}
