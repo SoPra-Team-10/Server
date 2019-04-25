@@ -249,3 +249,65 @@ auto communication::messages::types::fromStringDeltaType(const std::string &s)
         throw std::runtime_error{"Not a valid deltaType"};
     }
 }
+
+auto communication::messages::types::toString(communication::messages::types::FanType fanType) -> std::string {
+    switch (fanType) {
+        case FanType::GOBLIN:
+            return "goblin";
+        case FanType::TROLL:
+            return "troll";
+        case FanType::ELF:
+            return "elf";
+        case FanType::NIFFLER:
+            return "niffler";
+    }
+    throw std::runtime_error{"We shouln't really be here"};
+}
+
+auto communication::messages::types::fromStringFanType(const std::string &s)
+        -> communication::messages::types::FanType {
+    if (s == "goblin") {
+        return FanType::GOBLIN;
+    } else if (s == "troll") {
+        return FanType::TROLL;
+    } else if (s == "elf") {
+        return FanType::ELF;
+    } else if (s == "niffler") {
+        return FanType::NIFFLER;
+    } else {
+        throw std::runtime_error{"Not a valid FanType"};
+    }
+}
+
+auto communication::messages::types::toString(communication::messages::types::PhaseType phaseType) -> std::string {
+    switch (phaseType) {
+        case PhaseType::BALL_PHASE:
+            return "ballPhase";
+        case PhaseType::PLAYER_PHASE:
+            return "playerPhase";
+        case PhaseType::ACTION_PHASE:
+            return "actionPhase";
+        case PhaseType::FAN_PHASE:
+            return "fanPhase";
+        case PhaseType::GAME_FINISH:
+            return "gameFinish";
+    }
+    throw std::runtime_error{"We shouln't really be here"};
+}
+
+auto communication::messages::types::fromStringPhaseType(const std::string &s)
+        -> communication::messages::types::PhaseType {
+    if (s == "ballPhase") {
+        return PhaseType::BALL_PHASE;
+    } else if (s == "playerPhase") {
+        return PhaseType::PLAYER_PHASE;
+    } else if (s == "actionPhase") {
+        return PhaseType::ACTION_PHASE;
+    } else if (s == "fanPhase") {
+        return PhaseType::FAN_PHASE;
+    } else if (s == "gameFinish") {
+        return PhaseType::GAME_FINISH;
+    } else {
+        throw std::runtime_error{"Not a valid PhaseType"};
+    }
+}

@@ -10,15 +10,26 @@
 
 #include <string>
 #include <Lib/json.hpp>
+#include <Communication/Messages/Broadcast/MatchStart.hpp>
+#include <Communication/Messages/Broadcast/Snapshot.hpp>
 
 namespace communication::messages::unicast {
     class Reconnect {
     public:
+        Reconnect(broadcast::MatchStart matchStart, broadcast::Snapshot snapshot);
+
+        broadcast::MatchStart getMatchStart() const;
+
+        broadcast::Snapshot getSnapshot() const;
 
         static auto getName() -> std::string;
     private:
-
+        broadcast::MatchStart matchStart;
+        broadcast::Snapshot snapshot;
     };
+
+    void to_json(nlohmann::json &j, const Reconnect &reconnect);
+    void from_json(const nlohmann::json &j, Reconnect &reconnect);
 }
 
 #endif //SERVER_RECONNECT_HPP

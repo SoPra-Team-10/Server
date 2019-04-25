@@ -16,6 +16,7 @@
 namespace communication::messages::broadcast {
     class MatchStart {
     public:
+        MatchStart() = default;
         MatchStart(const MatchConfig &matchConfig, request::TeamConfig leftTeamConfig,
                    request::TeamConfig rightTeamConfig, std::string leftTeamUserName,
                    std::string rightTeamUserName);

@@ -42,6 +42,9 @@ namespace communication::messages::types {
         GOBLIN, TROLL, ELF, NIFFLER
     };
 
+    auto toString(FanType fanType) -> std::string;
+    auto fromStringFanType(const std::string &s) -> FanType ;
+
     enum class Broom {
         THINDERBLAST, CLEANSWEEP11, COMET260, NIMBUS2001, FIREBOLT
     };
@@ -64,6 +67,13 @@ namespace communication::messages::types {
 
     auto toString(DeltaType deltaType) -> std::string;
     auto fromStringDeltaType(const std::string &s) -> DeltaType;
+
+    enum class PhaseType {
+        BALL_PHASE, PLAYER_PHASE, ACTION_PHASE, FAN_PHASE, GAME_FINISH
+    };
+
+    auto toString(PhaseType phaseType) -> std::string;
+    auto fromStringPhaseType(const std::string &s) -> PhaseType;
 }
 
 #endif //SERVER_TYPES_HPP
