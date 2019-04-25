@@ -19,4 +19,14 @@ namespace communication::messages::broadcast {
     auto LoginGreeting::getName() -> std::string {
         return "loginGreeting";
     }
+
+    void to_json(nlohmann::json &j, const LoginGreeting &loginGreeting) {
+        j["userName"] = loginGreeting.getUserName();
+    }
+
+    void from_json(const nlohmann::json &j, LoginGreeting &loginGreeting) {
+        loginGreeting = LoginGreeting{
+            j.at("userName").get<std::string>()
+        };
+    }
 }

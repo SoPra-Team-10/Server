@@ -22,6 +22,9 @@ namespace communication::messages::broadcast {
     private:
         std::string userName;
     };
+
+    void to_json(nlohmann::json &j, const LoginGreeting &loginGreeting);
+    void from_json(const nlohmann::json &j, LoginGreeting &loginGreeting);
 }
 
 #endif //SERVER_LOGINGREETING_HPP
