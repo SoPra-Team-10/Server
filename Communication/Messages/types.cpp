@@ -63,6 +63,7 @@ auto communication::messages::types::toString(communication::messages::types::En
         case types::EntityId::RIGHT_NIFFLER:
             return "rightNiffler";
     }
+    throw std::runtime_error{"We shouln't really be here"};
 }
 
 auto communication::messages::types::fromStringEntityId(const std::string &s) -> communication::messages::types::EntityId {
@@ -130,10 +131,11 @@ auto communication::messages::types::toString(communication::messages::types::Tu
         case types::TurnType::ACTION:
             return "action";
     }
+    throw std::runtime_error{"We shouln't really be here"};
 }
 
-auto
-communication::messages::types::fromStringTurnType(const std::string &s) -> communication::messages::types::TurnType {
+auto communication::messages::types::fromStringTurnType(const std::string &s)
+        -> communication::messages::types::TurnType {
     if(s == "move") {
         return types::TurnType::MOVE;
     } else if (s == "action") {
@@ -156,6 +158,7 @@ auto communication::messages::types::toString(communication::messages::types::Br
         case types::Broom::FIREBOLT:
             return "firebolt";
     }
+    throw std::runtime_error{"We shouln't really be here"};
 }
 
 auto communication::messages::types::fromStringBroom(const std::string &s) -> communication::messages::types::Broom {
@@ -181,6 +184,7 @@ auto communication::messages::types::toString(communication::messages::types::Se
         case types::Sex::F:
             return "f";
     }
+    throw std::runtime_error{"We shouln't really be here"};
 }
 
 auto communication::messages::types::fromStringSex(const std::string &s) -> communication::messages::types::Sex {
