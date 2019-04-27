@@ -8,6 +8,12 @@
 #include <sstream>
 
 namespace communication::messages {
+    Message::Message() :
+            timestamp{std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch())},
+                    payload{broadcast::DeltaBroadcast{}}
+    {}
+
     Message::Message(Payload payload) :
         timestamp{std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch())},
@@ -38,6 +44,8 @@ namespace communication::messages {
     }
 
     void from_json(const nlohmann::json &j, Message &message) {
-
+        message = Message{
+            j["payload"]
+        };
     }
 }

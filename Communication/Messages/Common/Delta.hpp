@@ -16,6 +16,7 @@
 namespace communication::messages {
     class Delta {
     public:
+        Delta() = default;
         Delta(types::DeltaType deltaType, std::optional<bool> success, std::optional<int> xPosOld,
               std::optional<int> yPosOld, std::optional<int> xPosNew, std::optional<int> yPosNew,
               std::optional<types::EntityId> activeEntity, std::optional<types::EntityId> passiveEntity);

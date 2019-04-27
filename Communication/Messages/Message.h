@@ -16,7 +16,6 @@
 #include <Communication/Messages/Broadcast/MatchStart.hpp>
 #include <Communication/Messages/Broadcast/Next.hpp>
 #include <Communication/Messages/Broadcast/PauseResponse.hpp>
-#include <Communication/Messages/Broadcast/Replay.hpp>
 #include <Communication/Messages/Broadcast/Snapshot.hpp>
 #include <Communication/Messages/Request/ContinueRequest.hpp>
 #include <Communication/Messages/Request/DeltaRequest.hpp>
@@ -40,7 +39,6 @@ namespace communication::messages {
             broadcast::MatchStart,
             broadcast::Next,
             broadcast::PauseResponse,
-            broadcast::Replay,
             broadcast::Snapshot,
             request::ContinueRequest,
             request::DeltaRequest,
@@ -56,6 +54,7 @@ namespace communication::messages {
 
     class Message {
     public:
+        Message();
         explicit Message(Payload payload);
         auto getPayload() const -> Payload;
         auto getPayloadType() const -> std::string;
