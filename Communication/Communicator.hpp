@@ -22,11 +22,17 @@ namespace communication {
     public:
         explicit Communicator(uint16_t port);
 
-        void send(const messages::Message &message);
-
+        void sendAll(const messages::Message &message);
+        void send(const messages::Message &message, int client);
+        const util::Listener<messages::Message,int> onReceive;
     private:
+        void connectionListener(std::shared_ptr<network::Connection> connection);
+        void receiveListener(int client, std::string string);
+        void closeListener(std::shared_ptr<network::Connection> connection);
+        int connectionCount;
+
         network::WebSocketServer webSocketServer;
-        std::set<std::shared_ptr<network::Connection>> activeConnections;
+        std::map<int, std::shared_ptr<network::Connection>> activeConnections;
     };
 }
 
