@@ -58,7 +58,7 @@ namespace communication::messages {
         explicit Message(Payload payload);
         auto getPayload() const -> Payload;
         auto getPayloadType() const -> std::string;
-        auto getTimeStamp() const -> std::chrono::milliseconds;
+        auto getTimeStamp() const -> std::string;
     private:
         std::chrono::milliseconds timestamp;
         std::tm time;

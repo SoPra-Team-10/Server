@@ -10,7 +10,10 @@
 namespace communication {
 
     Communicator::Communicator(uint16_t port) :
-        webSocketServer{port, "test"} {
+        webSocketServer{port, "test"} {}
 
+    void Communicator::send(const messages::Message &message) {
+        nlohmann::json json = message;
+        webSocketServer.broadcast(json.dump(4));
     }
 }
