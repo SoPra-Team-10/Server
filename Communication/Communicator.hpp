@@ -13,6 +13,7 @@
 #include <iomanip>
 
 #include <SopraNetwork/WebSocketServer.hpp>
+#include <Communication/Messages/Message.h>
 
 #include "../Lib/json.hpp"
 
@@ -20,6 +21,8 @@ namespace communication {
     class Communicator {
     public:
         explicit Communicator(uint16_t port);
+
+        void send(const messages::Message &message);
 
         template <typename T>
         void sendAll(T&& t);

@@ -16,6 +16,7 @@ endif ()
 project(Server VERSION 0.0.1 DESCRIPTION "Server for SoPra")
 
 set(MESSAGE_TYPE_SOURCES
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Message.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/DeltaBroadcast.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/GlobalDebug.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Broadcast/LoginGreeting.cpp
