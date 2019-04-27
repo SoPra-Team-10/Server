@@ -14,7 +14,8 @@
 namespace communication::messages::request {
     class ContinueRequest {
     public:
-        ContinueRequest(std::string message);
+        ContinueRequest() = default;
+        explicit ContinueRequest(std::string message);
 
         std::string getMessage() const;
 

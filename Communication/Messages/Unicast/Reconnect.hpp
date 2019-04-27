@@ -16,6 +16,7 @@
 namespace communication::messages::unicast {
     class Reconnect {
     public:
+        Reconnect() = default;
         Reconnect(broadcast::MatchStart matchStart, broadcast::Snapshot snapshot);
 
         broadcast::MatchStart getMatchStart() const;

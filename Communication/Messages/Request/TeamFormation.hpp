@@ -14,6 +14,7 @@
 namespace communication::messages::request {
     class TeamFormation {
     public:
+        TeamFormation() = default;
         TeamFormation(int seekerX, int seekerY, int keeperX, int keeperY, int chaser1X, int chaser1Y, int chaser2X,
                       int chaser2Y, int chaser3X, int chaser3Y, int beater1X, int beater1Y, int beater2X, int beater2Y);
 

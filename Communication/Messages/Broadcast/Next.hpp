@@ -16,6 +16,7 @@
 namespace communication::messages::broadcast {
     class Next {
     public:
+        Next() = default;
         Next(types::EntityId entityId, types::TurnType turnType, std::string timout);
 
         types::EntityId getEntityId() const;

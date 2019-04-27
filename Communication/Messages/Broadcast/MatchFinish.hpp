@@ -16,7 +16,7 @@
 namespace communication::messages::broadcast {
     class MatchFinish {
     public:
-
+        MatchFinish() = default;
         MatchFinish(int endRound, int leftPoints, int rightPoints, std::string winnerUserName,
                     types::VictoryReason victoryReason);
 

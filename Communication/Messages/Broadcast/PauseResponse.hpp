@@ -14,6 +14,7 @@
 namespace communication::messages::broadcast {
     class PauseResponse {
     public:
+        PauseResponse() = default;
         PauseResponse(std::string message, std::string userName, bool pause);
 
         std::string getMessage() const;

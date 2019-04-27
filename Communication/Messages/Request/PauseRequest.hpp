@@ -14,7 +14,8 @@
 namespace communication::messages::request {
     class PauseRequest {
     public:
-        PauseRequest(std::string message);
+        PauseRequest() = default;
+        explicit PauseRequest(std::string message);
 
         std::string getMessage() const;
 

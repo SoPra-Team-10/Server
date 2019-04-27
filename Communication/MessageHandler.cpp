@@ -11,7 +11,7 @@ namespace communication {
 
     MessageHandler::MessageHandler(uint16_t port) :
         connectionCount{0},
-        webSocketServer{port, "test"} {
+        webSocketServer{port, "http-only"} {
         webSocketServer.connectionListener(
                 std::bind(&MessageHandler::connectionListener, this, std::placeholders::_1));
         webSocketServer.closeListener(
@@ -35,7 +35,7 @@ namespace communication {
     }
 
     void MessageHandler::receiveListener(int client, std::string string) {
-        nlohmann::json json = string;
+        nlohmann::json json = nlohmann::json::parse(string);
         auto message = json.get<messages::Message>();
         onReceive(message, client);
     }
