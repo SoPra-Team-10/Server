@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include <SopraNetwork/WebSocketServer.hpp>
-#include <Communication/Communicator.hpp>
+#include <Communication/MessageHandler.hpp>
 #include <Communication/Messages/Unicast/PrivateDebug.hpp>
 
 int main() {
-    communication::Communicator communicator{8080};
+    communication::MessageHandler communicator{8080};
 }

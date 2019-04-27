@@ -5,8 +5,8 @@
  * @brief Communicator @TODO
  */
 
-#ifndef SERVER_COMMUNICATOR_HPP
-#define SERVER_COMMUNICATOR_HPP
+#ifndef SERVER_MESSAGEHANDLER_HPP
+#define SERVER_MESSAGEHANDLER_HPP
 
 #include <set>
 #include <sstream>
@@ -18,9 +18,9 @@
 #include "../Lib/json.hpp"
 
 namespace communication {
-    class Communicator {
+    class MessageHandler {
     public:
-        explicit Communicator(uint16_t port);
+        explicit MessageHandler(uint16_t port);
 
         void sendAll(const messages::Message &message);
         void send(const messages::Message &message, int client);
@@ -37,4 +37,4 @@ namespace communication {
 }
 
 
-#endif //SERVER_COMMUNICATOR_HPP
+#endif //SERVER_MESSAGEHANDLER_HPP
