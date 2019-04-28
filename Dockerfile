@@ -13,16 +13,24 @@ RUN cmake CMakeLists.txt && make -j$(nproc)
 RUN cp *.a /usr/lib
 
 # Compile libwebsockets
+WORKDIR /
 RUN git clone https://github.com/warmcat/libwebsockets.git
-WORKDIR libwebsockets
+WORKDIR /libwebsockets
 RUN cmake . && make -j$(nproc) && make install
 
 RUN ldconfig
 
 # Compile Network
+WORKDIR /
 RUN git clone https://github.com/SoPra-Team-10/Network.git
-WORKDIR Network
+WORKDIR /Network
 RUN cmake . && make -j$(nproc) SopraNetwork && make install
+
+# Compile GameLogic
+#WORKDIR /
+#RUN git clone https://github.com/SoPra-Team-10/GameLogic.git
+#WORKDIR /GameLogic
+#RUN cmake . && make -j$(nproc) SopraGameLogic && make install
 
 RUN ldconfig
 
