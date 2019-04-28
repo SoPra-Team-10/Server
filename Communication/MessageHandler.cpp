@@ -35,9 +35,13 @@ namespace communication {
     }
 
     void MessageHandler::receiveListener(int client, std::string string) {
-        nlohmann::json json = nlohmann::json::parse(string);
-        auto message = json.get<messages::Message>();
-        onReceive(message, client);
+        try {
+            nlohmann::json json = nlohmann::json::parse(string);
+            auto message = json.get<messages::Message>();
+            onReceive(message, client);
+        } catch (nlohmann::json::exception &e) {
+            //@TODO error message
+        }
     }
 
     void MessageHandler::closeListener(std::shared_ptr<network::Connection> connection) {
