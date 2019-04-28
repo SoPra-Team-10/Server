@@ -45,7 +45,16 @@ set(SOURCES
         ${MESSAGE_TYPE_SOURCES}
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp)
 
-set(LIBS SopraNetwork pthread)
+if (USE_LOCAL_NETWORK)
+    include_directories(../Network/)
+    include_directories(../Network/Server)
+    set(SOURCES ${SOURCES}
+            ${CMAKE_SOURCE_DIR}/../Network/Server/Connection.cpp
+            ${CMAKE_SOURCE_DIR}/../Network/Server/WebSocketServer.cpp)
+    set(LIBS pthread websockets)
+else()
+    set(LIBS SopraNetwork pthread)
+endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
