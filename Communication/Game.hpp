@@ -21,17 +21,15 @@ namespace communication {
 
     class Game {
     public:
-        Game(std::string lobbyName, Client client);
+        explicit Game(Client client);
         void addSpectator(Client client);
 
         void onMessage(const messages::Message &message, int id);
 
-        auto getLobbyName() const -> std::string;
-
-        auto getLeftId() const -> int;
-        auto getRightId() const -> int;
     private:
-        std::string lobbyName;
+        template <typename T>
+        void onPayload(const T &, int id);
+
         std::vector<Client> spectators;
         std::pair<Client, std::optional<Client>> players;
     };

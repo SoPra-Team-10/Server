@@ -9,32 +9,28 @@
 
 namespace communication {
 
-    Game::Game(std::string lobbyName, Client client) : lobbyName{std::move(lobbyName)} {
+    Game::Game(Client client) {
         this->spectators.emplace_back(std::move(client));
-    }
-
-
-    auto Game::getLobbyName() const -> std::string {
-        return this->lobbyName;
-    }
-
-    auto Game::getLeftId() const -> int {
-        return players.first.clientId;
-    }
-
-    auto Game::getRightId() const -> int {
-        if (players.second.has_value()) {
-            return players.second.value().clientId;
-        } else {
-            return -1;
-        }
     }
 
     void Game::addSpectator(Client client) {
         this->spectators.emplace_back(std::move(client));
     }
 
-    void Game::onMessage(const messages::Message &message) {
+    template<>
+    void Game::onPayload<messages::request::SendDebug>(const messages::request::SendDebug &, int) {
 
     }
+
+    template<typename T>
+    void Game::onPayload(const T &, int) {
+        //@TODO we shouldn't be here
+    }
+
+    void Game::onMessage(const messages::Message &message, int id) {
+        std::visit([id, this](const auto &payload){
+            this->onPayload(payload, id);
+        }, message.getPayload());
+    }
+
 }

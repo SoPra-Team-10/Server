@@ -33,7 +33,7 @@ namespace communication {
             if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                 lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient);
             } else {
-                auto game = std::make_shared<Game>(joinRequest.getLobby(), newClient);
+                auto game = std::make_shared<Game>(newClient);
                 lobbyMapping.emplace(joinRequest.getLobby(), game);
                 clientMapping.emplace(client, game);
             }
