@@ -22,7 +22,8 @@ namespace communication {
         void receive(messages::Message message, int client);
 
         MessageHandler messageHandler;
-        std::list<Game> activeGames;
+        std::map<int, std::shared_ptr<Game>> clientMapping;
+        std::map<std::string, std::shared_ptr<Game>> lobbyMapping;
     };
 }
 

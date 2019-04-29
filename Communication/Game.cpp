@@ -10,32 +10,31 @@
 namespace communication {
 
     Game::Game(std::string lobbyName, Client client) : lobbyName{std::move(lobbyName)} {
-        clients.first = std::move(client);
+        this->spectators.emplace_back(std::move(client));
     }
 
-    void Game::addSecond(Client ) {
-        if (clients.second.has_value()) {
-            throw std::runtime_error{"Already two clients in the lobby!"};
-        }
-    }
-
-    void Game::onMessageLeft(const messages::Message &) {
-
-    }
-
-    void Game::onMessageRight(const messages::Message &) {
-
-    }
 
     auto Game::getLobbyName() const -> std::string {
         return this->lobbyName;
     }
 
     auto Game::getLeftId() const -> int {
-        return 0;
+        return players.first.clientId;
     }
 
     auto Game::getRightId() const -> int {
-        return 0;
+        if (players.second.has_value()) {
+            return players.second.value().clientId;
+        } else {
+            return -1;
+        }
+    }
+
+    void Game::addSpectator(Client client) {
+        this->spectators.emplace_back(std::move(client));
+    }
+
+    void Game::onMessage(const messages::Message &message) {
+
     }
 }

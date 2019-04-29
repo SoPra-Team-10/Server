@@ -22,10 +22,9 @@ namespace communication {
     class Game {
     public:
         Game(std::string lobbyName, Client client);
-        void addSecond(Client client);
+        void addSpectator(Client client);
 
-        void onMessageLeft(const messages::Message &message);
-        void onMessageRight(const messages::Message &message);
+        void onMessage(const messages::Message &message, int id);
 
         auto getLobbyName() const -> std::string;
 
@@ -33,7 +32,8 @@ namespace communication {
         auto getRightId() const -> int;
     private:
         std::string lobbyName;
-        std::pair<Client, std::optional<Client>> clients;
+        std::vector<Client> spectators;
+        std::pair<Client, std::optional<Client>> players;
     };
 }
 #endif //SERVER_GAME_HPP
