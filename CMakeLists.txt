@@ -43,7 +43,11 @@ set(MESSAGE_TYPE_SOURCES
 
 set(SOURCES
         ${MESSAGE_TYPE_SOURCES}
-        ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Game.cpp)
+set(LIBS pthread)
+
 
 if (USE_LOCAL_NETWORK)
     include_directories(../Network/)
@@ -51,9 +55,9 @@ if (USE_LOCAL_NETWORK)
     set(SOURCES ${SOURCES}
             ${CMAKE_SOURCE_DIR}/../Network/Server/Connection.cpp
             ${CMAKE_SOURCE_DIR}/../Network/Server/WebSocketServer.cpp)
-    set(LIBS pthread websockets)
+    set(LIBS ${LIBS} websockets)
 else()
-    set(LIBS SopraNetwork pthread)
+    set(LIBS ${LIBS} SopraNetwork)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
