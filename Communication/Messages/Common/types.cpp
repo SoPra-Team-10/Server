@@ -19,7 +19,7 @@ auto communication::messages::types::toString(communication::messages::types::En
         case types::EntityId::LEFT_CHASER2:
             return "leftChaser2";
         case types::EntityId::LEFT_CHASER3:
-            return "leftChase3";
+            return "leftChaser3";
         case types::EntityId::LEFT_BEATER1:
             return "leftBeater1";
         case types::EntityId::LEFT_BEATER2:
@@ -33,7 +33,7 @@ auto communication::messages::types::toString(communication::messages::types::En
         case types::EntityId::RIGHT_CHASER2:
             return "rightChaser2";
         case types::EntityId::RIGHT_CHASER3:
-            return "rightChase3";
+            return "rightChaser3";
         case types::EntityId::RIGHT_BEATER1:
             return "rightBeater1";
         case types::EntityId::RIGHT_BEATER2:
@@ -75,8 +75,8 @@ auto communication::messages::types::fromStringEntityId(const std::string &s) ->
         return types::EntityId::LEFT_CHASER1;
     } else if (s == "leftChaser2") {
         return types::EntityId::LEFT_CHASER2;
-    } else if (s == "leftChaser2") {
-        return types::EntityId::LEFT_CHASER2;
+    } else if (s == "leftChaser3") {
+        return types::EntityId::LEFT_CHASER3;
     } else if (s == "leftBeater1") {
         return types::EntityId::LEFT_BEATER1;
     } else if (s == "leftBeater2") {
@@ -89,8 +89,8 @@ auto communication::messages::types::fromStringEntityId(const std::string &s) ->
         return types::EntityId::RIGHT_CHASER1;
     } else if (s == "rightChaser2") {
         return types::EntityId::RIGHT_CHASER2;
-    } else if (s == "rightChaser2") {
-        return types::EntityId::RIGHT_CHASER2;
+    } else if (s == "rightChaser3") {
+        return types::EntityId::RIGHT_CHASER3;
     } else if (s == "rightBeater1") {
         return types::EntityId::RIGHT_BEATER1;
     } else if (s == "rightBeater2") {
@@ -101,7 +101,7 @@ auto communication::messages::types::fromStringEntityId(const std::string &s) ->
         return types::EntityId::BLUDGER1;
     } else if (s == "bludger2") {
         return types::EntityId::BLUDGER2;
-    } else if (s == "quaffel") {
+    } else if (s == "quaffle") {
         return types::EntityId::QUAFFLE;
     } else if (s == "leftGoblin") {
         return types::EntityId::LEFT_GOBLIN;
