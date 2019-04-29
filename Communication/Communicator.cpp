@@ -29,11 +29,11 @@ namespace communication {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
             Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
-                             joinRequest.getIsAi(), joinRequest.getMods(), client};
+                             joinRequest.getIsAi(), joinRequest.getMods()};
             if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
-                lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient);
+                lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
             } else {
-                auto game = std::make_shared<Game>(newClient);
+                auto game = std::make_shared<Game>(*this, newClient, client);
                 lobbyMapping.emplace(joinRequest.getLobby(), game);
                 clientMapping.emplace(client, game);
             }
@@ -45,5 +45,9 @@ namespace communication {
                 // @TODO kick them
             }
         }
+    }
+
+    void Communicator::send(const messages::Message &message, int id) {
+        this->messageHandler.send(message, id);
     }
 }

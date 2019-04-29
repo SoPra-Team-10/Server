@@ -18,6 +18,7 @@ namespace communication {
     public:
         explicit Communicator(uint16_t port);
 
+        void send(const messages::Message &message, int id);
     private:
         void receive(messages::Message message, int client);
 
