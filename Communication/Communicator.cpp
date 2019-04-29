@@ -14,18 +14,6 @@ namespace communication {
     }
 
     void Communicator::receive(messages::Message message, int client) {
-        if (!std::holds_alternative<messages::request::JoinRequest>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::SendDebug>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::TeamConfig>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::TeamFormation>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::PauseRequest>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::ContinueRequest>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::DeltaRequest>(message.getPayload()) &&
-            !std::holds_alternative<messages::request::GetReplay>(message.getPayload())) {
-            //@TODO invalid message
-            return;
-        }
-
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
             Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
@@ -40,10 +28,8 @@ namespace communication {
         } else {
             if (clientMapping.find(client) != clientMapping.end()) {
                 clientMapping.at(client)->onMessage(message, client);
-            } else {
-                // Got a message from an unregistered user
-                // @TODO kick them
             }
+            // If the user is not registered we simply ignore the message as there is no match to finish
         }
     }
 

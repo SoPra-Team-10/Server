@@ -26,16 +26,18 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
+
+        void kickUser(int id);
     private:
-        Communicator &communicator;
-
-        template <typename T>
-        void onPayload(const T &, int id);
-
         void sendLeft(const messages::Payload &payload);
         void sendRight(const messages::Payload  &payload);
         void sendAll(const messages::Payload  &payload);
         void sendSingle(const messages::Payload &payload, int id);
+
+        template <typename T>
+        void onPayload(const T &, int id);
+
+        Communicator &communicator;
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;

@@ -31,7 +31,7 @@ namespace communication {
             players.second = id;
             //@TODO match start
         } else {
-            //@TODO only two players, match end
+            this->kickUser(id);
         }
     }
 
@@ -49,7 +49,7 @@ namespace communication {
             //@TODO create a new GameControllerInstance
             //@TODO send snapshot
         } else {
-            //@TODO some spectator sent a TeamFormation
+            this->kickUser(id);
         }
     }
 
@@ -73,8 +73,9 @@ namespace communication {
     }
 
     template<typename T>
-    void Game::onPayload(const T &, int) {
-        //@TODO we shouldn't be here
+    void Game::onPayload(const T &, int client) {
+        // We really shouldn't be here
+        this->kickUser(client);
     }
 
     void Game::onMessage(const messages::Message &message, int id) {
@@ -102,6 +103,28 @@ namespace communication {
     void Game::sendLeft(const messages::Payload &payload) {
         if (players.first.has_value()) {
             this->sendSingle(payload, players.first.value());
+        }
+    }
+
+    void Game::kickUser(int id) {
+        if (id == players.first || id == players.second) {
+            std::string winner;
+            if (id == players.first) {
+                if (players.second.has_value()) {
+                    winner = clients.at(players.second.value()).userName;
+                }
+            } else {
+                if (players.first.has_value()) {
+                    winner = clients.at(players.first.value()).userName;
+                }
+            }
+            // @TODO fill endRound, leftPoints, rightPoints
+            messages::broadcast::MatchFinish matchFinish{0,0,0,winner,
+                                                         messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
+        } else {
+            // Kick a spectator by sending a MatchFinish message without a winner
+            messages::broadcast::MatchFinish matchFinish{0,0,0,"",
+                                                         messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
         }
     }
 
