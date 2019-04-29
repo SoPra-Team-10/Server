@@ -21,8 +21,11 @@ namespace communication::messages {
     Message::Message(Payload payload) :
         timestamp{std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch())},
-        time{},
-        payload{std::move(payload)} {}
+            time{},
+            payload{std::move(payload)} {
+        auto globTime = std::time(nullptr);
+        this->time = *std::localtime(&globTime);
+    }
 
     auto Message::getPayload() const -> Payload {
         return this->payload;

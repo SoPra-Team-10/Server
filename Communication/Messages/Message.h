@@ -61,7 +61,7 @@ namespace communication::messages {
         auto getTimeStamp() const -> std::string;
     private:
         std::chrono::milliseconds timestamp;
-        std::tm time;
+        std::tm time{};
         Payload payload;
     };
 
