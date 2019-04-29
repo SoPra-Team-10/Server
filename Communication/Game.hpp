@@ -32,10 +32,10 @@ namespace communication {
         template <typename T>
         void onPayload(const T &, int id);
 
-        void sendLeft(const messages::Message &message);
-        void sendRight(const messages::Message &message);
-        void sendAll(const messages::Message &message);
-        void sendSingle(const messages::Message &message, int id);
+        void sendLeft(const messages::Payload &payload);
+        void sendRight(const messages::Payload  &payload);
+        void sendAll(const messages::Payload  &payload);
+        void sendSingle(const messages::Payload &payload, int id);
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;

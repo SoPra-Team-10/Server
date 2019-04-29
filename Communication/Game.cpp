@@ -36,6 +36,11 @@ namespace communication {
     }
 
     template<>
+    void Game::onPayload(const messages::request::GetReplay&, int ) {
+        // @TODO send replay if game is finished
+    }
+
+    template<>
     void Game::onPayload(const messages::request::TeamFormation&, int id) {
         if (players.first == id) {
             //@TODO create a new GameControllerInstance
@@ -52,16 +57,19 @@ namespace communication {
     void Game::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
         messages::broadcast::PauseResponse pauseResponse{
             pauseRequest.getMessage(), this->clients.at(id).userName, true};
-        messages::Message message{pauseResponse};
-        this->sendAll(message);
+        this->sendAll(pauseResponse);
     }
 
     template<>
     void Game::onPayload(const messages::request::ContinueRequest &continueRequest, int id) {
         messages::broadcast::PauseResponse pauseResponse{
                 continueRequest.getMessage(), this->clients.at(id).userName, false};
-        messages::Message message{pauseResponse};
-        this->sendAll(message);
+        this->sendAll(pauseResponse);
+    }
+
+    template<>
+    void Game::onPayload(const messages::request::DeltaRequest &, int) {
+        // @TODO wait for GameController
     }
 
     template<typename T>
@@ -75,25 +83,25 @@ namespace communication {
         }, message.getPayload());
     }
 
-    void Game::sendRight(const messages::Message &message) {
+    void Game::sendRight(const messages::Payload &payload) {
         if (players.second.has_value()) {
-            this->sendSingle(message, players.second.value());
+            this->sendSingle(payload, players.second.value());
         }
     }
 
-    void Game::sendAll(const messages::Message &message) {
+    void Game::sendAll(const messages::Payload &payload) {
         for (const auto &c : this->clients) {
-            this->sendSingle(message, c.first);
+            this->sendSingle(payload, c.first);
         }
     }
 
-    void Game::sendSingle(const messages::Message &message, int id) {
-        this->communicator.send(message, id);
+    void Game::sendSingle(const messages::Payload &payload, int id) {
+        this->communicator.send(messages::Message{payload}, id);
     }
 
-    void Game::sendLeft(const messages::Message &message) {
+    void Game::sendLeft(const messages::Payload &payload) {
         if (players.first.has_value()) {
-            this->sendSingle(message, players.first.value());
+            this->sendSingle(payload, players.first.value());
         }
     }
 
