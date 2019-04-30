@@ -19,6 +19,14 @@ namespace communication::messages::broadcast {
         return "globalDebug";
     }
 
+    bool GlobalDebug::operator==(const GlobalDebug &rhs) const {
+        return information == rhs.information;
+    }
+
+    bool GlobalDebug::operator!=(const GlobalDebug &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const GlobalDebug &globalDebug) {
         j = nlohmann::json{{"information", globalDebug.getInformation()}};
     }

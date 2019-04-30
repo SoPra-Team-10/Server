@@ -8,7 +8,8 @@ if (GTest_FOUND)
     set(TEST_SOURCES
             Communication/Messages/Common/types.cpp
             Communication/Messages/Common/Delta.cpp
-            Communication/Messages/Broadcast/DeltaBroadcast.cpp)
+            Communication/Messages/Broadcast/DeltaBroadcast.cpp
+            Communication/Messages/Broadcast/GlobalDebug.cpp)
 
     add_executable(${PROJECT_NAME} main.cpp ${SOURCES} ${TEST_SOURCES})
     target_link_libraries(${PROJECT_NAME} ${LIBS} gmock gtest pthread)

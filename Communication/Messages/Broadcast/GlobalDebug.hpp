@@ -20,6 +20,10 @@ namespace communication::messages::broadcast {
 
         static auto getName() -> std::string;
 
+        bool operator==(const GlobalDebug &rhs) const;
+
+        bool operator!=(const GlobalDebug &rhs) const;
+
     private:
         std::string information;
     };
