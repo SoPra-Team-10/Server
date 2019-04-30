@@ -20,6 +20,14 @@ namespace communication::messages::broadcast {
         return "loginGreeting";
     }
 
+    bool LoginGreeting::operator==(const LoginGreeting &rhs) const {
+        return userName == rhs.userName;
+    }
+
+    bool LoginGreeting::operator!=(const LoginGreeting &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const LoginGreeting &loginGreeting) {
         j["userName"] = loginGreeting.getUserName();
     }

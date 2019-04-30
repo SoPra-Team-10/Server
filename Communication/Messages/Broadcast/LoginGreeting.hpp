@@ -19,6 +19,11 @@ namespace communication::messages::broadcast {
         auto getUserName() const -> std::string;
 
         static auto getName() -> std::string;
+
+        bool operator==(const LoginGreeting &rhs) const;
+
+        bool operator!=(const LoginGreeting &rhs) const;
+
     private:
         std::string userName;
     };
