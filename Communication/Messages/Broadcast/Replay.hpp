@@ -50,7 +50,7 @@ namespace communication::messages::broadcast {
 
     private:
         std::string lobby;
-        MatchConfig matchConfig;
+        MatchConfig matchConfig{};
         request::TeamConfig leftTeamConfig, rightTeamConfig;
         std::string leftTeamUserName, rightTeamUserName;
         std::vector<std::string> spectatrUserNames;
