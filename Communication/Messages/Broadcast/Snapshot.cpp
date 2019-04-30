@@ -86,6 +86,26 @@ namespace communication::messages::broadcast {
         return bludger2Y;
     }
 
+    bool Snapshot::operator==(const Snapshot &rhs) const {
+        return phase == rhs.phase &&
+               spectatorUserName == rhs.spectatorUserName &&
+               round == rhs.round &&
+               leftTeam == rhs.leftTeam &&
+               rightTeam == rhs.rightTeam &&
+               snitchX == rhs.snitchX &&
+               snitchY == rhs.snitchY &&
+               quaffleX == rhs.quaffleX &&
+               quaffleY == rhs.quaffleY &&
+               bludger1X == rhs.bludger1X &&
+               bludger1Y == rhs.bludger1Y &&
+               bludger2X == rhs.bludger2X &&
+               bludger2Y == rhs.bludger2Y;
+    }
+
+    bool Snapshot::operator!=(const Snapshot &rhs) const {
+        return !(rhs == *this);
+    }
+
     TeamSnapshot::TeamSnapshot(int points, std::vector<std::pair<types::FanType, bool>> fans, int seekerX,
                              int seekerY, bool seekerBanned, bool seekerTurnUsed, int keeperX, int keeperY,
                              bool keeperBanned, bool keeperHoldsQuaffle, bool keeperTurnUsed, int chaser1X,
@@ -275,6 +295,49 @@ namespace communication::messages::broadcast {
 
     bool TeamSnapshot::isBeater2TurnUsed() const {
         return beater2TurnUsed;
+    }
+
+    bool TeamSnapshot::operator==(const TeamSnapshot &rhs) const {
+        return points == rhs.points &&
+               fans == rhs.fans &&
+               seekerX == rhs.seekerX &&
+               seekerY == rhs.seekerY &&
+               seekerBanned == rhs.seekerBanned &&
+               seekerTurnUsed == rhs.seekerTurnUsed &&
+               keeperX == rhs.keeperX &&
+               keeperY == rhs.keeperY &&
+               keeperBanned == rhs.keeperBanned &&
+               keeperHoldsQuaffle == rhs.keeperHoldsQuaffle &&
+               keeperTurnUsed == rhs.keeperTurnUsed &&
+               chaser1X == rhs.chaser1X &&
+               chaser1Y == rhs.chaser1Y &&
+               chaser1Banned == rhs.chaser1Banned &&
+               chaser1HoldsQuaffle == rhs.chaser1HoldsQuaffle &&
+               chaser1TurnUsed == rhs.chaser1TurnUsed &&
+               chaser2X == rhs.chaser2X &&
+               chaser2Y == rhs.chaser2Y &&
+               chaser2Banned == rhs.chaser2Banned &&
+               chaser2HoldsQuaffle == rhs.chaser2HoldsQuaffle &&
+               chaser2TurnUsed == rhs.chaser2TurnUsed &&
+               chaser3X == rhs.chaser3X &&
+               chaser3Y == rhs.chaser3Y &&
+               chaser3Banned == rhs.chaser3Banned &&
+               chaser3HoldsQuaffle == rhs.chaser3HoldsQuaffle &&
+               chaser3TurnUsed == rhs.chaser3TurnUsed &&
+               beater1X == rhs.beater1X &&
+               beater1Y == rhs.beater1Y &&
+               beater1Banned == rhs.beater1Banned &&
+               beater1HoldsBludger == rhs.beater1HoldsBludger &&
+               beater1TurnUsed == rhs.beater1TurnUsed &&
+               beater2X == rhs.beater2X &&
+               beater2Y == rhs.beater2Y &&
+               beater2Banned == rhs.beater2Banned &&
+               beater2HoldsBludger == rhs.beater2HoldsBludger &&
+               beater2TurnUsed == rhs.beater2TurnUsed;
+    }
+
+    bool TeamSnapshot::operator!=(const TeamSnapshot &rhs) const {
+        return !(rhs == *this);
     }
 
     void to_json(nlohmann::json &j, const TeamSnapshot &teamSnaphot) {

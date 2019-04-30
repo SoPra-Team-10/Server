@@ -41,6 +41,18 @@ namespace communication::messages::request {
         return "joinRequest";
     }
 
+    bool JoinRequest::operator==(const JoinRequest &rhs) const {
+        return lobby == rhs.lobby &&
+               userName == rhs.userName &&
+               password == rhs.password &&
+               isArtificialIntelligence == rhs.isArtificialIntelligence &&
+               mods == rhs.mods;
+    }
+
+    bool JoinRequest::operator!=(const JoinRequest &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const JoinRequest &joinRequest) {
         j["lobby"] = joinRequest.getLobby();
         j["userName"] = joinRequest.getUserName();

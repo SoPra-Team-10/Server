@@ -32,6 +32,16 @@ namespace communication::messages::broadcast {
         return pause;
     }
 
+    bool PauseResponse::operator==(const PauseResponse &rhs) const {
+        return message == rhs.message &&
+               userName == rhs.userName &&
+               pause == rhs.pause;
+    }
+
+    bool PauseResponse::operator!=(const PauseResponse &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const PauseResponse &pauseResponse) {
         j["message"] = pauseResponse.getMessage();
         j["userName"] = pauseResponse.getUserName();

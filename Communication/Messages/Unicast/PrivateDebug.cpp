@@ -25,6 +25,14 @@ namespace communication::messages::unicast {
         this->information = information;
     }
 
+    bool PrivateDebug::operator==(const PrivateDebug &rhs) const {
+        return information == rhs.information;
+    }
+
+    bool PrivateDebug::operator!=(const PrivateDebug &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const PrivateDebug &privateDebug) {
         j = nlohmann::json{{"information", privateDebug.getInformation()}};
     }

@@ -43,6 +43,11 @@ namespace communication::messages::broadcast {
         std::vector<Message> getLog() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const Replay &rhs) const;
+
+        bool operator!=(const Replay &rhs) const;
+
     private:
         std::string lobby;
         MatchConfig matchConfig;

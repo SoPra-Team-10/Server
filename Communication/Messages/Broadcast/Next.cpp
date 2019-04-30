@@ -31,6 +31,16 @@ namespace communication::messages::broadcast {
         return timout;
     }
 
+    bool Next::operator==(const Next &rhs) const {
+        return entityId == rhs.entityId &&
+               turnType == rhs.turnType &&
+               timout == rhs.timout;
+    }
+
+    bool Next::operator!=(const Next &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const Next &next) {
         j["turn"] = types::toString(next.getEntityId());
         j["type"] = types::toString(next.getTurnType());

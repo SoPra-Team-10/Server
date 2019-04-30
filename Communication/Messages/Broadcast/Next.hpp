@@ -26,6 +26,11 @@ namespace communication::messages::broadcast {
         std::string getTimout() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const Next &rhs) const;
+
+        bool operator!=(const Next &rhs) const;
+
     private:
         types::EntityId entityId;
         types::TurnType turnType;

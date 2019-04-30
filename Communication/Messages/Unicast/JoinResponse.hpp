@@ -19,6 +19,11 @@ namespace communication::messages::unicast {
         auto getMessage() const -> std::string;
 
         static auto getName() -> std::string;
+
+        bool operator==(const JoinResponse &rhs) const;
+
+        bool operator!=(const JoinResponse &rhs) const;
+
     private:
         std::string message;
     };

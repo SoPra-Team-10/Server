@@ -66,6 +66,22 @@ namespace communication::messages::broadcast {
         return log;
     }
 
+    bool Replay::operator==(const Replay &rhs) const {
+        return lobby == rhs.lobby &&
+               matchConfig == rhs.matchConfig &&
+               leftTeamConfig == rhs.leftTeamConfig &&
+               rightTeamConfig == rhs.rightTeamConfig &&
+               leftTeamUserName == rhs.leftTeamUserName &&
+               rightTeamUserName == rhs.rightTeamUserName &&
+               spectatrUserNames == rhs.spectatrUserNames &&
+               firstSnapshot == rhs.firstSnapshot &&
+               log == rhs.log;
+    }
+
+    bool Replay::operator!=(const Replay &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const Replay &replay) {
         j["lobby"] = replay.getLobby();
         j["startTimestamp"] = ""; //@TODO very information much content

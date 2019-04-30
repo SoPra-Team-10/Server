@@ -21,6 +21,14 @@ namespace communication::messages::request {
         return message;
     }
 
+    bool PauseRequest::operator==(const PauseRequest &rhs) const {
+        return message == rhs.message;
+    }
+
+    bool PauseRequest::operator!=(const PauseRequest &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const PauseRequest &pauseRequest) {
         j["message"] = pauseRequest.getMessage();
     }

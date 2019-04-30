@@ -21,6 +21,14 @@ namespace communication::messages::request {
         return "sendDebug";
     }
 
+    bool SendDebug::operator==(const SendDebug &rhs) const {
+        return information == rhs.information;
+    }
+
+    bool SendDebug::operator!=(const SendDebug &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const SendDebug &sendDebug) {
         j = nlohmann::json{{"information", sendDebug.getInformation()}};
     }

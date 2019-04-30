@@ -21,6 +21,10 @@ namespace communication::messages::unicast {
 
         static auto getName() -> std::string;
 
+        bool operator==(const PrivateDebug &rhs) const;
+
+        bool operator!=(const PrivateDebug &rhs) const;
+
     private:
         std::string information;
     };

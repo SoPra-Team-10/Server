@@ -63,23 +63,27 @@ namespace communication::messages::broadcast {
         bool isBeater2HoldsBludger() const;
         bool isBeater2TurnUsed() const;
 
+        bool operator==(const TeamSnapshot &rhs) const;
+
+        bool operator!=(const TeamSnapshot &rhs) const;
+
     private:
-        int points;
+        int points{};
         std::vector<std::pair<types::FanType, bool>> fans;
-        int seekerX, seekerY;
-        bool seekerBanned, seekerTurnUsed;
-        int keeperX, keeperY;
-        bool keeperBanned, keeperHoldsQuaffle, keeperTurnUsed;
-        int chaser1X, chaser1Y;
-        bool chaser1Banned, chaser1HoldsQuaffle, chaser1TurnUsed;
-        int chaser2X, chaser2Y;
-        bool chaser2Banned, chaser2HoldsQuaffle, chaser2TurnUsed;
-        int chaser3X, chaser3Y;
-        bool chaser3Banned, chaser3HoldsQuaffle, chaser3TurnUsed;
-        int beater1X, beater1Y;
-        bool beater1Banned, beater1HoldsBludger, beater1TurnUsed;
-        int beater2X, beater2Y;
-        bool beater2Banned, beater2HoldsBludger, beater2TurnUsed;
+        int seekerX{}, seekerY{};
+        bool seekerBanned{}, seekerTurnUsed{};
+        int keeperX{}, keeperY{};
+        bool keeperBanned{}, keeperHoldsQuaffle{}, keeperTurnUsed{};
+        int chaser1X{}, chaser1Y{};
+        bool chaser1Banned{}, chaser1HoldsQuaffle{}, chaser1TurnUsed{};
+        int chaser2X{}, chaser2Y{};
+        bool chaser2Banned{}, chaser2HoldsQuaffle{}, chaser2TurnUsed{};
+        int chaser3X{}, chaser3Y{};
+        bool chaser3Banned{}, chaser3HoldsQuaffle{}, chaser3TurnUsed{};
+        int beater1X{}, beater1Y{};
+        bool beater1Banned{}, beater1HoldsBludger{}, beater1TurnUsed{};
+        int beater2X{}, beater2Y{};
+        bool beater2Banned{}, beater2HoldsBludger{}, beater2TurnUsed{};
     };
 
     void to_json(nlohmann::json &j, const TeamSnapshot &teamSnaphot);
@@ -107,15 +111,20 @@ namespace communication::messages::broadcast {
         int getBludger2Y() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const Snapshot &rhs) const;
+
+        bool operator!=(const Snapshot &rhs) const;
+
     private:
         types::PhaseType phase;
         std::vector<std::string> spectatorUserName;
-        int round;
+        int round{};
         TeamSnapshot leftTeam, rightTeam;
-        int snitchX, snitchY;
-        int quaffleX, quaffleY;
-        int bludger1X, bludger1Y;
-        int bludger2X, bludger2Y;
+        int snitchX{}, snitchY{};
+        int quaffleX{}, quaffleY{};
+        int bludger1X{}, bludger1Y{};
+        int bludger2X{}, bludger2Y{};
     };
 
     void to_json(nlohmann::json &j, const Snapshot &snaphot);

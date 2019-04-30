@@ -26,6 +26,15 @@ namespace communication::messages::unicast {
         return snapshot;
     }
 
+    bool Reconnect::operator==(const Reconnect &rhs) const {
+        return matchStart == rhs.matchStart &&
+               snapshot == rhs.snapshot;
+    }
+
+    bool Reconnect::operator!=(const Reconnect &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const Reconnect &reconnect) {
         j["matchStart"] = reconnect.getMatchStart();
         j["snapshot"] = reconnect.getSnapshot();

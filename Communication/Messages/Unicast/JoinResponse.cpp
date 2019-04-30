@@ -20,6 +20,14 @@ namespace communication::messages::unicast {
         return this->message;
     }
 
+    bool JoinResponse::operator==(const JoinResponse &rhs) const {
+        return message == rhs.message;
+    }
+
+    bool JoinResponse::operator!=(const JoinResponse &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const JoinResponse &joinResponse) {
         j["message"] = joinResponse.getMessage();
     }

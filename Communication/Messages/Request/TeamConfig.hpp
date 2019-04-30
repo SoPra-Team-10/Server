@@ -22,6 +22,10 @@ namespace communication::messages::request {
         types::Broom getBroom() const;
         types::Sex getSex() const;
 
+        bool operator==(const Player &rhs) const;
+
+        bool operator!=(const Player &rhs) const;
+
     private:
         std::string name;
         types::Broom broom;
@@ -53,6 +57,10 @@ namespace communication::messages::request {
         Player getBeater2() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const TeamConfig &rhs) const;
+
+        bool operator!=(const TeamConfig &rhs) const;
 
     private:
         std::string name, motto;

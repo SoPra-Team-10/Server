@@ -24,6 +24,11 @@ namespace communication::messages::unicast {
         broadcast::Snapshot getSnapshot() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const Reconnect &rhs) const;
+
+        bool operator!=(const Reconnect &rhs) const;
+
     private:
         broadcast::MatchStart matchStart;
         broadcast::Snapshot snapshot;

@@ -78,6 +78,27 @@ namespace communication::messages::request {
         return beater2Y;
     }
 
+    bool TeamFormation::operator==(const TeamFormation &rhs) const {
+        return seekerX == rhs.seekerX &&
+               seekerY == rhs.seekerY &&
+               keeperX == rhs.keeperX &&
+               keeperY == rhs.keeperY &&
+               chaser1X == rhs.chaser1X &&
+               chaser1Y == rhs.chaser1Y &&
+               chaser2X == rhs.chaser2X &&
+               chaser2Y == rhs.chaser2Y &&
+               chaser3X == rhs.chaser3X &&
+               chaser3Y == rhs.chaser3Y &&
+               beater1X == rhs.beater1X &&
+               beater1Y == rhs.beater1Y &&
+               beater2X == rhs.beater2X &&
+               beater2Y == rhs.beater2Y;
+    }
+
+    bool TeamFormation::operator!=(const TeamFormation &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const TeamFormation &teamFormation) {
         j["players"]["seeker"]["xPos"] = teamFormation.getSeekerX();
         j["players"]["seeker"]["yPos"] = teamFormation.getSeekerY();

@@ -47,6 +47,11 @@ namespace communication::messages::request {
         int getBeater2Y() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const TeamFormation &rhs) const;
+
+        bool operator!=(const TeamFormation &rhs) const;
+
     private:
         int seekerX, seekerY;
         int keeperX, keeperY;

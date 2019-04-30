@@ -20,6 +20,10 @@ namespace communication::messages::request {
 
         static auto getName() -> std::string;
 
+        bool operator==(const SendDebug &rhs) const;
+
+        bool operator!=(const SendDebug &rhs) const;
+
     private:
         std::string information;
     };

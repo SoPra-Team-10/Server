@@ -42,6 +42,18 @@ namespace communication::messages::broadcast {
         return rightTeamUserName;
     }
 
+    bool MatchStart::operator==(const MatchStart &rhs) const {
+        return matchConfig == rhs.matchConfig &&
+               leftTeamConfig == rhs.leftTeamConfig &&
+               rightTeamConfig == rhs.rightTeamConfig &&
+               leftTeamUserName == rhs.leftTeamUserName &&
+               rightTeamUserName == rhs.rightTeamUserName;
+    }
+
+    bool MatchStart::operator!=(const MatchStart &rhs) const {
+        return !(rhs == *this);
+    }
+
     void from_json(const nlohmann::json &j, MatchStart &matchStart) {
         matchStart = MatchStart{
             j.at("matchConfig").get<MatchConfig>(),

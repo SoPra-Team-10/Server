@@ -22,6 +22,11 @@ namespace communication::messages::broadcast {
         bool isPause() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const PauseResponse &rhs) const;
+
+        bool operator!=(const PauseResponse &rhs) const;
+
     private:
         std::string message, userName;
         bool pause;

@@ -128,6 +128,29 @@ namespace communication::messages::request {
         return beater2;
     }
 
+    bool TeamConfig::operator==(const TeamConfig &rhs) const {
+        return name == rhs.name &&
+               motto == rhs.motto &&
+               colorPrimary == rhs.colorPrimary &&
+               colorSecondary == rhs.colorSecondary &&
+               image == rhs.image &&
+               goblins == rhs.goblins &&
+               trolls == rhs.trolls &&
+               elfs == rhs.elfs &&
+               nifflers == rhs.nifflers &&
+               seeker == rhs.seeker &&
+               keeper == rhs.keeper &&
+               chaser1 == rhs.chaser1 &&
+               chaser2 == rhs.chaser2 &&
+               chaser3 == rhs.chaser3 &&
+               beater1 == rhs.beater1 &&
+               beater2 == rhs.beater2;
+    }
+
+    bool TeamConfig::operator!=(const TeamConfig &rhs) const {
+        return !(rhs == *this);
+    }
+
     Player::Player(std::string name, types::Broom broom, types::Sex sex) : name(std::move(name)), broom(broom),
                                                                              sex(sex) {}
 
@@ -141,6 +164,16 @@ namespace communication::messages::request {
 
     types::Sex Player::getSex() const {
         return sex;
+    }
+
+    bool Player::operator==(const Player &rhs) const {
+        return name == rhs.name &&
+               broom == rhs.broom &&
+               sex == rhs.sex;
+    }
+
+    bool Player::operator!=(const Player &rhs) const {
+        return !(rhs == *this);
     }
 
     void to_json(nlohmann::json &j, const Player &player) {

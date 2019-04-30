@@ -24,6 +24,11 @@ namespace communication::messages::request {
         auto getMods() const -> std::vector<std::string>;
 
         static auto getName() -> std::string;
+
+        bool operator==(const JoinRequest &rhs) const;
+
+        bool operator!=(const JoinRequest &rhs) const;
+
     private:
         std::string lobby, userName, password; // Very secure, much hash
         bool isArtificialIntelligence;

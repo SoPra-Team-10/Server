@@ -28,6 +28,10 @@ namespace communication::messages::broadcast {
 
         static auto getName() -> std::string;
 
+        bool operator==(const MatchStart &rhs) const;
+
+        bool operator!=(const MatchStart &rhs) const;
+
     private:
         MatchConfig matchConfig;
         request::TeamConfig leftTeamConfig, rightTeamConfig;
