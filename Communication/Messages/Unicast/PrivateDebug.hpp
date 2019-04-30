@@ -2,7 +2,7 @@
  * @file PrivateDebug.hpp
  * @author paul
  * @date 19.03.19
- * @brief PrivateDebug @TODO
+ * @brief Definition of the PrivateDebug class
  */
 
 #ifndef SERVER_PRIVATEDEBUG_HPP

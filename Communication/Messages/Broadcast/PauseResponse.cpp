@@ -6,7 +6,7 @@
  * @file PauseResponse.cpp
  * @author paul
  * @date 19.03.19
- * @brief PauseResponse @TODO
+ * @brief Definition of the PauseResponse class
  */
 
 #include "PauseResponse.hpp"

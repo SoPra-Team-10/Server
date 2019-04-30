@@ -2,7 +2,7 @@
  * @file DeltaBroadcast.hpp
  * @author paul
  * @date 19.03.19
- * @brief DeltaBroadcast @TODO
+ * @brief Declaration of the DeltaBroadcast class
  */
 
 #ifndef SERVER_DELTABROADCAST_HPP

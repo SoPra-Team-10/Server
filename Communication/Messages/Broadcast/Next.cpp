@@ -2,7 +2,7 @@
  * @file Next.cpp
  * @author paul
  * @date 19.03.19
- * @brief Next @TODO
+ * @brief Definition of the Next class
  */
 
 #include "Next.hpp"

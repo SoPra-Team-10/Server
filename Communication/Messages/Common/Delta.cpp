@@ -2,7 +2,7 @@
  * @file Delta.cpp
  * @author paul
  * @date 25.04.19
- * @brief Delta @TODO
+ * @brief Definition of the Delta class
  */
 
 #include "Delta.hpp"

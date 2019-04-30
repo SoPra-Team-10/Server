@@ -2,7 +2,7 @@
  * @file MatchConfig.hpp
  * @author paul
  * @date 19.03.19
- * @brief MatchConfig @TODO
+ * @brief Declaration of the MatchConfig class
  */
 
 #ifndef SERVER_MATCHCONFIG_HPP

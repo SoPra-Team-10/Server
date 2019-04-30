@@ -2,7 +2,7 @@
  * @file DeltaRequest.hpp
  * @author paul
  * @date 19.03.19
- * @brief DeltaRequest @TODO
+ * @brief Definition of the DeltaRequest class
  */
 
 #ifndef SERVER_DELTAREQUEST_HPP

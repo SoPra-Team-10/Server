@@ -2,7 +2,7 @@
  * @file GlobalDebug.hpp
  * @author paul
  * @date 19.03.19
- * @brief GlobalDebug @TODO
+ * @brief Definition of the GlobalDebug class
  */
 
 #ifndef SERVER_GLOBALDEBUG_HPP

@@ -2,7 +2,7 @@
  * @file LoginGreeting.cpp
  * @author paul
  * @date 19.03.19
- * @brief LoginGreeting @TODO
+ * @brief Definition of the LoginGreeting class
  */
 
 #include "LoginGreeting.hpp"

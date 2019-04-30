@@ -2,7 +2,7 @@
  * @file PauseRequest.hpp
  * @author paul
  * @date 19.03.19
- * @brief PauseRequest @TODO
+ * @brief Definition of the PauseRequest class
  */
 
 #ifndef SERVER_PAUSEREQUEST_HPP

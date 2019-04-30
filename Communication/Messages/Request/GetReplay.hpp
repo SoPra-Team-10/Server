@@ -2,7 +2,7 @@
  * @file GetReplay.hpp
  * @author paul
  * @date 19.03.19
- * @brief GetReplay @TODO
+ * @brief Definition of the GetReplay class
  */
 
 #ifndef SERVER_GETREPLAY_HPP

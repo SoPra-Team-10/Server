@@ -2,7 +2,7 @@
  * @file JoinResponse.hpp
  * @author paul
  * @date 19.03.19
- * @brief JoinResponse @TODO
+ * @brief Declaration of the JoinResponse class
  */
 
 #ifndef SERVER_JOINRESPONSE_HPP

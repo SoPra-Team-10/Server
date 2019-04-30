@@ -2,7 +2,7 @@
  * @file Next.hpp
  * @author paul
  * @date 19.03.19
- * @brief Next @TODO
+ * @brief Declaration of the Next class
  */
 
 #ifndef SERVER_NEXT_HPP

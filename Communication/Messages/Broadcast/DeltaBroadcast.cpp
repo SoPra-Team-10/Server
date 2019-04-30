@@ -2,7 +2,7 @@
  * @file DeltaBroadcast.cpp
  * @author paul
  * @date 19.03.19
- * @brief DeltaBroadcast @TODO
+ * @brief Definition of the DeltaBroadcast class
  */
 
 #include "DeltaBroadcast.hpp"

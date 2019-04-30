@@ -2,7 +2,7 @@
  * @file PauseResponse.hpp
  * @author paul
  * @date 19.03.19
- * @brief PauseResponse @TODO
+ * @brief Declaration of the class PauseResponse
  */
 
 #ifndef SERVER_PAUSERESPONSE_HPP

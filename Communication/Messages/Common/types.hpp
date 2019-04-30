@@ -2,7 +2,7 @@
  * @file types.hpp
  * @author paul
  * @date 25.04.19
- * @brief types @TODO
+ * @brief declaration of types used in the standard
  */
 
 #ifndef SERVER_TYPES_HPP

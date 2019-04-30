@@ -2,7 +2,7 @@
  * @file GetReplay.cpp
  * @author paul
  * @date 19.03.19
- * @brief GetReplay @TODO
+ * @brief Definition of the GetReplay class
  */
 
 #include "GetReplay.hpp"

@@ -2,7 +2,7 @@
  * @file MatchFinish.hpp
  * @author paul
  * @date 19.03.19
- * @brief MatchFinish @TODO
+ * @brief Declaration of the MatchFinish class
  */
 
 #ifndef SERVER_MATCHFINISH_HPP
@@ -33,7 +33,7 @@ namespace communication::messages::broadcast {
         bool operator!=(const MatchFinish &rhs) const;
 
     private:
-        int endRound, leftPoints, rightPoints;
+        int endRound{}, leftPoints{}, rightPoints{};
         std::string winnerUserName;
         types::VictoryReason victoryReason;
     };

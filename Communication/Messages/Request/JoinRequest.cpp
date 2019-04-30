@@ -6,7 +6,7 @@
  * @file JoinRequest.cpp
  * @author paul
  * @date 19.03.19
- * @brief JoinRequest @TODO
+ * @brief Definition of the JoinRequest class
  */
 
 #include "JoinRequest.hpp"

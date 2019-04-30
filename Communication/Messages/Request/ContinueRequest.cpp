@@ -4,7 +4,7 @@
  * @file ContinueRequest.cpp
  * @author paul
  * @date 19.03.19
- * @brief ContinueRequest @TODO
+ * @brief Definition of the ContinueRequest class
  */
 
 #include "ContinueRequest.hpp"

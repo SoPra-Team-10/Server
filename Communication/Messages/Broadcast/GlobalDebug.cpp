@@ -2,7 +2,7 @@
  * @file GlobalDebug.cpp
  * @author paul
  * @date 19.03.19
- * @brief GlobalDebug @TODO
+ * @brief Definition of the GlobalDebug class
  */
 
 #include "GlobalDebug.hpp"

@@ -2,7 +2,7 @@
  * @file JoinRequest.hpp
  * @author paul
  * @date 19.03.19
- * @brief JoinRequest @TODO
+ * @brief Definition of the JoinRequest class
  */
 
 #ifndef SERVER_JOINREQUEST_HPP

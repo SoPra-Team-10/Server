@@ -2,7 +2,7 @@
  * @file TeamFormation.hpp
  * @author paul
  * @date 19.03.19
- * @brief TeamFormation @TODO
+ * @brief Definition of the TeamFormation class
  */
 
 #ifndef SERVER_TEAMFORMATION_HPP

@@ -2,7 +2,7 @@
  * @file JoinResponse.cpp
  * @author paul
  * @date 19.03.19
- * @brief JoinResponse @TODO
+ * @brief Definition of the JoinResponse class
  */
 
 #include "JoinResponse.hpp"

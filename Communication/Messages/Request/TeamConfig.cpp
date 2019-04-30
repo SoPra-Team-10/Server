@@ -4,7 +4,7 @@
  * @file TeamConfig.cpp
  * @author paul
  * @date 19.03.19
- * @brief TeamConfig @TODO
+ * @brief Definition of the TeamConfig class
  */
 
 #include "TeamConfig.hpp"

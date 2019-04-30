@@ -2,7 +2,7 @@
  * @file Snapshot.hpp
  * @author paul
  * @date 19.03.19
- * @brief Snapshot @TODO
+ * @brief Declaration of the Snapshot class
  */
 
 #ifndef SERVER_SNAPSHOT_HPP

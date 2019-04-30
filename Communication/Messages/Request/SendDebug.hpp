@@ -2,7 +2,7 @@
  * @file SendDebug.hpp
  * @author paul
  * @date 19.03.19
- * @brief SendDebug @TODO
+ * @brief Definition of the SendDebug class
  */
 
 #ifndef SERVER_SENDDEBUG_HPP

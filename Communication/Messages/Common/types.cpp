@@ -2,7 +2,7 @@
  * @file types.cpp
  * @author paul
  * @date 25.04.19
- * @brief types @TODO
+ * @brief Definition of types used in the standard
  */
 
 #include <stdexcept>

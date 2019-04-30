@@ -2,7 +2,7 @@
  * @file Delta.hpp
  * @author paul
  * @date 25.04.19
- * @brief Delta @TODO
+ * @brief Declaration of the Delta class
  */
 
 #ifndef SERVER_DELTA_HPP

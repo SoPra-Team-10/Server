@@ -2,7 +2,7 @@
  * @file ContinueRequest.hpp
  * @author paul
  * @date 19.03.19
- * @brief ContinueRequest @TODO
+ * @brief Definition of the ContinueRequest class
  */
 
 #ifndef SERVER_CONTINUEREQUEST_HPP

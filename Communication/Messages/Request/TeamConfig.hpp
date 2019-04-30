@@ -2,7 +2,7 @@
  * @file TeamConfig.hpp
  * @author paul
  * @date 19.03.19
- * @brief TeamConfig @TODO
+ * @brief Definition of the TeamConfig class
  */
 
 #ifndef SERVER_TEAMCONFIG_HPP

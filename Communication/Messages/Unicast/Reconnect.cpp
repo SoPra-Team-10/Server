@@ -4,7 +4,7 @@
  * @file Reconnect.cpp
  * @author paul
  * @date 19.03.19
- * @brief Reconnect @TODO
+ * @brief Definition of the Reconnect class
  */
 
 #include "Reconnect.hpp"
