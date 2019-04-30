@@ -45,7 +45,7 @@ set(SOURCES
         ${MESSAGE_TYPE_SOURCES}
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
-        ${CMAKE_SOURCE_DIR}/Communication/Game.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp)
 set(LIBS pthread)
 
 

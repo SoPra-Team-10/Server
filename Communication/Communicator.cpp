@@ -22,7 +22,7 @@ namespace communication {
             if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                 lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
             } else {
-                auto game = std::make_shared<Game>(*this, newClient, client);
+                auto game = std::make_shared<Lobby>(*this, newClient, client);
                 lobbyMapping.emplace(joinRequest.getLobby(), game);
                 clientMapping.emplace(client, game);
             }

@@ -5,8 +5,8 @@
  * @brief Declaration of the Game class
  */
 
-#ifndef SERVER_GAME_HPP
-#define SERVER_GAME_HPP
+#ifndef SERVER_LOBBY_HPP
+#define SERVER_LOBBY_HPP
 
 #include <utility>
 #include <Communication/Messages/Message.h>
@@ -20,9 +20,9 @@ namespace communication {
         std::vector<std::string> mods;
     };
 
-    class Game {
+    class Lobby {
     public:
-        Game(Communicator &communicator, Client client, int id);
+        Lobby(Communicator &communicator, Client client, int id);
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
@@ -43,4 +43,4 @@ namespace communication {
         std::pair<std::optional<int>, std::optional<int>> players;
     };
 }
-#endif //SERVER_GAME_HPP
+#endif //SERVER_LOBBY_HPP

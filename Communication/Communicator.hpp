@@ -10,7 +10,7 @@
 
 #include <cstdint>
 #include <unordered_set>
-#include "Game.hpp"
+#include "Lobby.hpp"
 #include "MessageHandler.hpp"
 
 namespace communication {
@@ -23,8 +23,8 @@ namespace communication {
         void receive(messages::Message message, int client);
 
         MessageHandler messageHandler;
-        std::map<int, std::shared_ptr<Game>> clientMapping;
-        std::map<std::string, std::shared_ptr<Game>> lobbyMapping;
+        std::map<int, std::shared_ptr<Lobby>> clientMapping;
+        std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
     };
 }
 
