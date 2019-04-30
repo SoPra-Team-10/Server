@@ -12,6 +12,8 @@ namespace communication {
 
     Lobby::Lobby(Communicator &communicator, Client client, int id) : communicator{communicator} {
         this->clients.emplace(id, std::move(client));
+        //@TODO join response to user
+        //@TODO join response to user
     }
 
     void Lobby::addSpectator(Client client, int id) {
@@ -68,13 +70,17 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::DeltaRequest &, int) {
-        // @TODO wait for GameController
+    void Lobby::onPayload(const messages::request::DeltaRequest &, int clientId) {
+        if (clientId == players.first || clientId == players.second) {
+            // @TODO wait for GameController
+        } else {
+            this->kickUser(clientId);
+        }
     }
 
     template<typename T>
     void Lobby::onPayload(const T &, int client) {
-        // We really shouldn't be here
+        // It seems like the message was not a request
         this->kickUser(client);
     }
 
