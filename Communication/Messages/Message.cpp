@@ -51,8 +51,7 @@ namespace communication::messages {
     }
 
     bool Message::operator==(const Message &rhs) const {
-        return timestamp == rhs.timestamp &&
-               payload == rhs.payload;
+        return payload == rhs.payload;
     }
 
     bool Message::operator!=(const Message &rhs) const {
