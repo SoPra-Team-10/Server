@@ -156,10 +156,44 @@ namespace communication::messages::broadcast {
         return probFoulSnitch;
     }
 
+    bool MatchConfig::operator==(const MatchConfig &rhs) const {
+        return maxRounds == rhs.maxRounds &&
+               playerTurnTimeout == rhs.playerTurnTimeout &&
+               fanTurnTimeout == rhs.fanTurnTimeout &&
+               playerPhaseTime == rhs.playerPhaseTime &&
+               fanPhaseTime == rhs.fanPhaseTime &&
+               ballPhaseTime == rhs.ballPhaseTime &&
+               probGoal == rhs.probGoal &&
+               probThrowSuccess == rhs.probThrowSuccess &&
+               probKnockOut == rhs.probKnockOut &&
+               probFoolAway == rhs.probFoolAway &&
+               probCatchSnitch == rhs.probCatchSnitch &&
+               probCatchQuaffle == rhs.probCatchQuaffle &&
+               probWrestQuaffle == rhs.probWrestQuaffle &&
+               probExtraThinderblast == rhs.probExtraThinderblast &&
+               probExtraCleansweep == rhs.probExtraCleansweep &&
+               probExtraComet == rhs.probExtraComet &&
+               probExtraNimbus == rhs.probExtraNimbus &&
+               probExtraFirebolt == rhs.probExtraFirebolt &&
+               probFoulFlacking == rhs.probFoulFlacking &&
+               probFoulHaversacking == rhs.probFoulHaversacking &&
+               probFoulStooging == rhs.probFoulStooging &&
+               probFoulBlatching == rhs.probFoulBlatching &&
+               probFoulSnitchnip == rhs.probFoulSnitchnip &&
+               probFoulElf == rhs.probFoulElf &&
+               probFoulGoblin == rhs.probFoulGoblin &&
+               probFoulTroll == rhs.probFoulTroll &&
+               probFoulSnitch == rhs.probFoulSnitch;
+    }
+
+    bool MatchConfig::operator!=(const MatchConfig &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const MatchConfig &matchConfig) {
         j["maxRounds"] = matchConfig.getMaxRounds();
-        j["timeouts"]["playerTurnTime"] = matchConfig.getPlayerTurnTimeout();
-        j["timeouts"]["fanTurnTime"] = matchConfig.getFanTurnTimeout();
+        j["timeouts"]["playerTurnTimeout"] = matchConfig.getPlayerTurnTimeout();
+        j["timeouts"]["fanTurnTimeout"] = matchConfig.getFanTurnTimeout();
         j["timeouts"]["playerPhaseTime"] = matchConfig.getPlayerPhaseTime();
         j["timeouts"]["fanPhaseTime"] = matchConfig.getFanPhaseTime();
         j["timeouts"]["ballPhaseTime"] = matchConfig.getBallPhaseTime();

@@ -52,6 +52,11 @@ namespace communication::messages::broadcast {
         float getProbFoulSnitch() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const MatchConfig &rhs) const;
+
+        bool operator!=(const MatchConfig &rhs) const;
+
     private:
         int maxRounds;
         int playerTurnTimeout, fanTurnTimeout, playerPhaseTime, fanPhaseTime, ballPhaseTime;
