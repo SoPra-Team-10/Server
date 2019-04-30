@@ -28,6 +28,10 @@ namespace communication::messages::request {
               chaser1(std::move(chaser1)), chaser2(std::move(chaser2)), chaser3(std::move(chaser3)),
               beater1(std::move(beater1)), beater2(std::move(beater2)) {}
 
+    std::string TeamConfig::getTeamName() const {
+        return this->name;
+    }
+
     std::string TeamConfig::getMotto() const {
         return motto;
     }
@@ -61,7 +65,7 @@ namespace communication::messages::request {
     }
 
     void to_json(nlohmann::json &j, const TeamConfig &teamConfig) {
-        j["name"] = teamConfig.getName();
+        j["name"] = teamConfig.getTeamName();
         j["motto"] = teamConfig.getMotto();
         j["colors"]["primary"] = teamConfig.getColorPrimary();
         j["colors"]["secondary"] = teamConfig.getColorSecondary();
@@ -150,6 +154,7 @@ namespace communication::messages::request {
     bool TeamConfig::operator!=(const TeamConfig &rhs) const {
         return !(rhs == *this);
     }
+
 
     Player::Player(std::string name, types::Broom broom, types::Sex sex) : name(std::move(name)), broom(broom),
                                                                              sex(sex) {}

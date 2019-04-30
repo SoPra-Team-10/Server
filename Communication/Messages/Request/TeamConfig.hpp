@@ -28,8 +28,8 @@ namespace communication::messages::request {
 
     private:
         std::string name;
-        types::Broom broom;
-        types::Sex sex;
+        types::Broom broom{};
+        types::Sex sex{};
     };
 
     class TeamConfig {
@@ -40,6 +40,7 @@ namespace communication::messages::request {
                    Player keeper, Player chaser1, Player chaser2, Player chaser3,
                    Player beater1, Player beater2);
 
+        std::string getTeamName() const;
         std::string getMotto() const;
         std::string getColorPrimary() const;
         std::string getColorSecondary() const;
@@ -66,7 +67,7 @@ namespace communication::messages::request {
         std::string name, motto;
         std::string colorPrimary, colorSecondary;
         std::string image;
-        int goblins, trolls, elfs, nifflers;
+        int goblins{}, trolls{}, elfs{}, nifflers{};
         Player seeker, keeper, chaser1, chaser2, chaser3, beater1, beater2;
 
     };
