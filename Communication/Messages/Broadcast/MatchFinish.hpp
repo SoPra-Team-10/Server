@@ -27,6 +27,11 @@ namespace communication::messages::broadcast {
         types::VictoryReason getVictoryReason() const;
 
         static auto getName() -> std::string;
+
+        bool operator==(const MatchFinish &rhs) const;
+
+        bool operator!=(const MatchFinish &rhs) const;
+
     private:
         int endRound, leftPoints, rightPoints;
         std::string winnerUserName;

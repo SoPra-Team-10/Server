@@ -40,6 +40,18 @@ namespace communication::messages::broadcast {
         return victoryReason;
     }
 
+    bool MatchFinish::operator==(const MatchFinish &rhs) const {
+        return endRound == rhs.endRound &&
+               leftPoints == rhs.leftPoints &&
+               rightPoints == rhs.rightPoints &&
+               winnerUserName == rhs.winnerUserName &&
+               victoryReason == rhs.victoryReason;
+    }
+
+    bool MatchFinish::operator!=(const MatchFinish &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const MatchFinish &matchFinish) {
         j["endRound"] = matchFinish.getEndRound();
         j["leftPoints"] = matchFinish.getLeftPoints();
