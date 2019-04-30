@@ -40,7 +40,9 @@ namespace communication {
             auto message = json.get<messages::Message>();
             onReceive(message, client);
         } catch (nlohmann::json::exception &e) {
-            //@TODO error message
+            this->send(messages::Message{messages::unicast::PrivateDebug{
+                e.what()
+            }}, client);
         }
     }
 

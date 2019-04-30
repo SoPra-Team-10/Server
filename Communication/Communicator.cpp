@@ -10,7 +10,8 @@
 namespace communication {
     Communicator::Communicator(uint16_t port)
         : messageHandler{port} {
-
+        messageHandler.onReceive(
+                std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     void Communicator::receive(messages::Message message, int client) {
@@ -28,8 +29,11 @@ namespace communication {
         } else {
             if (clientMapping.find(client) != clientMapping.end()) {
                 clientMapping.at(client)->onMessage(message, client);
+            } else {
+                // Not a known user
+                this->send(messages::Message{
+                        messages::unicast::PrivateDebug{"You need to send a JoinRequest first!"}}, client);
             }
-            // If the user is not registered we simply ignore the message as there is no match to finish
         }
     }
 
