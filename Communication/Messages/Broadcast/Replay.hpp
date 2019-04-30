@@ -19,12 +19,14 @@ namespace communication::messages::broadcast {
     class Replay {
     public:
         Replay() = default;
-        Replay(std::string lobby, const MatchConfig &matchConfig, request::TeamConfig leftTeamConfig,
+        Replay(std::string lobby, std::string startTime, const MatchConfig &matchConfig, request::TeamConfig leftTeamConfig,
                request::TeamConfig rightTeamConfig, std::string leftTeamUserName,
                std::string rightTeamUserName, std::vector<std::string> spectatrUserNames,
                Snapshot firstSnapshot, std::vector<Message> log);
 
         std::string getLobby() const;
+
+        std::string getStartTime() const;
 
         MatchConfig getMatchConfig() const;
 
@@ -50,6 +52,7 @@ namespace communication::messages::broadcast {
 
     private:
         std::string lobby;
+        std::string startTime;
         MatchConfig matchConfig{};
         request::TeamConfig leftTeamConfig, rightTeamConfig;
         std::string leftTeamUserName, rightTeamUserName;

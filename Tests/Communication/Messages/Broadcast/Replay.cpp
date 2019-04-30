@@ -6,7 +6,7 @@ using namespace communication::messages;
 using T = broadcast::Replay;
 
 TEST(CommunicationMessagesBroadcastReplay, SerializeDeserialize) {
-    T orig{"Test", {}, {}, {}, "a", "b", {}, {}, {}};
+    T orig{"Test", "abc", {}, {}, {}, "a", "b", {}, {}, {}};
     std::string ser;
     nlohmann::json json;
     T comp;

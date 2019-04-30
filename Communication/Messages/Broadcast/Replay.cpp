@@ -15,10 +15,11 @@ namespace communication::messages::broadcast {
         return "replay";
     }
 
-    Replay::Replay(std::string lobby, const MatchConfig &matchConfig, request::TeamConfig leftTeamConfig,
+    Replay::Replay(std::string lobby, std::string startTime, const MatchConfig &matchConfig, request::TeamConfig leftTeamConfig,
                    request::TeamConfig rightTeamConfig, std::string leftTeamUserName,
                    std::string rightTeamUserName, std::vector<std::string> spectatrUserNames,
                    Snapshot firstSnapshot, std::vector<Message> log) : lobby(std::move(lobby)),
+                                                                    startTime{std::move(startTime)},
                                                                      matchConfig(matchConfig),
                                                                      leftTeamConfig(std::move(leftTeamConfig)),
                                                                      rightTeamConfig(std::move(rightTeamConfig)),
@@ -82,9 +83,13 @@ namespace communication::messages::broadcast {
         return !(rhs == *this);
     }
 
+    std::string Replay::getStartTime() const {
+        return this->startTime;
+    }
+
     void to_json(nlohmann::json &j, const Replay &replay) {
         j["lobby"] = replay.getLobby();
-        j["startTimestamp"] = ""; //@TODO very information much content
+        j["startTimestamp"] = replay.getStartTime();
         j["matchConfig"] = replay.getMatchConfig();
         j["leftTeamConfig"] = replay.getLeftTeamConfig();
         j["rightTeamConfig"] = replay.getRightTeamConfig();
@@ -98,6 +103,7 @@ namespace communication::messages::broadcast {
     void from_json(const nlohmann::json &j, Replay &replay) {
         replay = Replay{
             j.at("lobby").get<std::string>(),
+            j.at("startTimestamp").get<std::string>(),
             j.at("matchConfig").get<MatchConfig>(),
             j.at("leftTeamConfig").get<request::TeamConfig>(),
             j.at("rightTeamConfig").get<request::TeamConfig>(),
