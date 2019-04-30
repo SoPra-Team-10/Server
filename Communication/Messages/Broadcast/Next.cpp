@@ -48,8 +48,8 @@ namespace communication::messages::broadcast {
     }
 
     void from_json(const nlohmann::json &j, Next &next) {
-        const auto &entityIdS = j.at("entityID").get<std::string>();
-        const auto &turnS = j.at("turnType").get<std::string>();
+        const auto &entityIdS = j.at("turn").get<std::string>();
+        const auto &turnS = j.at("type").get<std::string>();
 
         next = Next{types::fromStringEntityId(entityIdS),
                     types::fromStringTurnType(turnS), j.at("timeout").get<int>()};
