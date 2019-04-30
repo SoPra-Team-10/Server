@@ -15,9 +15,9 @@ namespace communication::messages::broadcast {
         return "next";
     }
 
-    Next::Next(types::EntityId entityId, types::TurnType turnType, std::string timout) : entityId(entityId),
+    Next::Next(types::EntityId entityId, types::TurnType turnType, int timout) : entityId(entityId),
                                                                                         turnType(turnType),
-                                                                                        timout(std::move(timout)) {}
+                                                                                        timeout(timout) {}
 
     types::EntityId Next::getEntityId() const {
         return entityId;
@@ -27,14 +27,14 @@ namespace communication::messages::broadcast {
         return turnType;
     }
 
-    std::string Next::getTimout() const {
-        return timout;
+    int Next::getTimout() const {
+        return timeout;
     }
 
     bool Next::operator==(const Next &rhs) const {
         return entityId == rhs.entityId &&
                turnType == rhs.turnType &&
-               timout == rhs.timout;
+               timeout == rhs.timeout;
     }
 
     bool Next::operator!=(const Next &rhs) const {
@@ -52,6 +52,6 @@ namespace communication::messages::broadcast {
         const auto &turnS = j.at("turnType").get<std::string>();
 
         next = Next{types::fromStringEntityId(entityIdS),
-                    types::fromStringTurnType(turnS), j.at("timeout").get<std::string>()};
+                    types::fromStringTurnType(turnS), j.at("timeout").get<int>()};
     }
 }

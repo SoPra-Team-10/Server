@@ -17,13 +17,13 @@ namespace communication::messages::broadcast {
     class Next {
     public:
         Next() = default;
-        Next(types::EntityId entityId, types::TurnType turnType, std::string timout);
+        Next(types::EntityId entityId, types::TurnType turnType, int timout);
 
         types::EntityId getEntityId() const;
 
         types::TurnType getTurnType() const;
 
-        std::string getTimout() const;
+        int getTimout() const;
 
         static auto getName() -> std::string;
 
@@ -34,7 +34,7 @@ namespace communication::messages::broadcast {
     private:
         types::EntityId entityId;
         types::TurnType turnType;
-        std::string timout; //@TODO don't know if this is really correct, but that's what is written in the spec
+        int timeout;
     };
 
     void to_json(nlohmann::json &j, const Next &next);
