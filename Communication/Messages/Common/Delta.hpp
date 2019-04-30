@@ -37,6 +37,10 @@ namespace communication::messages {
 
         std::optional<types::EntityId> getPassiveEntity() const;
 
+        bool operator==(const Delta &rhs) const;
+
+        bool operator!=(const Delta &rhs) const;
+
     private:
         types::DeltaType deltaType;
         std::optional<bool> success;

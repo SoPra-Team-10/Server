@@ -54,6 +54,21 @@ namespace communication::messages {
         return passiveEntity;
     }
 
+    bool Delta::operator==(const Delta &rhs) const {
+        return deltaType == rhs.deltaType &&
+               success == rhs.success &&
+               xPosOld == rhs.xPosOld &&
+               yPosOld == rhs.yPosOld &&
+               xPosNew == rhs.xPosNew &&
+               yPosNew == rhs.yPosNew &&
+               activeEntity == rhs.activeEntity &&
+               passiveEntity == rhs.passiveEntity;
+    }
+
+    bool Delta::operator!=(const Delta &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const Delta &delta) {
         j["deltaType"] = types::toString(delta.getDeltaType());
         j["success"] = delta.isSuccess();
@@ -61,6 +76,8 @@ namespace communication::messages {
         j["yPosOld"] = delta.getYPosOld();
         j["xPosNew"] = delta.getXPosNew();
         j["yPosNew"] = delta.getYPosNew();
+
+        nlohmann::json activeEntity, passiveEntity;
         if (delta.getActiveEntity().has_value()) {
             j["activeEntity"] = types::toString(delta.getActiveEntity().value());
         } else {

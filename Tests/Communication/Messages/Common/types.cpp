@@ -1,6 +1,3 @@
-//
-// Created by paulnykiel on 29.04.19.
-//
 #include <gtest/gtest.h>
 #include <Communication/Messages/Common/types.hpp>
 

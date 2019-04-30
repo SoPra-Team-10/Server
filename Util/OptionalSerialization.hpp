@@ -14,7 +14,7 @@ namespace std {
     template<typename T>
     void to_json(nlohmann::json &j, const std::optional<T> &t) {
         if (t.has_value()) {
-            j = t;
+            j = t.value();
         } else {
             j = nullptr;
         }
