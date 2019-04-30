@@ -41,6 +41,6 @@ RUN mkdir -p /src/build
 
 WORKDIR /src/build
 
-RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) Tests
+RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc)
 
-CMD ["Tests/Tests", "--gtest_repeat=10", "--gtest_shuffle", "--gtest_color=yes"]
+CMD ["./Server"]
