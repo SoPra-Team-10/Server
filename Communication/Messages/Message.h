@@ -59,6 +59,11 @@ namespace communication::messages {
         auto getPayload() const -> Payload;
         auto getPayloadType() const -> std::string;
         auto getTimeStamp() const -> std::string;
+
+        bool operator==(const Message &rhs) const;
+
+        bool operator!=(const Message &rhs) const;
+
     private:
         std::chrono::milliseconds timestamp;
         std::tm time{};

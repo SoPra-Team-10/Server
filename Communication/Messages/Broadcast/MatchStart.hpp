@@ -33,7 +33,7 @@ namespace communication::messages::broadcast {
         bool operator!=(const MatchStart &rhs) const;
 
     private:
-        MatchConfig matchConfig;
+        MatchConfig matchConfig{};
         request::TeamConfig leftTeamConfig, rightTeamConfig;
         std::string leftTeamUserName, rightTeamUserName;
     };

@@ -50,6 +50,15 @@ namespace communication::messages {
         return sstream.str();
     }
 
+    bool Message::operator==(const Message &rhs) const {
+        return timestamp == rhs.timestamp &&
+               payload == rhs.payload;
+    }
+
+    bool Message::operator!=(const Message &rhs) const {
+        return !(rhs == *this);
+    }
+
     void to_json(nlohmann::json &j, const Message &message) {
         j["timestamp"] = message.getTimeStamp();
         j["payloadType"] = message.getPayloadType();

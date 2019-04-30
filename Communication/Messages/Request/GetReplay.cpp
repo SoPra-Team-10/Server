@@ -13,6 +13,14 @@ namespace communication::messages::request {
         return "getReplay";
     }
 
+    bool GetReplay::operator==(const GetReplay &) const {
+        return true;
+    }
+
+    bool GetReplay::operator!=(const GetReplay &) const {
+        return true;
+    }
+
     void to_json(nlohmann::json &j, const GetReplay&) {
         j = nlohmann::json::object();
     }
