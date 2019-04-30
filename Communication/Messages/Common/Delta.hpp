@@ -42,7 +42,7 @@ namespace communication::messages {
         bool operator!=(const Delta &rhs) const;
 
     private:
-        types::DeltaType deltaType;
+        types::DeltaType deltaType{};
         std::optional<bool> success;
         std::optional<int> xPosOld, yPosOld, xPosNew, yPosNew;
         std::optional<types::EntityId> activeEntity, passiveEntity;

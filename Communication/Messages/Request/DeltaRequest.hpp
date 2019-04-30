@@ -16,6 +16,7 @@
 namespace communication::messages::request {
     class DeltaRequest : public Delta {
     public:
+        using Delta::Delta;
         static auto getName() -> std::string;
     };
 
