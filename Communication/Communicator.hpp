@@ -2,7 +2,7 @@
  * @file Communicator.hpp
  * @author paul
  * @date 28.04.19
- * @brief Communicator @TODO
+ * @brief Declaration of the Commuicator class
  */
 
 #ifndef SERVER_COMMUNICATOR_HPP

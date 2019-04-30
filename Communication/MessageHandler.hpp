@@ -2,7 +2,7 @@
  * @file Communicator.hpp
  * @author paul
  * @date 15.03.19
- * @brief Communicator @TODO
+ * @brief Declaration of the MessageHandler class
  */
 
 #ifndef SERVER_MESSAGEHANDLER_HPP

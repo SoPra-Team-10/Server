@@ -2,7 +2,7 @@
  * @file Communicator.cpp
  * @author paul
  * @date 28.04.19
- * @brief Communicator @TODO
+ * @brief Definition of the communicator class
  */
 
 #include "Communicator.hpp"

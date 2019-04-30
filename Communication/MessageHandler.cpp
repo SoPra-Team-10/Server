@@ -2,7 +2,7 @@
  * @file Communicator.cpp
  * @author paul
  * @date 15.03.19
- * @brief Communicator @TODO
+ * @brief Definition of the MessageHandler class
  */
 
 #include "MessageHandler.hpp"

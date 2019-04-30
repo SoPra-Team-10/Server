@@ -2,7 +2,7 @@
  * @file Game.cpp
  * @author paul
  * @date 28.04.19
- * @brief Game @TODO
+ * @brief Definition of the game class
  */
 
 #include "Game.hpp"

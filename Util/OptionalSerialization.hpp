@@ -2,7 +2,7 @@
  * @file OptionalSerialization.hpp
  * @author paul
  * @date 25.04.19
- * @brief OptionalSerialization @TODO
+ * @brief Adds serialization and deserialization for std::optional<T> if T is serializable
  */
 
 #ifndef SERVER_OPTIONALSERIALIZATION_HPP

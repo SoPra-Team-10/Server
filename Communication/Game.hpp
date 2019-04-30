@@ -2,7 +2,7 @@
  * @file Game.hpp
  * @author paul
  * @date 28.04.19
- * @brief Game @TODO
+ * @brief Declaration of the Game class
  */
 
 #ifndef SERVER_GAME_HPP
