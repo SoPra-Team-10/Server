@@ -16,15 +16,21 @@ namespace communication {
 
     void Communicator::receive(messages::Message message, int client) {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
-            auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
-            Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
-                             joinRequest.getIsAi(), joinRequest.getMods()};
-            if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
-                lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
+            if (clientMapping.find(client) == clientMapping.end()) {
+                auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
+                Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
+                                 joinRequest.getIsAi(), joinRequest.getMods()};
+                if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
+                    lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
+                } else {
+                    auto game = std::make_shared<Lobby>(*this, newClient, client);
+                    lobbyMapping.emplace(joinRequest.getLobby(), game);
+                    clientMapping.emplace(client, game);
+                }
             } else {
-                auto game = std::make_shared<Lobby>(*this, newClient, client);
-                lobbyMapping.emplace(joinRequest.getLobby(), game);
-                clientMapping.emplace(client, game);
+                // User is already in a lobby
+                this->send(messages::Message{
+                        messages::unicast::PrivateDebug{"You are already in a Lobby!"}}, client);
             }
         } else {
             if (clientMapping.find(client) != clientMapping.end()) {
