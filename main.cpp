@@ -4,9 +4,6 @@
 #include <Communication/Communicator.hpp>
 #include <Util/ArgumentParser.hpp>
 
-void printHelp() {
-}
-
 int main(int argc, char *argv[]) {
     //std::string match;
     uint16_t port;
