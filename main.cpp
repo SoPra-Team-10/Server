@@ -4,18 +4,24 @@
 #include <Communication/Communicator.hpp>
 #include <Util/ArgumentParser.hpp>
 #include <Util/Logging.hpp>
+#include <filesystem>
 
 int main(int argc, char *argv[]) {
-    //std::string match;
+    std::string match;
     uint16_t port;
     unsigned int verbosity;
     try {
         util::ArgumentParser argumentParser{argc, argv};
-        //match = argumentParser.getMatch();
+        match = argumentParser.getMatch();
         port = argumentParser.getPort();
         verbosity = argumentParser.getVerbosity();
     } catch (std::invalid_argument &e) {
         std::cerr << e.what() << std::endl;
+        std::exit(1);
+    }
+
+    if(!std::filesystem::exists(match)) {
+        std::cerr << "json file doesn't exist!" << std::endl;
         std::exit(1);
     }
 
