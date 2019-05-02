@@ -37,7 +37,10 @@ namespace communication {
         } else if (!players.second.has_value()) {
             players.second = id;
             log.debug("Got second teamConfig, startingMatch");
-            //@TODO match start
+            //@TODO matchConfig, leftTeamConfig, rightTeamConfig
+            this->sendAll(messages::broadcast::MatchStart{
+                {},{},{},clients.at(players.first.value()).userName,
+                clients.at(players.second.value()).userName});
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
