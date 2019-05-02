@@ -31,6 +31,7 @@ of docker.
  * Adress-Sanitizer for run time checks
  * [SopraNetwork](https://github.com/SoPra-Team-10/Network)
  * [SopraGameLogic](https://github.com/SoPra-Team-10/GameLogic)
+ * [SopraMessages](https://github.com/SoPra-Team-10/Messages)
  * Either a POSIX-Compliant OS or Cygwin (to use pthreads)
  * Optional: Google Tests and Google Mock for Unit-Tests
 
