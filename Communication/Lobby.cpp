@@ -55,12 +55,10 @@ namespace communication {
     template<>
     void Lobby::onPayload(const messages::request::TeamFormation&, int id) {
         if (players.first == id) {
-            //@TODO create a new GameControllerInstance
-            //@TODO send snapshot
+            //@TODO send snapshot if second
             log.debug("Got teamFormation for left team");
         } else if (players.second == id) {
-            //@TODO create a new GameControllerInstance
-            //@TODO send snapshot
+            //@TODO send snapshot if second
             log.debug("Got teamFormation for right team");
         } else {
             this->kickUser(id);
