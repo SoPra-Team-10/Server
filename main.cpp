@@ -1,11 +1,11 @@
 #include <getopt.h>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 #include <Communication/Communicator.hpp>
 #include <Util/ArgumentParser.hpp>
 #include <Util/Logging.hpp>
-#include <filesystem>
-#include <fstream>
 
 int main(int argc, char *argv[]) {
     std::string match;

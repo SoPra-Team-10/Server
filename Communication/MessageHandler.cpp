@@ -42,9 +42,6 @@ namespace communication {
             auto message = json.get<messages::Message>();
             onReceive(message, client);
         } catch (nlohmann::json::exception &e) {
-            this->send(messages::Message{messages::unicast::PrivateDebug{
-                e.what()
-            }}, client);
             log.error("Got invalid json!");
         }
     }
