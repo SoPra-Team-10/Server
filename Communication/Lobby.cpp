@@ -10,7 +10,8 @@
 
 namespace communication {
 
-    Lobby::Lobby(Communicator &communicator, Client client, int id) : communicator{communicator} {
+    Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log)
+        : communicator{communicator}, log{log} {
         this->clients.emplace(id, std::move(client));
         //@TODO join response to user
         //@TODO join response to user
@@ -23,17 +24,21 @@ namespace communication {
     template<>
     void Lobby::onPayload<messages::request::SendDebug>(const messages::request::SendDebug &, int) {
         // Nothing to do...
+        log.debug("Got a debug message");
     }
 
     template<>
     void Lobby::onPayload(const messages::request::TeamConfig&, int id) {
         if (!players.first.has_value()) {
             players.first = id;
+            log.debug("Got first teamConfig");
         } else if (!players.second.has_value()) {
             players.second = id;
+            log.debug("Got second teamConfig, startingMatch");
             //@TODO match start
         } else {
             this->kickUser(id);
+            log.warn("Got more than two teamConfigs, kicking user");
         }
     }
 
@@ -47,11 +52,14 @@ namespace communication {
         if (players.first == id) {
             //@TODO create a new GameControllerInstance
             //@TODO send snapshot
+            log.debug("Got teamFormation for left team");
         } else if (players.second == id) {
             //@TODO create a new GameControllerInstance
             //@TODO send snapshot
+            log.debug("Got teamFormation for right team");
         } else {
             this->kickUser(id);
+            log.warn("Got teamFormation from a spectator, kicking user");
         }
     }
 
@@ -60,6 +68,7 @@ namespace communication {
         messages::broadcast::PauseResponse pauseResponse{
             pauseRequest.getMessage(), this->clients.at(id).userName, true};
         this->sendAll(pauseResponse);
+        log.info("Pause");
     }
 
     template<>
@@ -67,6 +76,7 @@ namespace communication {
         messages::broadcast::PauseResponse pauseResponse{
                 continueRequest.getMessage(), this->clients.at(id).userName, false};
         this->sendAll(pauseResponse);
+        log.info("Continue");
     }
 
     template<>
@@ -75,6 +85,7 @@ namespace communication {
             // @TODO wait for GameController
         } else {
             this->kickUser(clientId);
+            log.warn("Spectator send a DeltaRequest, kicking user");
         }
     }
 
@@ -82,6 +93,7 @@ namespace communication {
     void Lobby::onPayload(const T &, int client) {
         // It seems like the message was not a request
         this->kickUser(client);
+        log.warn("Received message is not a request, kicking user");
     }
 
     void Lobby::onMessage(const messages::Message &message, int id) {

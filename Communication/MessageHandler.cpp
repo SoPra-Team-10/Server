@@ -9,9 +9,10 @@
 
 namespace communication {
 
-    MessageHandler::MessageHandler(uint16_t port) :
+    MessageHandler::MessageHandler(uint16_t port, util::Logging &log) :
         connectionCount{0},
-        webSocketServer{port, "http-only"} {
+        webSocketServer{port, "http-only"},
+        log{log} {
         webSocketServer.connectionListener(
                 std::bind(&MessageHandler::connectionListener, this, std::placeholders::_1));
         webSocketServer.closeListener(
@@ -32,6 +33,7 @@ namespace communication {
         activeConnections.emplace(this->connectionCount, connection);
         connection->receiveListener(std::bind(&MessageHandler::receiveListener,
                 this, this->connectionCount, std::placeholders::_1));
+        log.info("New connection");
     }
 
     void MessageHandler::receiveListener(int client, std::string string) {
@@ -43,6 +45,7 @@ namespace communication {
             this->send(messages::Message{messages::unicast::PrivateDebug{
                 e.what()
             }}, client);
+            log.error("Got invalid json!");
         }
     }
 

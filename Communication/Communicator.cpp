@@ -8,8 +8,8 @@
 #include "Communicator.hpp"
 
 namespace communication {
-    Communicator::Communicator(uint16_t port)
-        : messageHandler{port} {
+    Communicator::Communicator(uint16_t port, util::Logging &log)
+        : messageHandler{port, log}, log{log} {
         messageHandler.onReceive(
                 std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
     }
@@ -22,15 +22,18 @@ namespace communication {
                                  joinRequest.getIsAi(), joinRequest.getMods()};
                 if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                     lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
+                    log.info("New client joins existing lobby");
                 } else {
-                    auto game = std::make_shared<Lobby>(*this, newClient, client);
+                    auto game = std::make_shared<Lobby>(*this, newClient, client, log);
                     lobbyMapping.emplace(joinRequest.getLobby(), game);
                     clientMapping.emplace(client, game);
+                    log.info("New lobby");
                 }
             } else {
                 // User is already in a lobby
                 this->send(messages::Message{
                         messages::unicast::PrivateDebug{"You are already in a Lobby!"}}, client);
+                log.warn("User tried to join a second lobby");
             }
         } else {
             if (clientMapping.find(client) != clientMapping.end()) {
@@ -39,6 +42,7 @@ namespace communication {
                 // Not a known user
                 this->send(messages::Message{
                         messages::unicast::PrivateDebug{"You need to send a JoinRequest first!"}}, client);
+                log.warn("User sent a message without joining");
             }
         }
     }

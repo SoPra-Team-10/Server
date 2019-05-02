@@ -38,7 +38,7 @@ namespace util {
 
             this->ostream << "" << std::put_time(&time,"%F %T:")
                     << std::setfill('0') <<std::setw(3) << (timestamp.count() % 1000)
-                    << "\t" << colorFormat << string << "\n";
+                    << "\t" << colorFormat << string << "\33[0m\n";
         }
     }
 

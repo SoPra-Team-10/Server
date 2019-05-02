@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     util::Logging log{std::cout, verbosity};
 
-    communication::Communicator communicator{port};
+    communication::Communicator communicator{port, log};
 
     log.info("Started server");
 

@@ -10,6 +10,7 @@
 
 #include <utility>
 #include <Communication/Messages/Message.h>
+#include <Util/Logging.hpp>
 
 namespace communication {
     class Communicator;
@@ -22,7 +23,7 @@ namespace communication {
 
     class Lobby {
     public:
-        Lobby(Communicator &communicator, Client client, int id);
+        Lobby(Communicator &communicator, Client client, int id, util::Logging &log);
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
@@ -41,6 +42,7 @@ namespace communication {
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
+        util::Logging &log;
     };
 }
 #endif //SERVER_LOBBY_HPP

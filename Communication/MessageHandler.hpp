@@ -14,13 +14,14 @@
 
 #include <SopraNetwork/WebSocketServer.hpp>
 #include <Communication/Messages/Message.h>
+#include <Util/Logging.hpp>
 
 #include "../Lib/json.hpp"
 
 namespace communication {
     class MessageHandler {
     public:
-        explicit MessageHandler(uint16_t port);
+        MessageHandler(uint16_t port, util::Logging &log);
 
         void sendAll(const messages::Message &message);
         void send(const messages::Message &message, int client);
@@ -33,6 +34,7 @@ namespace communication {
 
         network::WebSocketServer webSocketServer;
         std::map<int, std::shared_ptr<network::Connection>> activeConnections;
+        util::Logging &log;
     };
 }
 

@@ -10,13 +10,14 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <Util/Logging.hpp>
 #include "Lobby.hpp"
 #include "MessageHandler.hpp"
 
 namespace communication {
     class Communicator {
     public:
-        explicit Communicator(uint16_t port);
+        Communicator(uint16_t port, util::Logging &log);
 
         void send(const messages::Message &message, int id);
     private:
@@ -25,6 +26,7 @@ namespace communication {
         MessageHandler messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
+        util::Logging &log;
     };
 }
 
