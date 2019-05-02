@@ -8,8 +8,8 @@
 #include "Communicator.hpp"
 
 namespace communication {
-    Communicator::Communicator(uint16_t port, util::Logging &log)
-        : messageHandler{port, log}, log{log} {
+    Communicator::Communicator(uint16_t port, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig)
+        : messageHandler{port, log}, matchConfig{matchConfig}, log{log} {
         messageHandler.onReceive(
                 std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
     }
@@ -24,7 +24,7 @@ namespace communication {
                     lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
                     log.info("New client joins existing lobby");
                 } else {
-                    auto game = std::make_shared<Lobby>(*this, newClient, client, log);
+                    auto game = std::make_shared<Lobby>(*this, newClient, client, log, matchConfig);
                     lobbyMapping.emplace(joinRequest.getLobby(), game);
                     clientMapping.emplace(client, game);
                     log.info("New lobby");

@@ -10,8 +10,9 @@
 
 namespace communication {
 
-    Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log)
-        : communicator{communicator}, log{log} {
+    Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
+            const messages::broadcast::MatchConfig &matchConfig)
+        : communicator{communicator}, matchConfig{matchConfig}, log{log} {
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         this->clients.emplace(id, std::move(client));

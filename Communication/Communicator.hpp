@@ -17,7 +17,7 @@
 namespace communication {
     class Communicator {
     public:
-        Communicator(uint16_t port, util::Logging &log);
+        Communicator(uint16_t port, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
 
         void send(const messages::Message &message, int id);
     private:
@@ -26,6 +26,7 @@ namespace communication {
         MessageHandler messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
+        const messages::broadcast::MatchConfig &matchConfig;
         util::Logging &log;
     };
 }

@@ -16,8 +16,8 @@ namespace communication::messages::broadcast {
     public:
         MatchConfig() = default;
         MatchConfig(int maxRounds, int playerTurnTimeout, int fanTurnTimeout, int playerPhaseTime, int fanPhaseTime,
-                    int ballPhaseTime, float probGoal, float probThrowSuccess, float probKnockOut, float probFoolAway,
-                    float probCatchSnitch, float probCatchQuaffle, float probWrestQuaffle, float probExtraThinderblast,
+                    int ballPhaseTime, float probThrowSuccess, float probKnockOut, float probFoolAway,
+                    float probCatchSnitch, float probCatchQuaffle, float probWrestQuaffle, float probExtraTinderblast,
                     float probExtraCleansweep, float probExtraComet, float probExtraNimbus, float probExtraFirebolt,
                     float probFoulFlacking, float probFoulHaversacking, float probFoulStooging, float probFoulBlatching,
                     float probFoulSnitchnip, float probFoulElf, float probFoulGoblin, float probFoulTroll,
@@ -29,14 +29,13 @@ namespace communication::messages::broadcast {
         int getPlayerPhaseTime() const;
         int getFanPhaseTime() const;
         int getBallPhaseTime() const;
-        float getProbGoal() const;
         float getProbThrowSuccess() const;
         float getProbKnockOut() const;
         float getProbFoolAway() const;
         float getProbCatchSnitch() const;
         float getProbCatchQuaffle() const;
         float getProbWrestQuaffle() const;
-        float getProbExtraThinderblast() const;
+        float getProbExtraTinderblast() const;
         float getProbExtraCleansweep() const;
         float getProbExtraComet() const;
         float getProbExtraNimbus() const;
@@ -60,8 +59,8 @@ namespace communication::messages::broadcast {
     private:
         int maxRounds;
         int playerTurnTimeout, fanTurnTimeout, playerPhaseTime, fanPhaseTime, ballPhaseTime;
-        float probGoal, probThrowSuccess, probKnockOut, probFoolAway, probCatchSnitch, probCatchQuaffle,
-                probWrestQuaffle, probExtraThinderblast, probExtraCleansweep, probExtraComet, probExtraNimbus,
+        float probThrowSuccess, probKnockOut, probFoolAway, probCatchSnitch, probCatchQuaffle,
+                probWrestQuaffle, probExtraTinderblast, probExtraCleansweep, probExtraComet, probExtraNimbus,
                 probExtraFirebolt, probFoulFlacking, probFoulHaversacking, probFoulStooging, probFoulBlatching,
                 probFoulSnitchnip, probFoulElf, probFoulGoblin, probFoulTroll, probFoulSnitch;
     };

@@ -14,9 +14,9 @@ namespace communication::messages::broadcast {
     }
 
     MatchConfig::MatchConfig(int maxRounds, int playerTurnTimeout, int fanTurnTimeout, int playerPhaseTime,
-                             int fanPhaseTime, int ballPhaseTime, float probGoal, float probThrowSuccess,
+                             int fanPhaseTime, int ballPhaseTime, float probThrowSuccess,
                              float probKnockOut, float probFoolAway, float probCatchSnitch, float probCatchQuaffle,
-                             float probWrestQuaffle, float probExtraThinderblast, float probExtraCleansweep,
+                             float probWrestQuaffle, float probExtraTinderblast, float probExtraCleansweep,
                              float probExtraComet, float probExtraNimbus, float probExtraFirebolt,
                              float probFoulFlacking, float probFoulHaversacking, float probFoulStooging,
                              float probFoulBlatching, float probFoulSnitchnip, float probFoulElf, float probFoulGoblin,
@@ -26,14 +26,13 @@ namespace communication::messages::broadcast {
                                                                           playerPhaseTime{playerPhaseTime},
                                                                           fanPhaseTime{fanPhaseTime},
                                                                           ballPhaseTime{ballPhaseTime},
-                                                                          probGoal{probGoal},
                                                                           probThrowSuccess{probThrowSuccess},
                                                                           probKnockOut{probKnockOut},
                                                                           probFoolAway{probFoolAway},
                                                                           probCatchSnitch{probCatchSnitch},
                                                                           probCatchQuaffle{probCatchQuaffle},
                                                                           probWrestQuaffle{probWrestQuaffle},
-                                                                          probExtraThinderblast{probExtraThinderblast},
+                                                                          probExtraTinderblast{probExtraTinderblast},
                                                                           probExtraCleansweep{probExtraCleansweep},
                                                                           probExtraComet{probExtraComet},
                                                                           probExtraNimbus{probExtraNimbus},
@@ -72,10 +71,6 @@ namespace communication::messages::broadcast {
         return ballPhaseTime;
     }
 
-    float MatchConfig::getProbGoal() const {
-        return probGoal;
-    }
-
     float MatchConfig::getProbThrowSuccess() const {
         return probThrowSuccess;
     }
@@ -100,8 +95,8 @@ namespace communication::messages::broadcast {
         return probWrestQuaffle;
     }
 
-    float MatchConfig::getProbExtraThinderblast() const {
-        return probExtraThinderblast;
+    float MatchConfig::getProbExtraTinderblast() const {
+        return probExtraTinderblast;
     }
 
     float MatchConfig::getProbExtraCleansweep() const {
@@ -163,14 +158,13 @@ namespace communication::messages::broadcast {
                playerPhaseTime == rhs.playerPhaseTime &&
                fanPhaseTime == rhs.fanPhaseTime &&
                ballPhaseTime == rhs.ballPhaseTime &&
-               probGoal == rhs.probGoal &&
                probThrowSuccess == rhs.probThrowSuccess &&
                probKnockOut == rhs.probKnockOut &&
                probFoolAway == rhs.probFoolAway &&
                probCatchSnitch == rhs.probCatchSnitch &&
                probCatchQuaffle == rhs.probCatchQuaffle &&
                probWrestQuaffle == rhs.probWrestQuaffle &&
-               probExtraThinderblast == rhs.probExtraThinderblast &&
+               probExtraTinderblast == rhs.probExtraTinderblast &&
                probExtraCleansweep == rhs.probExtraCleansweep &&
                probExtraComet == rhs.probExtraComet &&
                probExtraNimbus == rhs.probExtraNimbus &&
@@ -197,14 +191,13 @@ namespace communication::messages::broadcast {
         j["timeouts"]["playerPhaseTime"] = matchConfig.getPlayerPhaseTime();
         j["timeouts"]["fanPhaseTime"] = matchConfig.getFanPhaseTime();
         j["timeouts"]["ballPhaseTime"] = matchConfig.getBallPhaseTime();
-        j["probabilities"]["goal"] = matchConfig.getProbGoal();
         j["probabilities"]["throwSuccess"] = matchConfig.getProbThrowSuccess();
         j["probabilities"]["knockOut"] = matchConfig.getProbKnockOut();
         j["probabilities"]["foolAway"] = matchConfig.getProbFoolAway();
-        j["probabilities"]["catchSniff"] = matchConfig.getProbCatchSnitch();
+        j["probabilities"]["catchSnitch"] = matchConfig.getProbCatchSnitch();
         j["probabilities"]["catchQuaffle"] = matchConfig.getProbCatchQuaffle();
         j["probabilities"]["wrestQuaffle"] = matchConfig.getProbWrestQuaffle();
-        j["probabilities"]["extraMove"]["thinderblast"] = matchConfig.getProbExtraThinderblast();
+        j["probabilities"]["extraMove"]["tinderblast"] = matchConfig.getProbExtraTinderblast();
         j["probabilities"]["extraMove"]["cleansweep11"] = matchConfig.getProbExtraCleansweep();
         j["probabilities"]["extraMove"]["comet260"] = matchConfig.getProbExtraComet();
         j["probabilities"]["extraMove"]["nimbus2001"] = matchConfig.getProbExtraNimbus();
@@ -228,14 +221,13 @@ namespace communication::messages::broadcast {
             j.at("timeouts").at("playerPhaseTime").get<int>(),
             j.at("timeouts").at("fanPhaseTime").get<int>(),
             j.at("timeouts").at("ballPhaseTime").get<int>(),
-            j.at("probabilities").at("goal").get<float>(),
             j.at("probabilities").at("throwSuccess").get<float>(),
             j.at("probabilities").at("knockOut").get<float>(),
             j.at("probabilities").at("foolAway").get<float>(),
-            j.at("probabilities").at("catchSniff").get<float>(),
+            j.at("probabilities").at("catchSnitch").get<float>(),
             j.at("probabilities").at("catchQuaffle").get<float>(),
             j.at("probabilities").at("wrestQuaffle").get<float>(),
-            j.at("probabilities").at("extraMove").at("thinderblast").get<float>(),
+            j.at("probabilities").at("extraMove").at("tinderblast").get<float>(),
             j.at("probabilities").at("extraMove").at("cleansweep11").get<float>(),
             j.at("probabilities").at("extraMove").at("comet260").get<float>(),
             j.at("probabilities").at("extraMove").at("nimbus2001").get<float>(),

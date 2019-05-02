@@ -5,6 +5,7 @@
 #include <Util/ArgumentParser.hpp>
 #include <Util/Logging.hpp>
 #include <filesystem>
+#include <fstream>
 
 int main(int argc, char *argv[]) {
     std::string match;
@@ -25,9 +26,26 @@ int main(int argc, char *argv[]) {
         std::exit(1);
     }
 
+    std::ifstream ifstream{match};
+    nlohmann::json j;
+    communication::messages::broadcast::MatchConfig matchConfig{};
+    try {
+        ifstream >>  j;
+    } catch (nlohmann::json::exception &e) {
+        std::cerr << "Not a valid json file!" << std::endl;
+        std::exit(1);
+    }
+    try {
+        matchConfig = j.get<communication::messages::broadcast::MatchConfig>();
+    } catch (nlohmann::json::exception &e) {
+        std::cerr << "Json is not a valid matchConfig: " << e.what() << std::endl;
+        std::exit(1);
+    }
+
+
     util::Logging log{std::cout, verbosity};
 
-    communication::Communicator communicator{port, log};
+    communication::Communicator communicator{port, log, matchConfig};
 
     log.info("Started server");
 
