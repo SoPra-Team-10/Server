@@ -56,7 +56,7 @@ namespace communication::messages::broadcast {
         MatchConfig matchConfig{};
         request::TeamConfig leftTeamConfig, rightTeamConfig;
         std::string leftTeamUserName, rightTeamUserName;
-        std::vector<std::string> spectatrUserNames;
+        std::vector<std::string> spectatorUserNames;
         Snapshot firstSnapshot;
         std::vector<Message> log;
     };

@@ -26,7 +26,7 @@ namespace communication::messages::broadcast {
                                                                      leftTeamUserName(std::move(leftTeamUserName)),
                                                                      rightTeamUserName(std::move(
                                                                              rightTeamUserName)),
-                                                                     spectatrUserNames(std::move(
+                                                                     spectatorUserNames(std::move(
                                                                              spectatrUserNames)),
                                                                      firstSnapshot(std::move(firstSnapshot)),
                                                                      log(std::move(log)) {}
@@ -56,7 +56,7 @@ namespace communication::messages::broadcast {
     }
 
     std::vector<std::string> Replay::getSpectatrUserNames() const {
-        return spectatrUserNames;
+        return spectatorUserNames;
     }
 
     Snapshot Replay::getFirstSnapshot() const {
@@ -74,7 +74,7 @@ namespace communication::messages::broadcast {
                rightTeamConfig == rhs.rightTeamConfig &&
                leftTeamUserName == rhs.leftTeamUserName &&
                rightTeamUserName == rhs.rightTeamUserName &&
-               spectatrUserNames == rhs.spectatrUserNames &&
+               spectatorUserNames == rhs.spectatorUserNames &&
                firstSnapshot == rhs.firstSnapshot &&
                log == rhs.log;
     }

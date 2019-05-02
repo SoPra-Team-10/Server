@@ -12,12 +12,14 @@ namespace communication {
 
     Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log)
         : communicator{communicator}, log{log} {
+        this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
+        this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         this->clients.emplace(id, std::move(client));
-        //@TODO join response to user
-        //@TODO join response to user
     }
 
     void Lobby::addSpectator(Client client, int id) {
+        this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
+        this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         this->clients.emplace(id, std::move(client));
     }
 
@@ -91,7 +93,6 @@ namespace communication {
 
     template<typename T>
     void Lobby::onPayload(const T &, int client) {
-        // It seems like the message was not a request
         this->kickUser(client);
         log.warn("Received message is not a request, kicking user");
     }
