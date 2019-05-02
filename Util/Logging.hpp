@@ -10,20 +10,25 @@
 
 #include <ostream>
 
-class Logging {
-public:
-    Logging(std::ostream &ostream, unsigned int loggingLevel);
+namespace util {
+    class Logging {
+    public:
+        Logging(std::ostream &ostream, unsigned int loggingLevel);
 
-    void error();
-    void warn();
-    void log();
-    void debug();
-private:
-    void logImpl(const std::string &string);
+        void error(const std::string &msg);
 
-    std::ostream &ostream;
-    unsigned int loggingLevel;
-};
+        void warn(const std::string &msg);
 
+        void info(const std::string &msg);
+
+        void debug(const std::string &msg);
+
+    private:
+        void logImpl(const std::string &string, unsigned int level, const std::string &colorFormat);
+
+        std::ostream &ostream;
+        unsigned int loggingLevel;
+    };
+}
 
 #endif //SERVER_LOGGING_HPP
