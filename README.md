@@ -12,7 +12,7 @@ In the root directory of the project build the docker image
 ("server" is the name of the container, this can be replaced by a
 different name):
 ```
-docker build -t server *
+docker build -t server .
 ```
 
 Now start the container:
