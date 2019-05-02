@@ -52,13 +52,13 @@ you can now run the server by executing the created `Server` file:
 ```
 
 ## Log-Levels
-| Log-Level | Explanation |
+| Log-Level | Color | Explanation |
 | --- | --- |
-| 0 | No log messages |
-| 1 | Only error messages |
-| 2 | Error messages and warning |
-| 3 | Error messages, warning and info messages |
-| 4 | All messages (error, warning, info and debug) |
+| 0 | - | No log messages |
+| 1 | Red | Only error messages |
+| 2 | Yellow | Error messages and warning |
+| 3 | Blue | Error messages, warning and info messages |
+| 4 | White | All messages (error, warning, info and debug) |
 
 ## External Librarys
  * [SopraNetwork](https://github.com/SoPra-Team-10/Network)
