@@ -9,7 +9,7 @@
 #define SERVER_LOBBY_HPP
 
 #include <utility>
-#include <Communication/Messages/Message.h>
+#include <SopraMessages/Message.hpp>
 #include <Util/Logging.hpp>
 
 namespace communication {

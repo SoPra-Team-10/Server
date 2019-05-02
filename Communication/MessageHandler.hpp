@@ -13,10 +13,11 @@
 #include <iomanip>
 
 #include <SopraNetwork/WebSocketServer.hpp>
-#include <Communication/Messages/Message.h>
+#include <SopraMessages/Message.hpp>
+#include <SopraMessages/json.hpp>
+
 #include <Util/Logging.hpp>
 
-#include "../Lib/json.hpp"
 
 namespace communication {
     class MessageHandler {
