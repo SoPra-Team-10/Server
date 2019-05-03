@@ -12,7 +12,7 @@ namespace communication {
 
     Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-        : communicator{communicator}, matchConfig{matchConfig}, log{log} {
+        : communicator{communicator}, state{LobbyState::INITIAL}, matchConfig{matchConfig}, log{log} {
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         this->clients.emplace(id, std::move(client));
@@ -37,11 +37,12 @@ namespace communication {
             log.debug("Got first teamConfig");
         } else if (!players.second.has_value()) {
             players.second = id;
-            log.debug("Got second teamConfig, startingMatch");
+            log.info("Got second teamConfig, startingMatch");
             //@TODO matchConfig, leftTeamConfig, rightTeamConfig
             this->sendAll(messages::broadcast::MatchStart{
                 {},{},{},clients.at(players.first.value()).userName,
                 clients.at(players.second.value()).userName});
+            this->state = LobbyState::WAITING_FORMATION;
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
@@ -49,49 +50,73 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::GetReplay&, int ) {
-        // @TODO send replay if game is finished
+    void Lobby::onPayload(const messages::request::GetReplay&, int id) {
+        if (state == LobbyState::FINISHED) {
+            // @TODO send replay if game is finished, optional
+        } else {
+            this->sendSingle(messages::unicast::PrivateDebug{"Replay not implemented!"}, id);
+        }
     }
 
     template<>
     void Lobby::onPayload(const messages::request::TeamFormation&, int id) {
-        if (players.first == id) {
-            //@TODO send snapshot if second
-            log.debug("Got teamFormation for left team");
-        } else if (players.second == id) {
-            //@TODO send snapshot if second
-            log.debug("Got teamFormation for right team");
+        if (this->state == LobbyState::WAITING_FORMATION) {
+            if (players.first == id) {
+                //@TODO send snapshot if second, change state
+                log.debug("Got teamFormation for left team");
+            } else if (players.second == id) {
+                //@TODO send snapshot if second, change state
+                log.debug("Got teamFormation for right team");
+            } else {
+                this->kickUser(id);
+                log.warn("Got teamFormation from a spectator, kicking user");
+            }
         } else {
             this->kickUser(id);
-            log.warn("Got teamFormation from a spectator, kicking user");
+            log.warn("Got teamFormation in wrong state");
         }
     }
 
     template<>
     void Lobby::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
-        if (!clients.at(id).isAi) {
+        if (!clients.at(id).isAi && (state == LobbyState::GAME || state == LobbyState::PAUSE)) {
             messages::broadcast::PauseResponse pauseResponse{
                     pauseRequest.getMessage(), this->clients.at(id).userName, true};
             this->sendAll(pauseResponse);
             log.info("Pause");
+            state = LobbyState::PAUSE;
         } else {
-            this->sendSingle(messages::unicast::PrivateDebug{"Ai is not allowed to request a pause!"}, id);
+            this->sendSingle(messages::unicast::PrivateDebug{"Invalid pause request either AI or Game not started"}, id);
             this->kickUser(id);
+            log.warn("Invalid pause request");
         }
     }
 
     template<>
     void Lobby::onPayload(const messages::request::ContinueRequest &continueRequest, int id) {
-        messages::broadcast::PauseResponse pauseResponse{
-                continueRequest.getMessage(), this->clients.at(id).userName, false};
-        this->sendAll(pauseResponse);
-        log.info("Continue");
+        if (state == LobbyState::PAUSE) {
+            messages::broadcast::PauseResponse pauseResponse{
+                    continueRequest.getMessage(), this->clients.at(id).userName, false};
+            this->sendAll(pauseResponse);
+            log.info("Continue");
+            state = LobbyState::GAME;
+        } else {
+            this->sendSingle(messages::unicast::PrivateDebug{"Not paused"}, id);
+            this->kickUser(id);
+            log.warn("Client sent a continue while not paused");
+        }
     }
 
     template<>
     void Lobby::onPayload(const messages::request::DeltaRequest &, int clientId) {
         if (clientId == players.first || clientId == players.second) {
-            // @TODO wait for GameController
+            if (state == LobbyState::GAME) {
+                // @TODO wait for GameController
+            } else {
+                this->kickUser(clientId);
+                this->sendSingle(messages::unicast::PrivateDebug{"Not in game"}, clientId);
+                log.warn("Client sent a DeltaRequest while not in game");
+            }
         } else {
             this->kickUser(clientId);
             log.warn("Spectator send a DeltaRequest, kicking user");
@@ -147,10 +172,12 @@ namespace communication {
             // @TODO fill endRound, leftPoints, rightPoints
             messages::broadcast::MatchFinish matchFinish{0,0,0,winner,
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
+            this->sendAll(matchFinish);
         } else {
             // Kick a spectator by sending a MatchFinish message without a winner
             messages::broadcast::MatchFinish matchFinish{0,0,0,"",
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
+            this->sendSingle(matchFinish, id);
         }
         clients.erase(clients.find(id));
         communicator.removeClient(id);
@@ -171,6 +198,7 @@ namespace communication {
             // @TODO fill endRound, leftPoints, rightPoints
             messages::broadcast::MatchFinish matchFinish{0,0,0,winner,
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
+            this->sendAll(matchFinish);
         }
         clients.erase(clients.find(id));
         communicator.removeClient(id);

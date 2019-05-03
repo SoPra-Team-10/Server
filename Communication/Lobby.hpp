@@ -21,6 +21,10 @@ namespace communication {
         std::vector<std::string> mods;
     };
 
+    enum class LobbyState {
+        INITIAL, WAITING_FORMATION, GAME, PAUSE, FINISHED
+    };
+
     class Lobby {
     public:
         Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
@@ -41,6 +45,7 @@ namespace communication {
         void onPayload(const T &, int id);
 
         Communicator &communicator;
+        LobbyState state;
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
