@@ -31,16 +31,18 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::TeamConfig&, int id) {
+    void Lobby::onPayload(const messages::request::TeamConfig &teamConfig, int id) {
         if (!players.first.has_value()) {
             players.first = id;
             log.debug("Got first teamConfig");
+            teamConfigs.first = teamConfig;
         } else if (!players.second.has_value()) {
             players.second = id;
             log.info("Got second teamConfig, startingMatch");
-            //@TODO matchConfig, leftTeamConfig, rightTeamConfig
+            teamConfigs.second = teamConfig;
             this->sendAll(messages::broadcast::MatchStart{
-                {},{},{},clients.at(players.first.value()).userName,
+                matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                clients.at(players.first.value()).userName,
                 clients.at(players.second.value()).userName});
             this->state = LobbyState::WAITING_FORMATION;
         } else {
@@ -59,14 +61,30 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::TeamFormation&, int id) {
+    void Lobby::onPayload(const messages::request::TeamFormation &teamFormation, int id) {
         if (this->state == LobbyState::WAITING_FORMATION) {
             if (players.first == id) {
-                //@TODO send snapshot if second, change state
                 log.debug("Got teamFormation for left team");
+                if (firstTeamFormation.has_value()) {
+                    game = Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                                teamFormation, firstTeamFormation.value()};
+                    state = LobbyState::GAME;
+                    log.info("Starting game");
+                    // @TODO send snapshot
+                } else {
+                    firstTeamFormation = teamFormation;
+                }
             } else if (players.second == id) {
-                //@TODO send snapshot if second, change state
                 log.debug("Got teamFormation for right team");
+                if (firstTeamFormation.has_value()) {
+                    game = Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                                firstTeamFormation.value(), teamFormation};
+                    state = LobbyState::GAME;
+                    log.info("Starting game");
+                    // @TODO send snapshot
+                } else {
+                    firstTeamFormation = teamFormation;
+                }
             } else {
                 this->kickUser(id);
                 log.warn("Got teamFormation from a spectator, kicking user");
@@ -108,10 +126,14 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::DeltaRequest &, int clientId) {
+    void Lobby::onPayload(const messages::request::DeltaRequest &deltaRequest, int clientId) {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
-                // @TODO wait for GameController
+                if (game.value().executeDelta(deltaRequest)) {
+                    // @TODO what happens here?
+                } else {
+                    // @TODO send an error?
+                }
             } else {
                 this->kickUser(clientId);
                 this->sendSingle(messages::unicast::PrivateDebug{"Not in game"}, clientId);
@@ -135,12 +157,6 @@ namespace communication {
         }, message.getPayload());
     }
 
-    void Lobby::sendRight(const messages::Payload &payload) {
-        if (players.second.has_value()) {
-            this->sendSingle(payload, players.second.value());
-        }
-    }
-
     void Lobby::sendAll(const messages::Payload &payload) {
         for (const auto &c : this->clients) {
             this->sendSingle(payload, c.first);
@@ -149,12 +165,6 @@ namespace communication {
 
     void Lobby::sendSingle(const messages::Payload &payload, int id) {
         this->communicator.send(messages::Message{payload}, id);
-    }
-
-    void Lobby::sendLeft(const messages::Payload &payload) {
-        if (players.first.has_value()) {
-            this->sendSingle(payload, players.first.value());
-        }
     }
 
     void Lobby::kickUser(int id) {

@@ -53,7 +53,7 @@ communication::messages::broadcast::Next Game::getNextActor() {
     return communication::messages::broadcast::Next();
 }
 
-bool Game::executeDelta() {
+bool Game::executeDelta(communication::messages::request::DeltaRequest) {
     std::cout<<"executeDelta is called"<<std::endl;
     return false;
 }

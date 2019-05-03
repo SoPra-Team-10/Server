@@ -10,6 +10,7 @@
 #include <SopraMessages/Next.hpp>
 #include <SopraMessages/TeamConfig.hpp>
 #include <SopraMessages/TeamFormation.hpp>
+#include <SopraMessages/DeltaRequest.hpp>
 
 class Game {
 public:
@@ -17,7 +18,7 @@ public:
     void pause();
     void resume();
     communication::messages::broadcast::Next getNextActor();
-    bool executeDelta();
+    bool executeDelta(communication::messages::request::DeltaRequest);
 };
 
 

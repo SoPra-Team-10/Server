@@ -11,6 +11,7 @@
 #include <utility>
 #include <SopraMessages/Message.hpp>
 #include <Util/Logging.hpp>
+#include <Game/Game.h>
 
 namespace communication {
     class Communicator;
@@ -36,8 +37,6 @@ namespace communication {
 
         void kickUser(int id);
     private:
-        void sendLeft(const messages::Payload &payload);
-        void sendRight(const messages::Payload  &payload);
         void sendAll(const messages::Payload  &payload);
         void sendSingle(const messages::Payload &payload, int id);
 
@@ -49,6 +48,10 @@ namespace communication {
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
+        std::pair<std::optional<communication::messages::request::TeamConfig>,
+            std::optional<communication::messages::request::TeamConfig>> teamConfigs;
+        std::optional<communication::messages::request::TeamFormation> firstTeamFormation;
+        std::optional<Game> game;
         const messages::broadcast::MatchConfig &matchConfig;
         util::Logging &log;
     };
