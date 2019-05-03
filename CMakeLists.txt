@@ -20,7 +20,8 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/Util/Logging.cpp
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
-        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp
+        ${CMAKE_SOURCE_DIR}/Game/Game.cpp)
 set(LIBS pthread)
 
 
