@@ -15,9 +15,10 @@ different name):
 docker build -t server *
 ```
 
-Now start the container:
+Now start the container, you need to map the internal port
+(8080 by default, to some external port 80 in this case):
 ```
-docker run server
+docker run -p 80:8080 server
 ```
 That's it you should now have a running docker instance.
 
