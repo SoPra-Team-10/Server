@@ -39,8 +39,7 @@ set(MESSAGE_TYPE_SOURCES
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/PrivateDebug.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Unicast/Reconnect.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Messages/Common/types.cpp
-        ${CMAKE_SOURCE_DIR}/Communication/Messages/Common/Delta.cpp
-        ${CMAKE_SOURCE_DIR}/Game/game.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/Messages/Common/Delta.cpp)
 
 set(SOURCES
         ${MESSAGE_TYPE_SOURCES}
@@ -48,7 +47,8 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/Util/Logging.cpp
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
-        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp)
+        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp
+        ${CMAKE_SOURCE_DIR}/Game/Game.cpp)
 set(LIBS pthread)
 
 
