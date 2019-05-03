@@ -57,3 +57,19 @@ bool Game::executeDelta(communication::messages::request::DeltaRequest) {
     std::cout<<"executeDelta is called"<<std::endl;
     return false;
 }
+
+auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
+    return communication::messages::broadcast::Snapshot();
+}
+
+auto Game::getEndRound() const -> int {
+    return 0;
+}
+
+auto Game::getLeftPoints() const -> int {
+    return 0;
+}
+
+auto Game::getRightPoints() const -> int {
+    return 0;
+}

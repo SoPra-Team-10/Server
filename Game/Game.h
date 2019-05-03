@@ -11,6 +11,7 @@
 #include <SopraMessages/TeamConfig.hpp>
 #include <SopraMessages/TeamFormation.hpp>
 #include <SopraMessages/DeltaRequest.hpp>
+#include <SopraMessages/Snapshot.hpp>
 
 class Game {
 public:
@@ -19,6 +20,10 @@ public:
     void resume();
     communication::messages::broadcast::Next getNextActor();
     bool executeDelta(communication::messages::request::DeltaRequest);
+    auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
+    auto getEndRound() const -> int;
+    auto getLeftPoints() const -> int;
+    auto getRightPoints() const -> int;
 };
 
 

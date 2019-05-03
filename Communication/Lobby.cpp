@@ -70,7 +70,7 @@ namespace communication {
                                 teamFormation, firstTeamFormation.value()};
                     state = LobbyState::GAME;
                     log.info("Starting game");
-                    // @TODO send snapshot
+                    this->sendAll(game.value().getSnapshot());
                 } else {
                     firstTeamFormation = teamFormation;
                 }
@@ -81,7 +81,7 @@ namespace communication {
                                 firstTeamFormation.value(), teamFormation};
                     state = LobbyState::GAME;
                     log.info("Starting game");
-                    // @TODO send snapshot
+                    this->sendAll(game.value().getSnapshot());
                 } else {
                     firstTeamFormation = teamFormation;
                 }
@@ -130,9 +130,12 @@ namespace communication {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
                 if (game.value().executeDelta(deltaRequest)) {
-                    // @TODO what happens here?
+                    this->sendAll(game.value().getSnapshot());
                 } else {
-                    // @TODO send an error?
+                    // According to the spec the user needs to get kicked
+                    this->kickUser(clientId);
+                    this->sendSingle(messages::unicast::PrivateDebug{"Not in game"}, clientId);
+                    log.warn("Client sent an invalid deltaRequest");
                 }
             } else {
                 this->kickUser(clientId);
@@ -179,8 +182,9 @@ namespace communication {
                     winner = clients.at(players.first.value()).userName;
                 }
             }
-            // @TODO fill endRound, leftPoints, rightPoints
-            messages::broadcast::MatchFinish matchFinish{0,0,0,winner,
+            messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
+                                                         game.value().getLeftPoints(),
+                                                         game.value().getRightPoints(),winner,
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendAll(matchFinish);
         } else {
@@ -205,8 +209,9 @@ namespace communication {
                     winner = clients.at(players.first.value()).userName;
                 }
             }
-            // @TODO fill endRound, leftPoints, rightPoints
-            messages::broadcast::MatchFinish matchFinish{0,0,0,winner,
+            messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
+                                                         game.value().getLeftPoints(),
+                                                         game.value().getRightPoints(),winner,
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendAll(matchFinish);
         }
