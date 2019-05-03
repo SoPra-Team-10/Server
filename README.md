@@ -19,7 +19,7 @@ Now start the container, you need to map the internal port
 (8080 by default, to some external port 80 in this case) and
 map the external file (match.json) to an internal file:
 ```
-docker run -v $(pwd)/match.json:match.json -p 80:8080 server Server -m /match.json -p 8080
+docker run -v $(pwd)/match.json:match.json -p 80:8080 server ./Server -m /match.json -p 8080
 ```
 That's it you should now have a running docker instance.
 
