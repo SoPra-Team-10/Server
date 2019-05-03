@@ -69,10 +69,15 @@ namespace communication {
 
     template<>
     void Lobby::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
-        messages::broadcast::PauseResponse pauseResponse{
-            pauseRequest.getMessage(), this->clients.at(id).userName, true};
-        this->sendAll(pauseResponse);
-        log.info("Pause");
+        if (!clients.at(id).isAi) {
+            messages::broadcast::PauseResponse pauseResponse{
+                    pauseRequest.getMessage(), this->clients.at(id).userName, true};
+            this->sendAll(pauseResponse);
+            log.info("Pause");
+        } else {
+            this->sendSingle(messages::unicast::PrivateDebug{"Ai is not allowed to request a pause!"}, id);
+            this->kickUser(id);
+        }
     }
 
     template<>
