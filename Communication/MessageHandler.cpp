@@ -56,8 +56,8 @@ namespace communication {
         // Reverse lookup in O(n)
         for (auto it = this->activeConnections.begin(); it != this->activeConnections.end(); ++it) {
             if (it->second.get() == connection.get()) {
-                this->activeConnections.erase(it);
                 onClose(it->first);
+                this->activeConnections.erase(it);
                 return;
             }
         }
