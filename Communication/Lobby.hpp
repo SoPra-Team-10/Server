@@ -53,8 +53,10 @@ namespace communication {
         std::pair<std::optional<int>, std::optional<int>> players;
         std::pair<std::optional<communication::messages::request::TeamConfig>,
             std::optional<communication::messages::request::TeamConfig>> teamConfigs;
-        std::optional<communication::messages::request::TeamFormation> firstTeamFormation;
+        std::pair<std::optional<communication::messages::request::TeamFormation>,
+        std::optional<communication::messages::request::TeamFormation>> teamFormations;
         std::optional<Game> game;
+        std::optional<communication::messages::broadcast::Next> lastNext;
         const messages::broadcast::MatchConfig &matchConfig;
         util::Logging &log;
     };

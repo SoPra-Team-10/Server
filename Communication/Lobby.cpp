@@ -22,6 +22,15 @@ namespace communication {
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         this->clients.emplace(id, std::move(client));
+        if (state == LobbyState::GAME) {
+            sendSingle(communication::messages::unicast::Reconnect{
+                    messages::broadcast::MatchStart{
+                        matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                        clients.at(players.first.value()).userName,
+                        clients.at(players.second.value()).userName},
+                    game.value().getSnapshot()
+            }, id);
+        }
     }
 
     template<>
@@ -63,33 +72,34 @@ namespace communication {
     template<>
     void Lobby::onPayload(const messages::request::TeamFormation &teamFormation, int id) {
         if (this->state == LobbyState::WAITING_FORMATION) {
-            if (players.first == id) {
+            if (players.first == id || players.second == id) {
                 log.debug("Got teamFormation for left team");
-                if (firstTeamFormation.has_value()) {
-                    game.emplace(Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                                teamFormation, firstTeamFormation.value()});
-                    game.value().timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
-                    game.value().winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
-                            std::placeholders::_2));
-                    state = LobbyState::GAME;
-                    log.info("Starting game");
-                    this->sendAll(game.value().getSnapshot());
-                } else {
-                    firstTeamFormation = teamFormation;
+
+                if (players.first == id) {
+                    if (teamFormations.first.has_value()) {
+                        kickUser(id);
+                        log.warn("Player 1 sent two teamFormations");
+                    } else {
+                        teamFormations.first = teamFormation;
+                    }
+                } else if (players.second == id) {
+                    if (teamFormations.second.has_value()) {
+                        kickUser(id);
+                        log.warn("Player 2 sent two teamFormations");
+                    } else {
+                        teamFormations.second = teamFormation;
+                    }
                 }
-            } else if (players.second == id) {
-                log.debug("Got teamFormation for right team");
-                if (firstTeamFormation.has_value()) {
+
+                if (teamFormations.first.has_value() && teamFormations.second.has_value()) {
                     game.emplace(Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                                firstTeamFormation.value(), teamFormation});
+                                      teamFormations.first.value(), teamFormations.second.value()});
                     game.value().timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
                     game.value().winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
                     state = LobbyState::GAME;
                     log.info("Starting game");
                     this->sendAll(game.value().getSnapshot());
-                } else {
-                    firstTeamFormation = teamFormation;
                 }
             } else {
                 this->kickUser(id);
@@ -137,7 +147,9 @@ namespace communication {
             if (state == LobbyState::GAME) {
                 if (game.value().executeDelta(deltaRequest)) {
                     this->sendAll(game.value().getSnapshot());
-                    this->sendAll(game.value().getNextActor());
+                    auto next = game.value().getNextActor();
+                    lastNext = next;
+                    this->sendAll(next);
                 } else {
                     // According to the spec the user needs to get kicked
                     this->kickUser(clientId);
