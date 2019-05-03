@@ -55,8 +55,9 @@ you can now run the server by executing the created `Server` file:
 ```
 
 ## Log-Levels
+
 | Log-Level | Color | Explanation |
-| --- | --- |
+| ----- | ----- | ---- |
 | 0 | - | No log messages |
 | 1 | Red | Only error messages |
 | 2 | Yellow | Error messages and warning |
