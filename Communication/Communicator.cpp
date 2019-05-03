@@ -12,6 +12,8 @@ namespace communication {
         : messageHandler{port, log}, matchConfig{matchConfig}, log{log} {
         messageHandler.onReceive(
                 std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
+        messageHandler.onClose(
+                std::bind(&Communicator::closeEvent, this, std::placeholders::_1));
     }
 
     void Communicator::receive(messages::Message message, int client) {
@@ -49,5 +51,19 @@ namespace communication {
 
     void Communicator::send(const messages::Message &message, int id) {
         this->messageHandler.send(message, id);
+    }
+
+    void Communicator::closeEvent(int id) {
+        if (clientMapping.find(id) != clientMapping.end()) {
+            clientMapping.at(id)->onLeave(id);
+            clientMapping.erase(clientMapping.find(id));
+        }
+    }
+
+    void Communicator::removeClient(int id) {
+        if (clientMapping.find(id) != clientMapping.end()) {
+            clientMapping.at(id)->onLeave(id);
+            clientMapping.erase(clientMapping.find(id));
+        }
     }
 }

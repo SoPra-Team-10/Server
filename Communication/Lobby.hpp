@@ -28,6 +28,7 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
+        void onLeave(int id);
 
         void kickUser(int id);
     private:

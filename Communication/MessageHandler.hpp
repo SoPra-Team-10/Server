@@ -27,6 +27,7 @@ namespace communication {
         void sendAll(const messages::Message &message);
         void send(const messages::Message &message, int client);
         const util::Listener<messages::Message,int> onReceive;
+        const util::Listener<int> onClose;
     private:
         void connectionListener(std::shared_ptr<network::Connection> connection);
         void receiveListener(int client, std::string string);

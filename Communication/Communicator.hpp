@@ -20,8 +20,10 @@ namespace communication {
         Communicator(uint16_t port, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
 
         void send(const messages::Message &message, int id);
+        void removeClient(int id);
     private:
         void receive(messages::Message message, int client);
+        void closeEvent(int id);
 
         MessageHandler messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
