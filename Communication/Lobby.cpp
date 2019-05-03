@@ -66,8 +66,11 @@ namespace communication {
             if (players.first == id) {
                 log.debug("Got teamFormation for left team");
                 if (firstTeamFormation.has_value()) {
-                    game = Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                                teamFormation, firstTeamFormation.value()};
+                    game.emplace(Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                                teamFormation, firstTeamFormation.value()});
+                    game.value().timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
+                    game.value().winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
+                            std::placeholders::_2));
                     state = LobbyState::GAME;
                     log.info("Starting game");
                     this->sendAll(game.value().getSnapshot());
@@ -77,8 +80,11 @@ namespace communication {
             } else if (players.second == id) {
                 log.debug("Got teamFormation for right team");
                 if (firstTeamFormation.has_value()) {
-                    game = Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                                firstTeamFormation.value(), teamFormation};
+                    game.emplace(Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                                firstTeamFormation.value(), teamFormation});
+                    game.value().timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
+                    game.value().winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
+                                                       std::placeholders::_2));
                     state = LobbyState::GAME;
                     log.info("Starting game");
                     this->sendAll(game.value().getSnapshot());
@@ -131,6 +137,7 @@ namespace communication {
             if (state == LobbyState::GAME) {
                 if (game.value().executeDelta(deltaRequest)) {
                     this->sendAll(game.value().getSnapshot());
+                    this->sendAll(game.value().getNextActor());
                 } else {
                     // According to the spec the user needs to get kicked
                     this->kickUser(clientId);
@@ -187,6 +194,7 @@ namespace communication {
                                                          game.value().getRightPoints(),winner,
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendAll(matchFinish);
+            state = LobbyState::FINISHED;
         } else {
             // Kick a spectator by sending a MatchFinish message without a winner
             messages::broadcast::MatchFinish matchFinish{0,0,0,"",
@@ -203,10 +211,12 @@ namespace communication {
             if (id == players.first) {
                 if (players.second.has_value()) {
                     winner = clients.at(players.second.value()).userName;
+                    state = LobbyState::FINISHED;
                 }
             } else {
                 if (players.first.has_value()) {
                     winner = clients.at(players.first.value()).userName;
+                    state = LobbyState::FINISHED;
                 }
             }
             messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
@@ -217,6 +227,33 @@ namespace communication {
         }
         clients.erase(clients.find(id));
         communicator.removeClient(id);
+    }
+
+    void Lobby::onTimeout(TeamSide teamSide) {
+        int id;
+        if (teamSide == TeamSide::LEFT) {
+            id = players.first.value();
+        } else {
+            id = players.second.value();
+        }
+        this->sendSingle(messages::unicast::PrivateDebug{"Timeout"},id);
+        this->kickUser(id);
+    }
+
+    void Lobby::onWin(TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
+        int winnerId;
+        if (teamSide == TeamSide::LEFT) {
+            winnerId = players.first.value();
+        } else {
+            winnerId = players.second.value();
+        }
+        std::string winner = clients.at(winnerId).userName;
+
+        messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
+                                                     game.value().getLeftPoints(),
+                                                     game.value().getRightPoints(),winner, victoryReason};
+        this->sendAll(matchFinish);
+        state = LobbyState::FINISHED;
     }
 
 }

@@ -43,6 +43,9 @@ namespace communication {
         template <typename T>
         void onPayload(const T &, int id);
 
+        void onTimeout(TeamSide teamSide);
+        void onWin(TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
+
         Communicator &communicator;
         LobbyState state;
 
