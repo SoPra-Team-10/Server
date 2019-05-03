@@ -6,14 +6,10 @@
 #define SERVER_GAME_H
 
 #include <SopraNetwork/Listener.hpp>
-#include <Communication/Messages/Broadcast/MatchConfig.hpp>
-#include <Communication/Messages/Broadcast/Next.hpp>
-#include <Communication/Messages/Request/TeamConfig.hpp>
-#include <Communication/Messages/Request/TeamFormation.hpp>
-
-enum Side{
-    left,right
-};
+#include <SopraMessages/MatchConfig.hpp>
+#include <SopraMessages/Next.hpp>
+#include <SopraMessages/TeamConfig.hpp>
+#include <SopraMessages/TeamFormation.hpp>
 
 class Game {
 public:

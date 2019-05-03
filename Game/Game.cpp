@@ -6,11 +6,11 @@
 #include "iostream"
 
 
-Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
-           communication::messages::request::TeamConfig teamConfig1,
-           communication::messages::request::TeamConfig teamConfig2,
-           communication::messages::request::TeamFormation teamFormation1,
-           communication::messages::request::TeamFormation teamFormation2)
+Game::Game(communication::messages::broadcast::MatchConfig ,
+           communication::messages::request::TeamConfig ,
+           communication::messages::request::TeamConfig ,
+           communication::messages::request::TeamFormation ,
+           communication::messages::request::TeamFormation )
            //: env(config(matchConfig.getMaxRounds(),
            //{matchConfig.getPlayerTurnTimeout(),matchConfig.getFanTurnTimeout(), matchConfig.getPlayerPhaseTime(), matchConfig.getFanPhaseTime(), matchConfig.getBallPhaseTime()},
            //{matchConfig.getProbFoulStooging(),matchConfig}))
