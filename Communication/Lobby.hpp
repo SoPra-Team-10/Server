@@ -9,7 +9,7 @@
 #define SERVER_LOBBY_HPP
 
 #include <utility>
-#include <Communication/Messages/Message.h>
+#include <SopraMessages/Message.hpp>
 #include <Util/Logging.hpp>
 
 namespace communication {
@@ -23,7 +23,8 @@ namespace communication {
 
     class Lobby {
     public:
-        Lobby(Communicator &communicator, Client client, int id, util::Logging &log);
+        Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
+                const messages::broadcast::MatchConfig &matchConfig);
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
@@ -42,6 +43,7 @@ namespace communication {
 
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
+        const messages::broadcast::MatchConfig &matchConfig;
         util::Logging &log;
     };
 }

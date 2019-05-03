@@ -42,10 +42,13 @@ namespace communication {
             auto message = json.get<messages::Message>();
             onReceive(message, client);
         } catch (nlohmann::json::exception &e) {
-            this->send(messages::Message{messages::unicast::PrivateDebug{
-                e.what()
-            }}, client);
-            log.error("Got invalid json!");
+            // For some strange reason js sends an empty string on connection breakup...
+            if (!string.empty()) {
+                this->send(messages::Message{messages::unicast::PrivateDebug{
+                        e.what()
+                }}, client);
+                log.error("Got invalid json!");
+            }
         }
     }
 

@@ -39,7 +39,7 @@ namespace util {
                     try {
                         verbosityI = std::stoi(optarg);
                     } catch (std::invalid_argument &e) {
-                        throw std::invalid_argument{"Verbosit is not a valid integer"};
+                        throw std::invalid_argument{"Verbosity is not a valid integer"};
                     }
                     break;
                 default:

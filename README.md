@@ -12,7 +12,7 @@ In the root directory of the project build the docker image
 ("server" is the name of the container, this can be replaced by a
 different name):
 ```
-docker build -t server *
+docker build -t server .
 ```
 
 Now start the container, you need to map the internal port
@@ -32,6 +32,7 @@ of docker.
  * Adress-Sanitizer for run time checks
  * [SopraNetwork](https://github.com/SoPra-Team-10/Network)
  * [SopraGameLogic](https://github.com/SoPra-Team-10/GameLogic)
+ * [SopraMessages](https://github.com/SoPra-Team-10/Messages)
  * Either a POSIX-Compliant OS or Cygwin (to use pthreads)
  * Optional: Google Tests and Google Mock for Unit-Tests
 

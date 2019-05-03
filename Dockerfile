@@ -32,6 +32,12 @@ RUN git clone https://github.com/SoPra-Team-10/GameLogic.git
 WORKDIR /GameLogic
 RUN cmake . && make -j$(nproc) SopraGameLogic && make install
 
+# Compile Messages
+WORKDIR /
+RUN git clone https://github.com/SoPra-Team-10/Messages.git
+WORKDIR /Messages
+RUN cmake . && make -j$(nproc) SopraMessages && make install
+
 RUN ldconfig
 
 RUN mkdir /src
