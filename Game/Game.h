@@ -13,6 +13,8 @@
 #include <SopraMessages/DeltaRequest.hpp>
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
+#include <chrono>
+#include "Timer.h"
 
 enum class TeamSide : char {
     LEFT, RIGHT
@@ -21,6 +23,7 @@ enum class TeamSide : char {
 class Game {
 public:
     gameModel::Environment environment;
+    Timer timer;
     Game(communication::messages::broadcast::MatchConfig matchConfig,
             const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2,

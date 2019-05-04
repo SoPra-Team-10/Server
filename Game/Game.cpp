@@ -15,6 +15,7 @@ Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
 }
 
 void Game::pause() {
+    timer.stop();
     std::cout<<"pause() is called"<<std::endl;
 }
 
@@ -22,7 +23,10 @@ void Game::resume() {
     std::cout<<"resume() is called"<<std::endl;
 }
 
+using entityID = communication::messages::types::EntityId ;
 communication::messages::broadcast::Next Game::getNextActor() {
+    std::map<entityID , int> listTeam1;
+    std::map<entityID , int> listTeam2;
     std::cout<<"getNextActor() is called"<<std::endl;
     return communication::messages::broadcast::Next();
 }
