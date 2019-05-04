@@ -37,17 +37,22 @@ namespace communication {
     }
 
     void MessageHandler::receiveListener(int client, std::string string) {
-        try {
-            nlohmann::json json = nlohmann::json::parse(string);
-            auto message = json.get<messages::Message>();
-            onReceive(message, client);
-        } catch (nlohmann::json::exception &e) {
-            // For some strange reason js sends an empty string on connection breakup...
-            if (!string.empty()) {
+        // For some strange reason js sends an empty string on connection breakup...
+        if (!string.empty()) {
+            try {
+                nlohmann::json json = nlohmann::json::parse(string);
+                auto message = json.get<messages::Message>();
+                onReceive(message, client);
+            } catch (nlohmann::json::exception &e) {
                 this->send(messages::Message{messages::unicast::PrivateDebug{
                         e.what()
                 }}, client);
                 log.error("Got invalid json!");
+            } catch (std::runtime_error &e) {
+                this->send(messages::Message{messages::unicast::PrivateDebug{
+                        e.what()
+                }}, client);
+                log.error("Got invalid json values!");
             }
         }
     }
