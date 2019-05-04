@@ -29,6 +29,11 @@ namespace communication {
         activeConnections.at(client)->send(json.dump(4));
     }
 
+    void MessageHandler::send(const messages::ReplayMessage &message, int client) {
+        nlohmann::json json = message;
+        activeConnections.at(client)->send(json.dump(4));
+    }
+
     void MessageHandler::connectionListener(std::shared_ptr<network::Connection> connection) {
         activeConnections.emplace(this->connectionCount, connection);
         connection->receiveListener(std::bind(&MessageHandler::receiveListener,
@@ -67,4 +72,5 @@ namespace communication {
             }
         }
     }
+
 }

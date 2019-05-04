@@ -19,7 +19,9 @@ namespace communication {
     public:
         Communicator(MessageHandler &messageHandler, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
 
-        void send(const messages::Message &message, int id);
+        template <typename T>
+        void send(const messages::AbstractMessage<T> &message, int id);
+
         void removeClient(int id);
 
     protected:
@@ -32,6 +34,11 @@ namespace communication {
         const messages::broadcast::MatchConfig &matchConfig;
         util::Logging &log;
     };
+
+    template<typename T>
+    void Communicator::send(const messages::AbstractMessage<T> &message, int id) {
+        this->messageHandler.send(message, id);
+    }
 }
 
 #endif //SERVER_COMMUNICATOR_HPP

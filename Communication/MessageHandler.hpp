@@ -14,6 +14,7 @@
 
 #include <SopraNetwork/WebSocketServer.hpp>
 #include <SopraMessages/Message.hpp>
+#include <SopraMessages/ReplayMessage.h>
 #include <SopraMessages/json.hpp>
 
 #include <Util/Logging.hpp>
@@ -26,6 +27,7 @@ namespace communication {
 
         virtual void sendAll(const messages::Message &message);
         virtual void send(const messages::Message &message, int client);
+        void send(const messages::ReplayMessage &message, int client);
         const util::Listener<messages::Message,int> onReceive;
         const util::Listener<int> onClose;
     private:
