@@ -51,6 +51,7 @@ namespace communication {
 
         Communicator &communicator;
         LobbyState state;
+        std::string name;
 
         messages::broadcast::Replay replay;
         std::map<int, Client> clients;
