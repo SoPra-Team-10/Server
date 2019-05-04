@@ -45,3 +45,49 @@ TEST(CommunicationCommunicator, Join) {
     communication::CommunicatorTest communicator{messageHandler, log, {}};
     EXPECT_NO_THROW(communicator.receiveTest(joinRequest, 1));
 }
+
+TEST(CommunicationCommunicator, JoinSameLobby) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
+    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
+    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
+    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
+    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+}
+
+TEST(CommunicationCommunicator, JoinDifferentLobby) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby1", "a", ""}};
+    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby2", "b", ""}};
+    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
+    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
+    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(0);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+}

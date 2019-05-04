@@ -13,13 +13,13 @@ namespace communication {
     Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
         : communicator{communicator}, state{LobbyState::INITIAL}, matchConfig{matchConfig}, log{log} {
-        this->clients.emplace(id, std::move(client));
+        this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
     }
 
     void Lobby::addSpectator(Client client, int id) {
-        this->clients.emplace(id, std::move(client));
+        this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         if (state == LobbyState::GAME) {
