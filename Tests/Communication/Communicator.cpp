@@ -3,18 +3,9 @@
 //
 
 #include "MessageHandlerMock.h"
-#include <gtest/gtest.h>
-#include <Communication/Communicator.hpp>
+#include "CommunicatorTest.h"
 
-namespace communication {
-    class CommunicatorTest : public Communicator {
-    public:
-        using Communicator::Communicator;
-        void receiveTest(messages::Message message, int client) {
-            this->receive(message, client);
-        }
-    };
-}
+#include <gtest/gtest.h>
 
 TEST(CommunicationCommunicator, Send) {
     std::stringstream sstream;

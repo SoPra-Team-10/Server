@@ -25,6 +25,7 @@ namespace communication {
                                  joinRequest.getIsAi(), joinRequest.getMods()};
                 if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                     lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
+                    clientMapping.emplace(client, lobbyMapping.at(joinRequest.getLobby()));
                     log.info("New client joins existing lobby");
                 } else {
                     auto game = std::make_shared<Lobby>(*this, newClient, client, log, matchConfig);
@@ -63,7 +64,6 @@ namespace communication {
 
     void Communicator::removeClient(int id) {
         if (clientMapping.find(id) != clientMapping.end()) {
-            clientMapping.at(id)->onLeave(id);
             clientMapping.erase(clientMapping.find(id));
         }
     }

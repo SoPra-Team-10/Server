@@ -190,31 +190,13 @@ namespace communication {
     }
 
     void Lobby::kickUser(int id) {
-        if (id == players.first || id == players.second) {
-            std::string winner;
-            if (id == players.first) {
-                if (players.second.has_value()) {
-                    winner = clients.at(players.second.value()).userName;
-                }
-            } else {
-                if (players.first.has_value()) {
-                    winner = clients.at(players.first.value()).userName;
-                }
-            }
-            messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
-                                                         game.value().getLeftPoints(),
-                                                         game.value().getRightPoints(),winner,
-                                                         messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
-            this->sendAll(matchFinish);
-            state = LobbyState::FINISHED;
-        } else {
+        if (id != players.first && id != players.second) {
             // Kick a spectator by sending a MatchFinish message without a winner
-            messages::broadcast::MatchFinish matchFinish{0,0,0,"",
+            messages::broadcast::MatchFinish matchFinish{0, 0, 0, "",
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendSingle(matchFinish, id);
         }
-        clients.erase(clients.find(id));
-        communicator.removeClient(id);
+        onLeave(id);
     }
 
     void Lobby::onLeave(int id) {
