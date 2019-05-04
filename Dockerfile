@@ -26,17 +26,17 @@ RUN git clone https://github.com/SoPra-Team-10/Network.git
 WORKDIR /Network
 RUN cmake . && make -j$(nproc) SopraNetwork && make install
 
-# Compile GameLogic
-WORKDIR /
-RUN git clone https://github.com/SoPra-Team-10/GameLogic.git
-WORKDIR /GameLogic
-RUN cmake . && make -j$(nproc) SopraGameLogic && make install
-
 # Compile Messages
 WORKDIR /
 RUN git clone https://github.com/SoPra-Team-10/Messages.git
 WORKDIR /Messages
 RUN cmake . && make -j$(nproc) SopraMessages && make install
+
+# Compile GameLogic
+WORKDIR /
+RUN git clone https://github.com/SoPra-Team-10/GameLogic.git
+WORKDIR /GameLogic
+RUN cmake . && make -j$(nproc) SopraGameLogic && make install
 
 RUN ldconfig
 
