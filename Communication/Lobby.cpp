@@ -5,6 +5,8 @@
  * @brief Definition of the game class
  */
 
+#include <filesystem>
+#include <fstream>
 #include "Lobby.hpp"
 #include "Communicator.hpp"
 
@@ -13,7 +15,7 @@ namespace communication {
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-        : communicator{communicator}, state{LobbyState::INITIAL},
+        : communicator{communicator}, state{LobbyState::INITIAL}, name{name},
         replay{name, startTime,matchConfig},
         matchConfig{matchConfig}, log{log} {
         this->clients.emplace(id, client);
@@ -72,11 +74,22 @@ namespace communication {
     template<>
     void Lobby::onPayload(const messages::request::GetReplay&, int id) {
         if (state == LobbyState::FINISHED) {
-            // @TODO send replay if game is finished, optional
             this->sendSingle(replay, id);
         } else if (state == LobbyState::INITIAL) {
+            std::stringstream sstream;
+            sstream << this->name << ".json";
+            auto fname = sstream.str();
+            if (std::filesystem::exists(fname)) {
+                std::ifstream ifstream{fname};
+                nlohmann::json j;
+                ifstream >> j;
+                auto fileReplay = j.get<messages::broadcast::Replay>();
+                this->sendSingle(fileReplay, id);
+            } else {
+                this->sendSingle(messages::unicast::PrivateDebug{"Game hasn't started yet and not old games are available"}, id);
+            }
         } else {
-            this->sendSingle(messages::unicast::PrivateDebug{"Replay not implemented!"}, id);
+            this->sendSingle(messages::unicast::PrivateDebug{"Game is currently running!"}, id);
         }
     }
 
