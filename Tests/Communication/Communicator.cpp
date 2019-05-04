@@ -91,3 +91,41 @@ TEST(CommunicationCommunicator, JoinDifferentLobby) {
     EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
 }
+
+TEST(CommunicationCommunicator, MultipleJoin) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby1", "a", ""}};
+    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby2", "a", ""}};
+    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
+    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
+    communication::messages::Message errorResponse{communication::messages::unicast::PrivateDebug{"You are already in a Lobby!"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(errorResponse, 1)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 1));
+}
+
+TEST(CommunicationCommunicator, NoJoinRequest) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    communication::messages::Message teamConfig{communication::messages::request::TeamConfig{}};
+    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
+    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
+    communication::messages::Message errorResponse{communication::messages::unicast::PrivateDebug{"You need to send a JoinRequest first!"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(0);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(0);
+    EXPECT_CALL(messageHandler, send(errorResponse, 1)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    EXPECT_NO_THROW(communicator.receiveTest(teamConfig, 1));
+}
