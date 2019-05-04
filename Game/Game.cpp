@@ -4,6 +4,7 @@
 
 #include "Game.h"
 #include "iostream"
+#include <SopraGameLogic/GameController.h>
 
 
 Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
@@ -23,10 +24,16 @@ void Game::resume() {
     std::cout<<"resume() is called"<<std::endl;
 }
 
-using entityID = communication::messages::types::EntityId ;
 communication::messages::broadcast::Next Game::getNextActor() {
-    std::map<entityID , int> listTeam1;
-    std::map<entityID , int> listTeam2;
+    if(playerCounter == 13){
+        arrayTeam1 = {true};
+        arrayTeam2 = {true};
+        playerCounter = 0;
+    }else if(turnTeam1){
+        int random = gameController::rng(0,6);
+        arrayTeam1[random] = false;
+        return communication::messages::broadcast::Next(mapTeam1[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
+    }
     std::cout<<"getNextActor() is called"<<std::endl;
     return communication::messages::broadcast::Next();
 }

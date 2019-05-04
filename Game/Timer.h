@@ -47,9 +47,5 @@ void Timer::setInterval(Function function, int interval) {
     t.detach();
 }
 
-void Timer::stop() {
-    this->clear = true;
-}
-
 
 #endif //SERVER_TIMER_H

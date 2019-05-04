@@ -39,6 +39,30 @@ public:
     auto getEndRound() const -> int;
     auto getLeftPoints() const -> int;
     auto getRightPoints() const -> int;
+
+private:
+    int playerCounter = 0;
+    bool turnTeam1 = true;
+    std::map<int ,communication::messages::types::EntityId> mapTeam1 {
+            {0, communication::messages::types::EntityId::LEFT_KEEPER},
+            {1, communication::messages::types::EntityId::LEFT_SEEKER},
+            {2, communication::messages::types::EntityId::LEFT_BEATER1},
+            {3, communication::messages::types::EntityId::LEFT_BEATER2},
+            {4, communication::messages::types::EntityId::LEFT_CHASER1},
+            {5, communication::messages::types::EntityId::LEFT_CHASER2},
+            {6, communication::messages::types::EntityId::LEFT_CHASER3}
+    };
+    std::map<int, communication::messages::types::EntityId> mapTeam2 {
+            {0, communication::messages::types::EntityId::RIGHT_KEEPER},
+            {1, communication::messages::types::EntityId::RIGHT_SEEKER},
+            {2, communication::messages::types::EntityId::RIGHT_BEATER1},
+            {3, communication::messages::types::EntityId::RIGHT_BEATER2},
+            {4, communication::messages::types::EntityId::RIGHT_CHASER1},
+            {5, communication::messages::types::EntityId::RIGHT_CHASER2},
+            {6, communication::messages::types::EntityId::RIGHT_CHASER3}
+    };
+    std::array<bool, 7> arrayTeam1 {true};
+    std::array<bool, 7> arrayTeam2 {true};
 };
 
 

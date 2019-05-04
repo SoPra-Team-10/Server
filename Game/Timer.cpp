@@ -3,3 +3,7 @@
 //
 
 #include "Timer.h"
+
+void Timer::stop() {
+    this->clear = true;
+}
