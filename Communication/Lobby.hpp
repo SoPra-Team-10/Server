@@ -10,6 +10,7 @@
 
 #include <utility>
 #include <SopraMessages/Message.hpp>
+#include <SopraMessages/Replay.hpp>
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 
@@ -28,7 +29,8 @@ namespace communication {
 
     class Lobby {
     public:
-        Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
+        Lobby(const std::string &name, const std::string &startTime,
+                Communicator &communicator, const Client& client, int id, util::Logging &log,
                 const messages::broadcast::MatchConfig &matchConfig);
         void addSpectator(Client client, int id);
 
@@ -37,8 +39,9 @@ namespace communication {
 
         void kickUser(int id);
     private:
-        void sendAll(const messages::Payload  &payload);
+        void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
+        void sendSingle(const messages::broadcast::Replay &payload, int id);
 
         template <typename T>
         void onPayload(const T &, int id);
@@ -49,6 +52,7 @@ namespace communication {
         Communicator &communicator;
         LobbyState state;
 
+        messages::broadcast::Replay replay;
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
         std::pair<std::optional<communication::messages::request::TeamConfig>,

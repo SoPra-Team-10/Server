@@ -28,7 +28,8 @@ namespace communication {
                     clientMapping.emplace(client, lobbyMapping.at(joinRequest.getLobby()));
                     log.info("New client joins existing lobby");
                 } else {
-                    auto game = std::make_shared<Lobby>(*this, newClient, client, log, matchConfig);
+                    auto game = std::make_shared<Lobby>(joinRequest.getLobby(), message.getTimeStamp(),
+                            *this, newClient, client, log, matchConfig);
                     lobbyMapping.emplace(joinRequest.getLobby(), game);
                     clientMapping.emplace(client, game);
                     log.info("New lobby");
@@ -49,10 +50,6 @@ namespace communication {
                 log.warn("User sent a message without joining");
             }
         }
-    }
-
-    void Communicator::send(const messages::Message &message, int id) {
-        this->messageHandler.send(message, id);
     }
 
     void Communicator::closeEvent(int id) {

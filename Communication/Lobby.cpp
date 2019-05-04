@@ -10,16 +10,21 @@
 
 namespace communication {
 
-    Lobby::Lobby(Communicator &communicator, Client client, int id, util::Logging &log,
+    Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
+            const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-        : communicator{communicator}, state{LobbyState::INITIAL}, matchConfig{matchConfig}, log{log} {
+        : communicator{communicator}, state{LobbyState::INITIAL},
+        replay{name, startTime,matchConfig},
+        matchConfig{matchConfig}, log{log} {
         this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
+        replay.addSpectator(client.userName);
     }
 
     void Lobby::addSpectator(Client client, int id) {
         this->clients.emplace(id, client);
+        replay.addSpectator(client.userName);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         if (state == LobbyState::GAME) {
@@ -54,6 +59,10 @@ namespace communication {
                 clients.at(players.first.value()).userName,
                 clients.at(players.second.value()).userName});
             this->state = LobbyState::WAITING_FORMATION;
+            replay.setLeftTeamConfig(teamConfigs.first.value());
+            replay.setLeftTeamUserName(clients.at(players.first.value()).userName);
+            replay.setRightTeamConfig(teamConfigs.second.value());
+            replay.setRightTeamUserName(clients.at(players.second.value()).userName);
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
@@ -64,6 +73,8 @@ namespace communication {
     void Lobby::onPayload(const messages::request::GetReplay&, int id) {
         if (state == LobbyState::FINISHED) {
             // @TODO send replay if game is finished, optional
+            this->sendSingle(replay, id);
+        } else if (state == LobbyState::INITIAL) {
         } else {
             this->sendSingle(messages::unicast::PrivateDebug{"Replay not implemented!"}, id);
         }
@@ -99,7 +110,9 @@ namespace communication {
                                                        std::placeholders::_2));
                     state = LobbyState::GAME;
                     log.info("Starting game");
-                    this->sendAll(game.value().getSnapshot());
+                    auto snapshot = game.value().getSnapshot();
+                    this->sendAll(snapshot);
+                    replay.setFirstSnapshot(snapshot);
                 }
             } else {
                 this->kickUser(id);
@@ -146,7 +159,9 @@ namespace communication {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
                 if (game.value().executeDelta(deltaRequest)) {
-                    this->sendAll(game.value().getSnapshot());
+                    auto snapshot = game.value().getSnapshot();
+                    this->sendAll(snapshot);
+                    replay.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     auto next = game.value().getNextActor();
                     lastNext = next;
                     this->sendAll(next);
@@ -179,16 +194,6 @@ namespace communication {
         }, message.getPayload());
     }
 
-    void Lobby::sendAll(const messages::Payload &payload) {
-        for (const auto &c : this->clients) {
-            this->sendSingle(payload, c.first);
-        }
-    }
-
-    void Lobby::sendSingle(const messages::Payload &payload, int id) {
-        this->communicator.send(messages::Message{payload}, id);
-    }
-
     void Lobby::kickUser(int id) {
         if (id != players.first && id != players.second) {
             // Kick a spectator by sending a MatchFinish message without a winner
@@ -201,23 +206,15 @@ namespace communication {
 
     void Lobby::onLeave(int id) {
         if (id == players.first || id == players.second) {
-            std::string winner;
             if (id == players.first) {
                 if (players.second.has_value()) {
-                    winner = clients.at(players.second.value()).userName;
-                    state = LobbyState::FINISHED;
+                    onWin(TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             } else {
                 if (players.first.has_value()) {
-                    winner = clients.at(players.first.value()).userName;
-                    state = LobbyState::FINISHED;
+                    onWin(TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             }
-            messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
-                                                         game.value().getLeftPoints(),
-                                                         game.value().getRightPoints(),winner,
-                                                         messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
-            this->sendAll(matchFinish);
         }
         clients.erase(clients.find(id));
         communicator.removeClient(id);
@@ -248,6 +245,20 @@ namespace communication {
                                                      game.value().getRightPoints(),winner, victoryReason};
         this->sendAll(matchFinish);
         state = LobbyState::FINISHED;
+    }
+
+    void Lobby::sendAll(const messages::Payload &payload) {
+        for (const auto &c : clients) {
+            this->sendSingle(payload,c.first);
+        }
+    }
+
+    void Lobby::sendSingle(const messages::Payload &payload, int id) {
+        this->communicator.send(messages::Message{payload}, id);
+    }
+
+    void Lobby::sendSingle(const messages::broadcast::Replay &payload, int id) {
+        this->communicator.send(messages::ReplayMessage{payload}, id);
     }
 
 }
