@@ -12,6 +12,7 @@
 #include <SopraMessages/TeamFormation.hpp>
 #include <SopraMessages/DeltaRequest.hpp>
 #include <SopraMessages/Snapshot.hpp>
+#include <SopraGameLogic/GameModel.h>
 
 enum class TeamSide : char {
     LEFT, RIGHT
@@ -19,7 +20,12 @@ enum class TeamSide : char {
 
 class Game {
 public:
-    Game(communication::messages::broadcast::MatchConfig matchConfig, communication::messages::request::TeamConfig teamConfig1, communication::messages::request::TeamConfig teamConfig2, communication::messages::request::TeamFormation teamFormation1, communication::messages::request::TeamFormation teamFormation2);
+    gameModel::Environment environment;
+    Game(communication::messages::broadcast::MatchConfig matchConfig,
+            const communication::messages::request::TeamConfig& teamConfig1,
+            const communication::messages::request::TeamConfig& teamConfig2,
+            communication::messages::request::TeamFormation teamFormation1,
+            communication::messages::request::TeamFormation teamFormation2);
     const util::Listener<TeamSide> timeoutListener;
     const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
     void pause();
