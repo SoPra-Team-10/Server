@@ -25,17 +25,35 @@ void Game::resume() {
 }
 
 communication::messages::broadcast::Next Game::getNextActor() {
-    if(playerCounter == 13){
-        arrayTeam1 = {true};
-        arrayTeam2 = {true};
-        playerCounter = 0;
-    }else if(turnTeam1){
-        int random = gameController::rng(0,6);
-        arrayTeam1[random] = false;
-        return communication::messages::broadcast::Next(mapTeam1[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
-    }
-    std::cout<<"getNextActor() is called"<<std::endl;
-    return communication::messages::broadcast::Next();
+    int random = 0;
+    switch(phaseCounter){
+        case 0:
+            if()
+        case 1:
+            if(playerCounter == 13){
+                arrayTeam1 = {true};
+                arrayTeam2 = {true};
+                playerCounter = 0;
+            }else if(turnTeam1){
+                do{
+                    random = gameController::rng(0,6);
+                }while (!arrayTeam1[random]);
+                random = gameController::rng(0,6);
+                arrayTeam1[random] = false;
+                turnTeam1 = false;
+                playerCounter++;
+                return communication::messages::broadcast::Next(mapTeam1[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
+            }else {
+                do{
+                    random = gameController::rng(0,6);
+                }while (!arrayTeam2[random]);
+                random = gameController::rng(0,6);
+                arrayTeam2[random] = false;
+                turnTeam1 = true;
+                playerCounter++;
+                return communication::messages::broadcast::Next(mapTeam2[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
+            }break;
+        case 2:;
 }
 
 bool Game::executeDelta(communication::messages::request::DeltaRequest) {

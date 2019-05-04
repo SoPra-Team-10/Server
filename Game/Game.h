@@ -33,7 +33,7 @@ public:
     const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
     void pause();
     void resume();
-    communication::messages::broadcast::Next getNextActor();
+    auto getNextActor() -> communication::messages::broadcast::Next;
     bool executeDelta(communication::messages::request::DeltaRequest);
     auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
     auto getEndRound() const -> int;
@@ -42,6 +42,7 @@ public:
 
 private:
     int playerCounter = 0;
+    int phaseCounter = 0;
     bool turnTeam1 = true;
     std::map<int ,communication::messages::types::EntityId> mapTeam1 {
             {0, communication::messages::types::EntityId::LEFT_KEEPER},
@@ -60,6 +61,12 @@ private:
             {4, communication::messages::types::EntityId::RIGHT_CHASER1},
             {5, communication::messages::types::EntityId::RIGHT_CHASER2},
             {6, communication::messages::types::EntityId::RIGHT_CHASER3}
+    };
+    std::map<int, communication::messages::types::PhaseType> gamePhase {
+            {0, communication::messages::types::PhaseType::PLAYER_PHASE},
+            {1, communication::messages::types::PhaseType::BALL_PHASE},
+            {2, communication::messages::types::PhaseType::FAN_PHASE},
+            {3, communication::messages::types::PhaseType::GAME_FINISH}
     };
     std::array<bool, 7> arrayTeam1 {true};
     std::array<bool, 7> arrayTeam2 {true};
