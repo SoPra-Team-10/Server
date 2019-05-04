@@ -17,15 +17,16 @@
 namespace communication {
     class Communicator {
     public:
-        Communicator(uint16_t port, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
+        Communicator(MessageHandler &messageHandler, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
 
         void send(const messages::Message &message, int id);
         void removeClient(int id);
-    private:
+
+    protected:
         void receive(messages::Message message, int client);
         void closeEvent(int id);
 
-        MessageHandler messageHandler;
+        MessageHandler &messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
         const messages::broadcast::MatchConfig &matchConfig;

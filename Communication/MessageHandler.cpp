@@ -11,17 +11,17 @@ namespace communication {
 
     MessageHandler::MessageHandler(uint16_t port, util::Logging &log) :
         connectionCount{0},
-        webSocketServer{port, "http-only"},
         log{log} {
-        webSocketServer.connectionListener(
+        webSocketServer.emplace(port, "http-only");
+        webSocketServer->connectionListener(
                 std::bind(&MessageHandler::connectionListener, this, std::placeholders::_1));
-        webSocketServer.closeListener(
+        webSocketServer->closeListener(
                 std::bind(&MessageHandler::closeListener, this, std::placeholders::_1));
     }
 
     void MessageHandler::sendAll(const messages::Message &message) {
         nlohmann::json json = message;
-        webSocketServer.broadcast(json.dump(4));
+        webSocketServer->broadcast(json.dump(4));
     }
 
     void MessageHandler::send(const messages::Message &message, int client) {

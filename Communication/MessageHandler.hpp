@@ -24,8 +24,8 @@ namespace communication {
     public:
         MessageHandler(uint16_t port, util::Logging &log);
 
-        void sendAll(const messages::Message &message);
-        void send(const messages::Message &message, int client);
+        virtual void sendAll(const messages::Message &message);
+        virtual void send(const messages::Message &message, int client);
         const util::Listener<messages::Message,int> onReceive;
         const util::Listener<int> onClose;
     private:
@@ -34,7 +34,7 @@ namespace communication {
         void closeListener(std::shared_ptr<network::Connection> connection);
         int connectionCount;
 
-        network::WebSocketServer webSocketServer;
+        std::optional<network::WebSocketServer> webSocketServer;
         std::map<int, std::shared_ptr<network::Connection>> activeConnections;
         util::Logging &log;
     };

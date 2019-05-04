@@ -49,7 +49,8 @@ int main(int argc, char *argv[]) {
 
     util::Logging log{std::cout, verbosity};
 
-    communication::Communicator communicator{port, log, matchConfig};
+    communication::MessageHandler messageHandler{port, log};
+    communication::Communicator communicator{messageHandler, log, matchConfig};
 
     log.info("Started server");
 

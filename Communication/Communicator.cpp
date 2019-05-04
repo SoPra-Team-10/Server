@@ -8,8 +8,9 @@
 #include "Communicator.hpp"
 
 namespace communication {
-    Communicator::Communicator(uint16_t port, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig)
-        : messageHandler{port, log}, matchConfig{matchConfig}, log{log} {
+    Communicator::Communicator(MessageHandler &messageHandler, util::Logging &log,
+                               const messages::broadcast::MatchConfig &matchConfig)
+                               : messageHandler{messageHandler}, matchConfig{matchConfig}, log{log} {
         messageHandler.onReceive(
                 std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
         messageHandler.onClose(
