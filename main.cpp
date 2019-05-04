@@ -32,13 +32,17 @@ int main(int argc, char *argv[]) {
     try {
         ifstream >>  j;
     } catch (nlohmann::json::exception &e) {
-        std::cerr << "Not a valid json file!" << std::endl;
+        std::cerr << "Not a valid json file: " << e.what() << std::endl;
         std::exit(1);
     }
+
     try {
         matchConfig = j.get<communication::messages::broadcast::MatchConfig>();
     } catch (nlohmann::json::exception &e) {
         std::cerr << "Json is not a valid matchConfig: " << e.what() << std::endl;
+        std::exit(1);
+    } catch (std::runtime_error &e) {
+        std::cerr << "Error with json value according to standard: " << e.what() << std::endl;
         std::exit(1);
     }
 
