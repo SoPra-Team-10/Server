@@ -312,15 +312,23 @@ namespace communication {
         sstream << this->name << "_replay.json";
         auto fname = sstream.str();
         std::ofstream ofstream{fname};
-        nlohmann::json j = this->replay.first;
-        ofstream << j.dump();
+        if (ofstream.good()) {
+            nlohmann::json j = this->replay.first;
+            ofstream << j.dump();
+        } else {
+            log.warn("Can not write replay to file!");
+        }
 
         std::stringstream sstreamSnapshot;
         sstream << this->name << "_replaySnapshot.json";
         auto fnameSnapshot = sstreamSnapshot.str();
         std::ofstream ofstreamSnapshot{fnameSnapshot};
-        nlohmann::json jSnapshot = this->replay.second;
-        ofstreamSnapshot << jSnapshot.dump();
+        if (ofstreamSnapshot.good()) {
+            nlohmann::json jSnapshot = this->replay.second;
+            ofstreamSnapshot << jSnapshot.dump();
+        } else {
+            log.warn("Can not write replay to file!");
+        }
     }
 
     void Lobby::sendAll(const messages::Payload &payload) {
