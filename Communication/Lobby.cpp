@@ -191,7 +191,7 @@ namespace communication {
             log.info("Continue");
             state = LobbyState::GAME;
         } else {
-            sendError(messages::request::PauseRequest::getName(),
+            sendError(messages::request::ContinueRequest::getName(),
                       "Not paused!", id);
             this->kickUser(id);
             log.warn("Client sent a continue while not paused");
@@ -212,13 +212,13 @@ namespace communication {
                     this->sendAll(next);
                 } else {
                     // According to the spec the user needs to get kicked
-                    sendError(messages::request::PauseRequest::getName(),
+                    sendError(messages::request::DeltaRequest::getName(),
                               "Invalid delta request!", clientId);
                     this->kickUser(clientId);
                     log.warn("Client sent an invalid deltaRequest");
                 }
             } else {
-                sendError(messages::request::PauseRequest::getName(),
+                sendError(messages::request::DeltaRequest::getName(),
                           "Not in game", clientId);
                 this->kickUser(clientId);
                 log.warn("Client sent a DeltaRequest while not in game");
