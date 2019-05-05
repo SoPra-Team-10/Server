@@ -16,17 +16,19 @@ namespace communication {
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
         : communicator{communicator}, state{LobbyState::INITIAL}, name{name},
-        replay{name, startTime,matchConfig},
+        replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}},
         matchConfig{matchConfig}, log{log} {
         this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
-        replay.addSpectator(client.userName);
+        replay.first.addSpectator(client.userName);
+        replay.second.addSpectator(client.userName);
     }
 
     void Lobby::addSpectator(Client client, int id) {
         this->clients.emplace(id, client);
-        replay.addSpectator(client.userName);
+        replay.first.addSpectator(client.userName);
+        replay.second.addSpectator(client.userName);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
         if (state == LobbyState::GAME) {
@@ -61,10 +63,14 @@ namespace communication {
                 clients.at(players.first.value()).userName,
                 clients.at(players.second.value()).userName});
             this->state = LobbyState::WAITING_FORMATION;
-            replay.setLeftTeamConfig(teamConfigs.first.value());
-            replay.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.setRightTeamConfig(teamConfigs.second.value());
-            replay.setRightTeamUserName(clients.at(players.second.value()).userName);
+            replay.first.setLeftTeamConfig(teamConfigs.first.value());
+            replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
+            replay.first.setRightTeamConfig(teamConfigs.second.value());
+            replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
+            replay.second.setLeftTeamConfig(teamConfigs.first.value());
+            replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
+            replay.second.setRightTeamConfig(teamConfigs.second.value());
+            replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
@@ -74,7 +80,7 @@ namespace communication {
     template<>
     void Lobby::onPayload(const messages::request::GetReplay&, int id) {
         if (state == LobbyState::FINISHED) {
-            this->sendSingle(replay, id);
+            this->sendSingle(replay.first, id);
         } else if (state == LobbyState::INITIAL) {
             std::stringstream sstream;
             sstream << this->name << "_replay.json";
@@ -84,6 +90,28 @@ namespace communication {
                 nlohmann::json j;
                 ifstream >> j;
                 auto fileReplay = j.get<messages::broadcast::Replay>();
+                this->sendSingle(fileReplay, id);
+            } else {
+                sendWarn(messages::request::GetReplay::getName(), "Game hasn't started yet and no old games are available", id);
+            }
+        } else {
+            sendWarn(messages::request::GetReplay::getName(), "Game is currently running!", id);
+        }
+    }
+
+    template <>
+    void Lobby::onPayload(const messages::mods::request::GetReplayWithSnapshot&, int id) {
+        if (state == LobbyState::FINISHED) {
+            this->sendSingle(replay.second, id);
+        } else if (state == LobbyState::INITIAL) {
+            std::stringstream sstream;
+            sstream << this->name << "_replaySnapshot.json";
+            auto fname = sstream.str();
+            if (std::filesystem::exists(fname)) {
+                std::ifstream ifstream{fname};
+                nlohmann::json j;
+                ifstream >> j;
+                auto fileReplay = j.get<messages::mods::unicast::ReplayWithSnapshot>();
                 this->sendSingle(fileReplay, id);
             } else {
                 sendWarn(messages::request::GetReplay::getName(), "Game hasn't started yet and no old games are available", id);
@@ -125,7 +153,8 @@ namespace communication {
                     log.info("Starting game");
                     auto snapshot = game.value().getSnapshot();
                     this->sendAll(snapshot);
-                    replay.setFirstSnapshot(snapshot);
+                    replay.first.setFirstSnapshot(snapshot);
+                    replay.second.setFirstSnapshot(snapshot);
                 }
             } else {
                 this->kickUser(id);
@@ -176,7 +205,8 @@ namespace communication {
                 if (game.value().executeDelta(deltaRequest)) {
                     auto snapshot = game.value().getSnapshot();
                     this->sendAll(snapshot);
-                    replay.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                    replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                    replay.second.addLog(communication::messages::Message{snapshot});
                     auto next = game.value().getNextActor();
                     lastNext = next;
                     this->sendAll(next);
@@ -267,7 +297,8 @@ namespace communication {
         messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
                                                      game.value().getLeftPoints(),
                                                      game.value().getRightPoints(),winner, victoryReason};
-        replay.addLog(messages::Message{matchFinish});
+        replay.second.addLog(messages::Message{matchFinish});
+        replay.first.addLog(messages::Message{matchFinish});
         this->sendAll(matchFinish);
         state = LobbyState::FINISHED;
         this->game.reset();
@@ -276,7 +307,15 @@ namespace communication {
         sstream << this->name << "_replay.json";
         auto fname = sstream.str();
         std::ofstream ofstream{fname};
-        nlohmann::json j = this->replay;
+        nlohmann::json j = this->replay.first;
+        ofstream << j.dump();
+
+        std::stringstream sstreamSnapshot;
+        sstream << this->name << "_replaySnapshot.json";
+        auto fnameSnapshot = sstreamSnapshot.str();
+        std::ofstream ofstreamSnapshot{fnameSnapshot};
+        nlohmann::json jSnapshot = this->replay.second;
+        ofstreamSnapshot << jSnapshot.dump();
     }
 
     void Lobby::sendAll(const messages::Payload &payload) {
@@ -292,6 +331,11 @@ namespace communication {
     void Lobby::sendSingle(const messages::broadcast::Replay &payload, int id) {
         this->communicator.send(messages::ReplayMessage{payload}, id);
     }
+
+    void Lobby::sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id) {
+        this->communicator.send(messages::ReplayWithSnapshotMessage{payload}, id);
+    }
+
 
     void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
         if (clients.at(id).mods.count(messages::types::Mods::ERROR) > 0) {

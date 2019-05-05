@@ -12,6 +12,7 @@
 #include <set>
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
+#include <SopraMessages/ReplayWithSnapshot.h>
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 
@@ -43,6 +44,7 @@ namespace communication {
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
         void sendSingle(const messages::broadcast::Replay &payload, int id);
+        void sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id);
         void sendError(const std::string &payloadReason, const std::string &msg, int id);
         void sendWarn(const std::string &payloadReason, const std::string &msg, int id);
 
@@ -56,7 +58,7 @@ namespace communication {
         LobbyState state;
         std::string name;
 
-        messages::broadcast::Replay replay;
+        std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
         std::pair<std::optional<communication::messages::request::TeamConfig>,
