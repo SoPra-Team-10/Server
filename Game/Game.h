@@ -41,16 +41,25 @@ public:
 
 private:
     Timer timer;
+    communication::messages::broadcast::DeltaBroadcast deltaBroadcast;
+    communication::messages::types::TurnType turnType;
     int playerCounter = 0;
     int phaseCounter = 0;
     int ballCounter = 0;
     int fanCounter = 0;
+    int round = 0;
+    int pointsLeft = 0;
+    int pointsRight = 0;
     bool turnTeam1PlayerPhase = true;
     bool turnTeam1FanPhase = true;
-    std::array<bool, 7> arrayTeam1Player {true};
-    std::array<bool, 7> arrayTeam2Player {true};
+    std::array<bool, 7> arrayTeam1PlayerTurnUsed {true};
+    std::array<bool, 7> arrayTeam2PlayerTurnUsed {true};
+    std::array<bool, 7> arrayTeam1PlayerKnockout {true};
+    std::array<bool, 7> arrayTeam2PlayerKnockout {true};
     std::array<bool, 7> arrayTeam1Fan {true};
     std::array<bool, 7> arrayTeam2Fan {true};
+    std::optional<std::shared_ptr<gameModel::Player>> quaffleHold;
+    std::optional<std::shared_ptr<gameModel::Player>> bludgerHold;
     std::map<int ,communication::messages::types::EntityId> mapTeam1Player {
             {0, communication::messages::types::EntityId::LEFT_KEEPER},
             {1, communication::messages::types::EntityId::LEFT_SEEKER},
@@ -92,6 +101,8 @@ private:
             {2, communication::messages::types::EntityId::RIGHT_NIFFLER },
             {3, communication::messages::types::EntityId::RIGHT_TROLL }
     };
+    std::vector<std::pair<communication::messages::types::FanType , bool>> fansTeam1 {};
+    std::vector<std::pair<communication::messages::types::FanType , bool>> fansTeam2 {};
 
     auto getBallPhase(communication::messages::types::EntityId entityId) -> communication::messages::broadcast::Next;
 
