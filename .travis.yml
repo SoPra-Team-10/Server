@@ -10,8 +10,8 @@ addons:
       secure: $SONAR_TOKEN
 
 before_install:
-  - docker build -t server .
+  - docker build --no-cache -t server .
 
 script:
-  - docker run server Tests/Tests --gtest_repeat=10 --gtest_shuffle --gtest_color=yes
+- docker run server Tests/Tests --gtest_repeat=10 --gtest_shuffle --gtest_color=yes
   #- sonar-scanner
