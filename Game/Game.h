@@ -43,7 +43,10 @@ public:
 private:
     int playerCounter = 0;
     int phaseCounter = 0;
+    int ballCounter = 0;
     bool turnTeam1 = true;
+    std::array<bool, 7> arrayTeam1 {true};
+    std::array<bool, 7> arrayTeam2 {true};
     std::map<int ,communication::messages::types::EntityId> mapTeam1 {
             {0, communication::messages::types::EntityId::LEFT_KEEPER},
             {1, communication::messages::types::EntityId::LEFT_SEEKER},
@@ -68,8 +71,14 @@ private:
             {2, communication::messages::types::PhaseType::FAN_PHASE},
             {3, communication::messages::types::PhaseType::GAME_FINISH}
     };
-    std::array<bool, 7> arrayTeam1 {true};
-    std::array<bool, 7> arrayTeam2 {true};
+    std::map<int, communication::messages::types::EntityId> mapBallPhase {
+            {0, communication::messages::types::EntityId::SNITCH},
+            {1, communication::messages::types::EntityId::BLUDGER1},
+            {2, communication::messages::types::EntityId::BLUDGER2}
+    };
+
+    auto getBallPhase(communication::messages::types::EntityId entityId) -> communication::messages::broadcast::Next;
+
 };
 
 

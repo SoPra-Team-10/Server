@@ -26,38 +26,56 @@ void Game::resume() {
 
 communication::messages::broadcast::Next Game::getNextActor() {
     int random = 0;
-    switch(phaseCounter){
-        case 0:
-            if()
+    switch(phaseCounter) {
+        case 0: {
+            if (ballCounter == 2) {
+                phaseCounter++;
+                ballCounter = 0;
+                break;
+            }
+            communication::messages::broadcast::Next next = getBallPhase(mapBallPhase[ballCounter]);
+            ballCounter++;
+            return next;
+        }
         case 1:
-            if(playerCounter == 13){
+            if (playerCounter == 13) {
                 arrayTeam1 = {true};
                 arrayTeam2 = {true};
                 playerCounter = 0;
-            }else if(turnTeam1){
-                do{
-                    random = gameController::rng(0,6);
-                }while (!arrayTeam1[random]);
-                random = gameController::rng(0,6);
+                phaseCounter++;
+            } else if (turnTeam1) {
+                do {
+                    random = gameController::rng(0, 6);
+                } while (!arrayTeam1[random]);
+                random = gameController::rng(0, 6);
                 arrayTeam1[random] = false;
                 turnTeam1 = false;
                 playerCounter++;
-                return communication::messages::broadcast::Next(mapTeam1[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
-            }else {
-                do{
-                    random = gameController::rng(0,6);
-                }while (!arrayTeam2[random]);
-                random = gameController::rng(0,6);
+                return communication::messages::broadcast::Next(mapTeam1[random],
+                                                                communication::messages::types::TurnType::MOVE,
+                                                                environment.config.timeouts.playerPhase);
+            } else {
+                do {
+                    random = gameController::rng(0, 6);
+                } while (!arrayTeam2[random]);
+                random = gameController::rng(0, 6);
                 arrayTeam2[random] = false;
                 turnTeam1 = true;
                 playerCounter++;
-                return communication::messages::broadcast::Next(mapTeam2[random], communication::messages::types::TurnType::MOVE, environment.config.timeouts.playerPhase);
-            }break;
-        case 2:;
+                return communication::messages::broadcast::Next(mapTeam2[random],
+                                                                communication::messages::types::TurnType::MOVE,
+                                                                environment.config.timeouts.playerPhase);
+            }
+            break;
+        case 2:{
+            
+        }
+            break;
+    }
+    return communication::messages::broadcast::Next();
 }
 
 bool Game::executeDelta(communication::messages::request::DeltaRequest) {
-    std::cout<<"executeDelta is called"<<std::endl;
     return false;
 }
 
@@ -76,3 +94,38 @@ auto Game::getLeftPoints() const -> int {
 auto Game::getRightPoints() const -> int {
     return 0;
 }
+
+auto Game::getBallPhase(communication::messages::types::EntityId entityId) -> communication::messages::broadcast::Next {
+    switch (entityId) {
+        case communication::messages::types::EntityId::SNITCH : {
+            std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
+                    environment.snitch.get()->position);
+            environment.snitch.get()->position = gameModel::Position{
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+            return communication::messages::broadcast::Next{environment.snitch.get()->id,
+                                                            communication::messages::types::TurnType::MOVE,
+                                                            environment.config.timeouts.ballPhase};
+        }
+        case communication::messages::types::EntityId::BLUDGER1 : {
+            std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
+                    environment.snitch.get()->position);
+            environment.snitch.get()->position = gameModel::Position{
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+            return communication::messages::broadcast::Next{environment.snitch.get()->id,
+                                                            communication::messages::types::TurnType::MOVE,
+                                                            environment.config.timeouts.ballPhase};
+        }
+        case communication::messages::types::EntityId::BLUDGER2: {
+            std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
+                    environment.snitch.get()->position);
+            environment.snitch.get()->position = gameModel::Position{
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+            return communication::messages::broadcast::Next{environment.snitch.get()->id,
+                                                            communication::messages::types::TurnType::MOVE,
+                                                            environment.config.timeouts.ballPhase};
+        }
+        default:
+            return communication::messages::broadcast::Next {};
+    }
+}
+
