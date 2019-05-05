@@ -77,7 +77,7 @@ namespace communication {
             this->sendSingle(replay, id);
         } else if (state == LobbyState::INITIAL) {
             std::stringstream sstream;
-            sstream << this->name << ".json";
+            sstream << this->name << "_replay.json";
             auto fname = sstream.str();
             if (std::filesystem::exists(fname)) {
                 std::ifstream ifstream{fname};
@@ -256,8 +256,16 @@ namespace communication {
         messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
                                                      game.value().getLeftPoints(),
                                                      game.value().getRightPoints(),winner, victoryReason};
+        replay.addLog(messages::Message{matchFinish});
         this->sendAll(matchFinish);
         state = LobbyState::FINISHED;
+        this->game.reset();
+
+        std::stringstream sstream;
+        sstream << this->name << "_replay.json";
+        auto fname = sstream.str();
+        std::ofstream ofstream{fname};
+        nlohmann::json j = this->replay;
     }
 
     void Lobby::sendAll(const messages::Payload &payload) {
