@@ -199,6 +199,11 @@ namespace communication {
         }
     }
 
+    template <>
+    void Lobby::onPayload(const messages::mods::request::SendChat &sendChat, int id) {
+        this->sendAll(messages::mods::broadcast::GlobalChat{clients.at(id).userName, sendChat.getInformation()});
+    }
+
     template<typename T>
     void Lobby::onPayload(const T &, int client) {
         sendError(T::getName(),
