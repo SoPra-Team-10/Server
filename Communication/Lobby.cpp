@@ -294,9 +294,14 @@ namespace communication {
         }
         std::string winner = clients.at(winnerId).userName;
 
-        messages::broadcast::MatchFinish matchFinish{game.value().getEndRound(),
-                                                     game.value().getLeftPoints(),
-                                                     game.value().getRightPoints(),winner, victoryReason};
+        messages::broadcast::MatchFinish matchFinish;
+        if (game.has_value()) {
+            matchFinish = {game.value().getEndRound(),
+                           game.value().getLeftPoints(),
+                           game.value().getRightPoints(), winner, victoryReason};
+        } else {
+            matchFinish = {0,0,0, winner, victoryReason};
+        }
         replay.second.addLog(messages::Message{matchFinish});
         replay.first.addLog(messages::Message{matchFinish});
         this->sendAll(matchFinish);

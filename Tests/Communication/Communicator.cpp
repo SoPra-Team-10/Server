@@ -18,7 +18,7 @@ TEST(CommunicationCommunicator, Send) {
     EXPECT_CALL(messageHandler, send(message, 1)).Times(1);
 
     communication::Communicator communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.send(message, 1));
+    ASSERT_NO_THROW(communicator.send(message, 1));
 }
 
 TEST(CommunicationCommunicator, Join) {
@@ -34,7 +34,7 @@ TEST(CommunicationCommunicator, Join) {
     EXPECT_CALL(messageHandler, send(loginGreeting, 1)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequest, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequest, 1));
 }
 
 TEST(CommunicationCommunicator, JoinSameLobby) {
@@ -56,8 +56,8 @@ TEST(CommunicationCommunicator, JoinSameLobby) {
     EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
 }
 
 TEST(CommunicationCommunicator, JoinDifferentLobby) {
@@ -79,8 +79,8 @@ TEST(CommunicationCommunicator, JoinDifferentLobby) {
     EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
 }
 
 TEST(CommunicationCommunicator, MultipleJoin) {
@@ -99,8 +99,8 @@ TEST(CommunicationCommunicator, MultipleJoin) {
     EXPECT_CALL(messageHandler, send(errorResponse, 1)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 1));
 }
 
 TEST(CommunicationCommunicator, NoJoinRequest) {
@@ -118,5 +118,5 @@ TEST(CommunicationCommunicator, NoJoinRequest) {
     EXPECT_CALL(messageHandler, send(errorResponse, 1)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(teamConfig, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfig, 1));
 }

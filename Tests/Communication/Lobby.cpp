@@ -3,19 +3,21 @@
 
 #include <gtest/gtest.h>
 
+using namespace communication::messages;
+
 TEST(CommunicationLobby, SendTeamConfigs) {
     std::stringstream sstream;
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message teamConfigs{communication::messages::request::TeamConfig{}};
-    communication::messages::Message matchStart{
-        communication::messages::broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+        broadcast::MatchStart{{}, {}, {}, "a", "b"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -39,18 +41,17 @@ TEST(CommunicationLobby, TeamConfigThreePlayerError) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinRequestC{communication::messages::request::JoinRequest{"lobby", "c", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message loginGreetingC{communication::messages::broadcast::LoginGreeting{"c"}};
-    communication::messages::Message teamConfigs{communication::messages::request::TeamConfig{}};
-    communication::messages::Message matchStart{
-            communication::messages::broadcast::MatchStart{{}, {}, {}, "a", "b"}};
-    communication::messages::Message matchFinishError{communication::messages::broadcast::MatchFinish{0,0,0,"",
-                                                 communication::messages::types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message matchFinishError{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -85,19 +86,19 @@ TEST(CommunicationLobby, ChatSingle) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"a", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"a", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(chatReply, 1)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 1));
 }
 
 TEST(CommunicationLobby, ChatTwoSendA) {
@@ -105,13 +106,13 @@ TEST(CommunicationLobby, ChatTwoSendA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"a", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"a", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -124,9 +125,9 @@ TEST(CommunicationLobby, ChatTwoSendA) {
     EXPECT_CALL(messageHandler, send(chatReply, 2)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 1));
 }
 
 TEST(CommunicationLobby, ChatTwoSendB) {
@@ -134,13 +135,13 @@ TEST(CommunicationLobby, ChatTwoSendB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"b", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"b", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -153,9 +154,9 @@ TEST(CommunicationLobby, ChatTwoSendB) {
     EXPECT_CALL(messageHandler, send(chatReply, 2)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 2));
 }
 
 TEST(CommunicationLobby, ChatThreeSendA) {
@@ -163,15 +164,15 @@ TEST(CommunicationLobby, ChatThreeSendA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinRequestC{communication::messages::request::JoinRequest{"lobby", "c", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message loginGreetingC{communication::messages::broadcast::LoginGreeting{"c"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"a", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"a", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -190,10 +191,10 @@ TEST(CommunicationLobby, ChatThreeSendA) {
     EXPECT_CALL(messageHandler, send(chatReply, 3)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 1));
 }
 
 TEST(CommunicationLobby, ChatThreeSendB) {
@@ -201,15 +202,15 @@ TEST(CommunicationLobby, ChatThreeSendB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinRequestC{communication::messages::request::JoinRequest{"lobby", "c", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message loginGreetingC{communication::messages::broadcast::LoginGreeting{"c"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"b", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"b", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -228,10 +229,10 @@ TEST(CommunicationLobby, ChatThreeSendB) {
     EXPECT_CALL(messageHandler, send(chatReply, 3)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 2));
 }
 
 TEST(CommunicationLobby, ChatThreeSendC) {
@@ -239,15 +240,15 @@ TEST(CommunicationLobby, ChatThreeSendC) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinRequestC{communication::messages::request::JoinRequest{"lobby", "c", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message loginGreetingC{communication::messages::broadcast::LoginGreeting{"c"}};
-    communication::messages::Message chatMessage{communication::messages::mods::request::SendChat{"Abc"}};
-    communication::messages::Message chatReply{communication::messages::mods::broadcast::GlobalChat{"c", "Abc"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message chatMessage{mods::request::SendChat{"Abc"}};
+    Message chatReply{mods::broadcast::GlobalChat{"c", "Abc"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -266,8 +267,289 @@ TEST(CommunicationLobby, ChatThreeSendC) {
     EXPECT_CALL(messageHandler, send(chatReply, 3)).Times(1);
 
     communication::CommunicatorTest communicator{messageHandler, log, {}};
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
-    EXPECT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
-    EXPECT_NO_THROW(communicator.receiveTest(chatMessage, 3));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
+    ASSERT_NO_THROW(communicator.receiveTest(chatMessage, 3));
+}
+
+TEST(CommunicationLobby, DoubleTeamFormationA) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message teamFormation{request::TeamFormation{}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 1));
+}
+
+TEST(CommunicationLobby, DoubleTeamFormationB) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message teamFormation{request::TeamFormation{}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 2));
+}
+
+TEST(CommunicationLobby, TeamFormationSpectator) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message teamFormation{request::TeamFormation{}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 3)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingC, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingC, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingC, 3)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 3)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(0);
+    EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(0);
+    EXPECT_CALL(messageHandler, send(matchFinish,3)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 3));
+}
+
+TEST(CommunicationLobby, TeamFormationBeforeMatchConfigA) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamFormation{request::TeamFormation{}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(0);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 1));
+}
+
+TEST(CommunicationLobby, TeamFormationBeforeMatchConfigB) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamFormation{request::TeamFormation{}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(0);
+    EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamFormation, 2));
+}
+
+TEST(CommunicationLobby, PausRequestAiA) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", "", true}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message pauseRequest{request::PauseRequest{"p"}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(error, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(pauseRequest, 1));
+}
+
+TEST(CommunicationLobby, PausRequestAiB) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", "", true}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message pauseRequest{request::PauseRequest{"p"}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreetingB, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(error, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 2));
+    ASSERT_NO_THROW(communicator.receiveTest(pauseRequest, 2));
+}
+
+TEST(CommunicationLobby, PauseGameNotStarted) {
+    std::stringstream sstream;
+    util::Logging log{sstream, 10};
+    communication::MessageHandlerMock messageHandler{8080, log};
+
+    communication::messages::Message joinRequest{communication::messages::request::JoinRequest{}};
+    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
+    communication::messages::Message loginGreeting{communication::messages::broadcast::LoginGreeting{}};
+    Message pauseRequest{request::PauseRequest{"p"}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+    Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+
+    EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(loginGreeting, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(error, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
+
+    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    ASSERT_NO_THROW(communicator.receiveTest(joinRequest, 1));
+    ASSERT_NO_THROW(communicator.receiveTest(pauseRequest, 1));
 }
