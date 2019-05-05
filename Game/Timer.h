@@ -12,9 +12,16 @@ class Timer {
     bool clear = false;
 
 public:
+    /**
+     *
+     * @param delay after the delay, the code will be execute
+     */
     template<typename Function>
     void setTimeout(Function function, int delay);
 
+    /**
+     * @param interval in every distance of the interval, the code will be execute
+     */
     template<typename Function>
     void setInterval(Function function, int interval);
 

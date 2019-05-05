@@ -22,7 +22,7 @@ enum class TeamSide : char {
 
 class Game {
 public:
-    gameModel::Environment environment;
+    std::shared_ptr<gameModel::Environment> environment;
     Game(communication::messages::broadcast::MatchConfig matchConfig,
             const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2,
@@ -42,7 +42,6 @@ public:
 private:
     Timer timer;
     communication::messages::broadcast::DeltaBroadcast deltaBroadcast;
-    communication::messages::types::TurnType turnType;
     int playerCounter = 0;
     int phaseCounter = 0;
     int ballCounter = 0;
@@ -60,7 +59,7 @@ private:
     std::array<bool, 7> arrayTeam2Fan {true};
     std::optional<std::shared_ptr<gameModel::Player>> quaffleHold;
     std::optional<std::shared_ptr<gameModel::Player>> bludgerHold;
-    std::map<int ,communication::messages::types::EntityId> mapTeam1Player {
+    std::map<int ,communication::messages::types::EntityId> mapTeam1PlayerToEntityID {
             {0, communication::messages::types::EntityId::LEFT_KEEPER},
             {1, communication::messages::types::EntityId::LEFT_SEEKER},
             {2, communication::messages::types::EntityId::LEFT_BEATER1},
@@ -69,7 +68,7 @@ private:
             {5, communication::messages::types::EntityId::LEFT_CHASER2},
             {6, communication::messages::types::EntityId::LEFT_CHASER3}
     };
-    std::map<int, communication::messages::types::EntityId> mapTeam2Player {
+    std::map<int, communication::messages::types::EntityId> mapTeam2PlayerToEntityID {
             {0, communication::messages::types::EntityId::RIGHT_KEEPER},
             {1, communication::messages::types::EntityId::RIGHT_SEEKER},
             {2, communication::messages::types::EntityId::RIGHT_BEATER1},
@@ -77,6 +76,24 @@ private:
             {4, communication::messages::types::EntityId::RIGHT_CHASER1},
             {5, communication::messages::types::EntityId::RIGHT_CHASER2},
             {6, communication::messages::types::EntityId::RIGHT_CHASER3}
+    };
+    std::map<communication::messages::types::EntityId, int> mapTeam1PlayerFromEntityID {
+            {communication::messages::types::EntityId::LEFT_KEEPER, 0},
+            {communication::messages::types::EntityId::LEFT_SEEKER, 1},
+            {communication::messages::types::EntityId::LEFT_BEATER1, 2},
+            {communication::messages::types::EntityId::LEFT_BEATER2, 3},
+            {communication::messages::types::EntityId::LEFT_CHASER1, 4},
+            {communication::messages::types::EntityId::LEFT_CHASER2, 5},
+            {communication::messages::types::EntityId::LEFT_CHASER3, 6}
+    };
+    std::map<communication::messages::types::EntityId, int> mapTeam2PlayerFromEntityID {
+            {communication::messages::types::EntityId::RIGHT_KEEPER, 0},
+            {communication::messages::types::EntityId::RIGHT_SEEKER, 1},
+            {communication::messages::types::EntityId::RIGHT_BEATER1, 2},
+            {communication::messages::types::EntityId::RIGHT_BEATER2, 3},
+            {communication::messages::types::EntityId::RIGHT_CHASER1, 4},
+            {communication::messages::types::EntityId::RIGHT_CHASER2, 5},
+            {communication::messages::types::EntityId::RIGHT_CHASER3, 6}
     };
     std::map<int, communication::messages::types::PhaseType> gamePhase {
             {0, communication::messages::types::PhaseType::PLAYER_PHASE},
