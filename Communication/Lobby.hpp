@@ -20,7 +20,7 @@ namespace communication {
     struct Client {
         std::string userName, password;
         bool isAi;
-        std::vector<std::string> mods;
+        std::vector<messages::types::Mods> mods;
     };
 
     enum class LobbyState {
