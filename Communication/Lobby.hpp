@@ -9,6 +9,7 @@
 #define SERVER_LOBBY_HPP
 
 #include <utility>
+#include <set>
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
 #include <Util/Logging.hpp>
@@ -20,7 +21,7 @@ namespace communication {
     struct Client {
         std::string userName, password;
         bool isAi;
-        std::vector<messages::types::Mods> mods;
+        std::set<messages::types::Mods> mods;
     };
 
     enum class LobbyState {

@@ -21,8 +21,9 @@ namespace communication {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             if (clientMapping.find(client) == clientMapping.end()) {
                 auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
+                std::set<messages::types::Mods> mods{joinRequest.getMods().begin(), joinRequest.getMods().end()};
                 Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
-                                 joinRequest.getIsAi(), joinRequest.getMods()};
+                                 joinRequest.getIsAi(), mods};
                 if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                     lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
                     clientMapping.emplace(client, lobbyMapping.at(joinRequest.getLobby()));
