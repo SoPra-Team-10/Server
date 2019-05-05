@@ -43,6 +43,8 @@ namespace communication {
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
         void sendSingle(const messages::broadcast::Replay &payload, int id);
+        void sendError(const std::string &payloadReason, const std::string &msg, int id);
+        void sendWarn(const std::string &payloadReason, const std::string &msg, int id);
 
         template <typename T>
         void onPayload(const T &, int id);

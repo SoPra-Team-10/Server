@@ -86,10 +86,10 @@ namespace communication {
                 auto fileReplay = j.get<messages::broadcast::Replay>();
                 this->sendSingle(fileReplay, id);
             } else {
-                this->sendSingle(messages::unicast::PrivateDebug{"Game hasn't started yet and not old games are available"}, id);
+                sendWarn(messages::request::GetReplay::getName(), "Game hasn't started yet and no old games are available", id);
             }
         } else {
-            this->sendSingle(messages::unicast::PrivateDebug{"Game is currently running!"}, id);
+            sendWarn(messages::request::GetReplay::getName(), "Game is currently running!", id);
         }
     }
 
@@ -146,7 +146,8 @@ namespace communication {
             log.info("Pause");
             state = LobbyState::PAUSE;
         } else {
-            this->sendSingle(messages::unicast::PrivateDebug{"Invalid pause request either AI or Game not started"}, id);
+            sendError(messages::request::PauseRequest::getName(),
+                    "Invalid pause request: either AI or Game not started", id);
             this->kickUser(id);
             log.warn("Invalid pause request");
         }
@@ -161,7 +162,8 @@ namespace communication {
             log.info("Continue");
             state = LobbyState::GAME;
         } else {
-            this->sendSingle(messages::unicast::PrivateDebug{"Not paused"}, id);
+            sendError(messages::request::PauseRequest::getName(),
+                      "Not paused!", id);
             this->kickUser(id);
             log.warn("Client sent a continue while not paused");
         }
@@ -180,13 +182,15 @@ namespace communication {
                     this->sendAll(next);
                 } else {
                     // According to the spec the user needs to get kicked
+                    sendError(messages::request::PauseRequest::getName(),
+                              "Invalid delta request!", clientId);
                     this->kickUser(clientId);
-                    this->sendSingle(messages::unicast::PrivateDebug{"Not in game"}, clientId);
                     log.warn("Client sent an invalid deltaRequest");
                 }
             } else {
+                sendError(messages::request::PauseRequest::getName(),
+                          "Not in game", clientId);
                 this->kickUser(clientId);
-                this->sendSingle(messages::unicast::PrivateDebug{"Not in game"}, clientId);
                 log.warn("Client sent a DeltaRequest while not in game");
             }
         } else {
@@ -197,6 +201,8 @@ namespace communication {
 
     template<typename T>
     void Lobby::onPayload(const T &, int client) {
+        sendError(T::getName(),
+                  "The message is not a request!", client);
         this->kickUser(client);
         log.warn("Received message is not a request, kicking user");
     }
@@ -240,7 +246,7 @@ namespace communication {
         } else {
             id = players.second.value();
         }
-        this->sendSingle(messages::unicast::PrivateDebug{"Timeout"},id);
+        sendError("None", "Timeout", id);
         this->kickUser(id);
     }
 
@@ -280,6 +286,26 @@ namespace communication {
 
     void Lobby::sendSingle(const messages::broadcast::Replay &payload, int id) {
         this->communicator.send(messages::ReplayMessage{payload}, id);
+    }
+
+    void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
+        if (clients.at(id).mods.count(messages::types::Mods::ERROR) > 0) {
+            this->sendSingle(communication::messages::mods::unicast::PrivateError{payloadReason, msg}, id);
+        } else {
+            std::stringstream sstream;
+            sstream << "Error in " << payloadReason << ":\t" << msg;
+            this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
+        }
+    }
+
+    void Lobby::sendWarn(const std::string &payloadReason, const std::string &msg, int id) {
+        if (clients.at(id).mods.count(messages::types::Mods::WARNING) > 0) {
+            this->sendSingle(communication::messages::mods::unicast::PrivateWarning{payloadReason, msg}, id);
+        } else {
+            std::stringstream sstream;
+            sstream << "Warning in " << payloadReason << ":\t" << msg;
+            this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
+        }
     }
 
 }
