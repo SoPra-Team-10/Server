@@ -38,39 +38,80 @@ communication::messages::broadcast::Next Game::getNextActor() {
             return next;
         }
         case 1:
+            if(playerCounter %2 == 0){
+                if(gameController::rng(0,1) == 0){
+                    turnTeam1PlayerPhase = true;
+                }else{
+                    turnTeam1PlayerPhase = false;
+                }
+            }
             if (playerCounter == 13) {
-                arrayTeam1 = {true};
-                arrayTeam2 = {true};
+                arrayTeam1Player = {true};
+                arrayTeam2Player = {true};
                 playerCounter = 0;
                 phaseCounter++;
-            } else if (turnTeam1) {
+            } else if (turnTeam1PlayerPhase) {
                 do {
                     random = gameController::rng(0, 6);
-                } while (!arrayTeam1[random]);
+                } while (!arrayTeam1Player[random]);
                 random = gameController::rng(0, 6);
-                arrayTeam1[random] = false;
-                turnTeam1 = false;
+                arrayTeam1Player[random] = false;
+                turnTeam1PlayerPhase = false;
                 playerCounter++;
-                return communication::messages::broadcast::Next(mapTeam1[random],
+                return communication::messages::broadcast::Next(mapTeam1Player[random],
                                                                 communication::messages::types::TurnType::MOVE,
                                                                 environment.config.timeouts.playerPhase);
             } else {
                 do {
                     random = gameController::rng(0, 6);
-                } while (!arrayTeam2[random]);
+                } while (!arrayTeam2Player[random]);
                 random = gameController::rng(0, 6);
-                arrayTeam2[random] = false;
-                turnTeam1 = true;
+                arrayTeam2Player[random] = false;
+                turnTeam1PlayerPhase = true;
                 playerCounter++;
-                return communication::messages::broadcast::Next(mapTeam2[random],
+                return communication::messages::broadcast::Next(mapTeam2Player[random],
                                                                 communication::messages::types::TurnType::MOVE,
                                                                 environment.config.timeouts.playerPhase);
             }
             break;
         case 2:{
-            
-        }
+            if(fanCounter % 2 == 0){
+                if(gameController::rng(0,1) == 0){
+                    turnTeam1FanPhase = true;
+                }else {
+                    turnTeam1FanPhase = false;
+                }
+            }
+            if(fanCounter == 13){
+                arrayTeam1Fan = {true};
+                arrayTeam2Fan = {true};
+                fanCounter = 0;
+                phaseCounter = 0;
+            }else if (turnTeam1FanPhase) {
+                do {
+                    random = gameController::rng(0, 6);
+                } while (!arrayTeam1Fan[random]);
+                random = gameController::rng(0, 6);
+                arrayTeam1Fan[random] = false;
+                turnTeam1FanPhase = false;
+                fanCounter++;
+                return communication::messages::broadcast::Next(mapTeam1Fan[random],
+                                                                communication::messages::types::TurnType::FAN,
+                                                                environment.config.timeouts.fanPhase);
+            } else {
+                do {
+                    random = gameController::rng(0, 6);
+                } while (!arrayTeam2Fan[random]);
+                random = gameController::rng(0, 6);
+                arrayTeam2Fan[random] = false;
+                turnTeam1FanPhase = true;
+                fanCounter++;
+                return communication::messages::broadcast::Next(mapTeam2Fan[random],
+                                                                communication::messages::types::TurnType::FAN,
+                                                                environment.config.timeouts.fanPhase);
+            }
             break;
+        }
     }
     return communication::messages::broadcast::Next();
 }
@@ -101,7 +142,7 @@ auto Game::getBallPhase(communication::messages::types::EntityId entityId) -> co
             std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
                     environment.snitch.get()->position);
             environment.snitch.get()->position = gameModel::Position{
-                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size())-1)]};
             return communication::messages::broadcast::Next{environment.snitch.get()->id,
                                                             communication::messages::types::TurnType::MOVE,
                                                             environment.config.timeouts.ballPhase};
@@ -110,7 +151,7 @@ auto Game::getBallPhase(communication::messages::types::EntityId entityId) -> co
             std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
                     environment.snitch.get()->position);
             environment.snitch.get()->position = gameModel::Position{
-                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size())-1)]};
             return communication::messages::broadcast::Next{environment.snitch.get()->id,
                                                             communication::messages::types::TurnType::MOVE,
                                                             environment.config.timeouts.ballPhase};
@@ -119,7 +160,7 @@ auto Game::getBallPhase(communication::messages::types::EntityId entityId) -> co
             std::vector<gameModel::Position> vector = environment.getSurroundingPositions(
                     environment.snitch.get()->position);
             environment.snitch.get()->position = gameModel::Position{
-                    vector[gameController::rng(0, static_cast<int> (vector.max_size()))]};
+                    vector[gameController::rng(0, static_cast<int> (vector.max_size())-1)]};
             return communication::messages::broadcast::Next{environment.snitch.get()->id,
                                                             communication::messages::types::TurnType::MOVE,
                                                             environment.config.timeouts.ballPhase};

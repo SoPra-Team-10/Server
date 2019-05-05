@@ -23,7 +23,6 @@ enum class TeamSide : char {
 class Game {
 public:
     gameModel::Environment environment;
-    Timer timer;
     Game(communication::messages::broadcast::MatchConfig matchConfig,
             const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2,
@@ -41,13 +40,18 @@ public:
     auto getRightPoints() const -> int;
 
 private:
+    Timer timer;
     int playerCounter = 0;
     int phaseCounter = 0;
     int ballCounter = 0;
-    bool turnTeam1 = true;
-    std::array<bool, 7> arrayTeam1 {true};
-    std::array<bool, 7> arrayTeam2 {true};
-    std::map<int ,communication::messages::types::EntityId> mapTeam1 {
+    int fanCounter = 0;
+    bool turnTeam1PlayerPhase = true;
+    bool turnTeam1FanPhase = true;
+    std::array<bool, 7> arrayTeam1Player {true};
+    std::array<bool, 7> arrayTeam2Player {true};
+    std::array<bool, 7> arrayTeam1Fan {true};
+    std::array<bool, 7> arrayTeam2Fan {true};
+    std::map<int ,communication::messages::types::EntityId> mapTeam1Player {
             {0, communication::messages::types::EntityId::LEFT_KEEPER},
             {1, communication::messages::types::EntityId::LEFT_SEEKER},
             {2, communication::messages::types::EntityId::LEFT_BEATER1},
@@ -56,7 +60,7 @@ private:
             {5, communication::messages::types::EntityId::LEFT_CHASER2},
             {6, communication::messages::types::EntityId::LEFT_CHASER3}
     };
-    std::map<int, communication::messages::types::EntityId> mapTeam2 {
+    std::map<int, communication::messages::types::EntityId> mapTeam2Player {
             {0, communication::messages::types::EntityId::RIGHT_KEEPER},
             {1, communication::messages::types::EntityId::RIGHT_SEEKER},
             {2, communication::messages::types::EntityId::RIGHT_BEATER1},
@@ -75,6 +79,18 @@ private:
             {0, communication::messages::types::EntityId::SNITCH},
             {1, communication::messages::types::EntityId::BLUDGER1},
             {2, communication::messages::types::EntityId::BLUDGER2}
+    };
+    std::map<int, communication::messages::types::EntityId > mapTeam1Fan {
+            {0, communication::messages::types::EntityId::LEFT_ELF },
+            {1, communication::messages::types::EntityId::LEFT_GOBLIN },
+            {2, communication::messages::types::EntityId::LEFT_NIFFLER },
+            {3, communication::messages::types::EntityId::LEFT_TROLL }
+    };
+    std::map<int, communication::messages::types::EntityId > mapTeam2Fan {
+            {0, communication::messages::types::EntityId::RIGHT_ELF },
+            {1, communication::messages::types::EntityId::RIGHT_GOBLIN },
+            {2, communication::messages::types::EntityId::RIGHT_NIFFLER },
+            {3, communication::messages::types::EntityId::RIGHT_TROLL }
     };
 
     auto getBallPhase(communication::messages::types::EntityId entityId) -> communication::messages::broadcast::Next;
