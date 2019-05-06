@@ -45,6 +45,7 @@ namespace communication {
     protected:
         void receive(messages::Message message, int client);
         void closeEvent(int id);
+        void sendLobbyModMessage(int id);
 
         MessageHandler &messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;

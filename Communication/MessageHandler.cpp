@@ -33,6 +33,13 @@ namespace communication {
         }
     }
 
+    void MessageHandler::send(const messages::mods::other::LobbyMod &message, int client) {
+        if (activeConnections.find(client) != activeConnections.end()) {
+            nlohmann::json json = message;
+            activeConnections.at(client)->send(json.dump(4));
+        }
+    }
+
     void MessageHandler::connectionListener(std::shared_ptr<network::Connection> connection) {
         activeConnections.emplace(this->connectionCount, connection);
         connection->receiveListener(std::bind(&MessageHandler::receiveListener,
@@ -71,6 +78,4 @@ namespace communication {
             }
         }
     }
-
-
 }
