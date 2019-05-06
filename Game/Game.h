@@ -14,18 +14,12 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
+#include "GameTypes.h"
 #include "Timer.h"
+#include "MemberSelector.h"
 
 namespace gameHandling{
-    enum class TeamSide : char {
-        LEFT, RIGHT
-    };
 
-    enum class GameState {
-        BallPhase,
-        PlayerPhase,
-        InterferencePhase
-    };
 
     class Game {
     public:
@@ -84,8 +78,7 @@ namespace gameHandling{
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
         TeamSide activeTeam = TeamSide::LEFT;
-
-        auto getNextPlayer() const -> std::shared_ptr<gameModel::Player>;
+        MemberSelector leftSelector, rightSelector;
     };
 }
 

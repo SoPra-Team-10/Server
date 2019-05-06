@@ -13,7 +13,8 @@ namespace gameHandling{
                const communication::messages::request::TeamConfig& teamConfig2,
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
-            environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)){
+            environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
+            leftSelector(environment->team1, TeamSide::LEFT), rightSelector(environment->team2, TeamSide::RIGHT){
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -40,6 +41,7 @@ namespace gameHandling{
                         return {ballTurn, TurnType::MOVE, 0};
                     case EntityId ::BLUDGER2 :
                         ballTurn = EntityId::SNITCH;
+                        roundState = GameState::PlayerPhase;
                         return {ballTurn, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
@@ -71,10 +73,5 @@ namespace gameHandling{
 
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
         return communication::messages::broadcast::Snapshot();
-    }
-
-    auto Game::getNextPlayer() const -> std::shared_ptr<gameModel::Player> {
-
-        return std::shared_ptr<gameModel::Player>();
     }
 }

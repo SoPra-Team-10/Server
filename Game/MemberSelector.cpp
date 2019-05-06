@@ -5,33 +5,35 @@
 #include "MemberSelector.h"
 #include <SopraGameLogic/GameController.h>
 namespace gameHandling{
+    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), fanblock(team->fanblock), side(side){
+        resetPlayers();
+        resteInterferences();
+    }
+
     auto MemberSelector::getNextPlayer() -> communication::messages::types::EntityId {
-        if(playersLeft.empty()){
+        using Id = communication::messages::types::EntityId;
+        if(playersEmpty()){
             throw std::runtime_error("No more players left to select");
         }
-        auto pos = playersLeft.begin() + gameController::rng(0, static_cast<int>(playersLeft.size()) - 1);
-        auto id = *pos;
+
+        auto pos = selectRandom<Id>(playersLeft);
+        auto ret = *pos;
         playersLeft.erase(pos);
-        return id;
+        return ret;
     }
 
     auto MemberSelector::getNextInterference() -> communication::messages::types::EntityId {
-        if(interferencesLeft.empty()){
+        if(interferencesEmpty()){
             throw std::runtime_error("No more interferences left to select");
         }
-        auto pos = interferencesLeft.begin() + gameController::rng(0, static_cast<int>(interferencesLeft.size()) - 1);
-        auto id = *pos;
-        interferencesLeft.erase(pos);
-        return interferenceToID(id);
-    }
 
-    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : side(side) {
-        using Id = gameModel::InterferenceType;
-        for(const auto &player : team->getAllPlayers()){
-            playersLeft.emplace_back(player->id);
+        auto pos = selectRandom<std::pair<gameModel::InterferenceType, int>>(interferencesLeft);
+        auto ret = pos->first;
+        if(--pos->second <= 0){
+            interferencesLeft.erase(pos);
         }
 
-        interferencesLeft = {Id::Teleport, Id::RangedAttack, Id::Impulse, Id::SnitchPush};
+        return interferenceToID(ret);
     }
 
     auto MemberSelector::interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId {
@@ -48,5 +50,35 @@ namespace gameHandling{
         }
 
         throw std::runtime_error("Fatal error! Enum out of bounds");
+    }
+
+    bool MemberSelector::playersEmpty() const {
+        return playersLeft.empty();
+    }
+
+    bool MemberSelector::interferencesEmpty() const {
+        return interferencesLeft.empty();
+    }
+
+    void MemberSelector::resetPlayers() {
+        playersLeft.clear();
+        for(const auto &player : team->getAllPlayers()){
+            if(!player->isFined && !player->knockedOut)
+            playersLeft.emplace_back(player->id);
+        }
+    }
+
+    void MemberSelector::resteInterferences() {
+        using Id = gameModel::InterferenceType;
+        interferencesLeft = {{Id::Teleport, 0}, {Id::RangedAttack, 0}, {Id::Impulse, 0}, {Id::SnitchPush, 0}};
+        for(auto it = interferencesLeft.begin(); it < interferencesLeft.end();){
+            int uses = fanblock.getUses(it->first);
+            if(uses == 0){
+                it = interferencesLeft.erase(it);
+            } else {
+                it->second = uses;
+                it++;
+            }
+        }
     }
 }
