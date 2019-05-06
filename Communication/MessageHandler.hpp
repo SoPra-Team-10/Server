@@ -57,7 +57,15 @@ namespace communication {
          * @param client the client to which to send the message
          */
         virtual void send(const messages::ReplayWithSnapshotMessage &message, int client);
+
+        /**
+         * Listener, that gets called on every new Message
+         */
         const util::Listener<messages::Message,int> onReceive;
+
+        /**
+         * Listener, that gets called when a client closes the connection
+         */
         const util::Listener<int> onClose;
     private:
         void connectionListener(std::shared_ptr<network::Connection> connection);
