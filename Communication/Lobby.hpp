@@ -39,8 +39,10 @@ namespace communication {
         void onMessage(const messages::Message &message, int id);
         void onLeave(int id);
 
-        void kickUser(int id);
+        auto getUserInLobby() const -> int;
+        auto isMatchStarted() const -> bool;
     private:
+        void kickUser(int id);
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
         void sendSingle(const messages::broadcast::Replay &payload, int id);

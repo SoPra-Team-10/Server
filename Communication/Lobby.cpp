@@ -208,11 +208,12 @@ namespace communication {
                 if (game->executeDelta(deltaRequest)) {
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
-                    replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
-                    replay.second.addLog(communication::messages::Message{snapshot});
                     auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
+                    replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                    replay.second.addLog(communication::messages::Message{snapshot});
+                    replay.second.addLog(communication::messages::Message{next});
                 } else {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
@@ -371,6 +372,14 @@ namespace communication {
             sstream << "Warning in " << payloadReason << ":\t" << msg;
             this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
         }
+    }
+
+    auto Lobby::getUserInLobby() const -> int {
+        return clients.size();
+    }
+
+    auto Lobby::isMatchStarted() const -> bool {
+        return state == LobbyState::GAME;
     }
 
 }
