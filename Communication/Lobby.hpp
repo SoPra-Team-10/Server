@@ -15,6 +15,7 @@
 #include <SopraMessages/ReplayWithSnapshot.h>
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
+#include <SopraMessages/ReplayMessage.h>
 
 namespace communication {
     class Communicator;
@@ -94,8 +95,7 @@ namespace communication {
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
-        void sendSingle(const messages::broadcast::Replay &payload, int id);
-        void sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id);
+        void sendSingle(const messages::ReplayPayload &payload, int id);
         void sendError(const std::string &payloadReason, const std::string &msg, int id);
         void sendWarn(const std::string &payloadReason, const std::string &msg, int id);
 

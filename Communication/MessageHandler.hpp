@@ -52,13 +52,6 @@ namespace communication {
         virtual void send(const messages::ReplayMessage &message, int client);
 
         /**
-         * Send a message to the client specified by id
-         * @param message the ReplayWithSnapshot Message to send
-         * @param client the client to which to send the message
-         */
-        virtual void send(const messages::ReplayWithSnapshotMessage &message, int client);
-
-        /**
          * Listener, that gets called on every new Message
          */
         const util::Listener<messages::Message,int> onReceive;
