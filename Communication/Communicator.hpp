@@ -15,17 +15,37 @@
 #include "MessageHandler.hpp"
 
 namespace communication {
+    /**
+     * The communicator is responsible for managing player sessions and lobbys.
+     */
     class Communicator {
     public:
-        Communicator(MessageHandler &messageHandler, util::Logging &log, const messages::broadcast::MatchConfig &matchConfig);
+        /**
+         * CTor: Start the communicator with a MessageHandler as a backend.
+         * @param messageHandler the message handler to use to send and receive messages
+         * @param log the log object which to use
+         * @param matchConfig the matchConfig to use for all lobbies instantiated from this communicator
+         */
+        Communicator(MessageHandler &messageHandler, util::Logging &log,
+                const messages::broadcast::MatchConfig &matchConfig);
 
+        /**
+         * Send an abstract message to the communicator
+         * @tparam T type of the message payload
+         * @param message the message to send
+         * @param id the client to which the message should be sent
+         */
         template <typename T>
         void send(const messages::AbstractMessage<T> &message, int id);
 
+        /**
+         * Remove a client from the lobby, this is used by a lobby to kick a user.
+         */
         void removeClient(int id);
     protected:
         void receive(messages::Message message, int client);
         void closeEvent(int id);
+        void sendLobbyModMessage(int id);
 
         MessageHandler &messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;

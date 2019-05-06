@@ -6,6 +6,7 @@
  */
 
 #include "Communicator.hpp"
+#include <SopraMessages/LobbyMod.hpp>
 
 namespace communication {
     Communicator::Communicator(MessageHandler &messageHandler, util::Logging &log,
@@ -70,5 +71,13 @@ namespace communication {
         if (clientMapping.find(id) != clientMapping.end()) {
             clientMapping.erase(clientMapping.find(id));
         }
+    }
+
+    void Communicator::sendLobbyModMessage(int id) {
+        messages::mods::other::LobbyMod lobbyMod;
+        for (const auto lobby : lobbyMapping) {
+            lobbyMod.addLobby({lobby.first, lobby.second->isMatchStarted(), lobby.second->getUserInLobby()});
+        }
+        messageHandler.send(lobbyMod, id);
     }
 }
