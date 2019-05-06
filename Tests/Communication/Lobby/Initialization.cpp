@@ -1,21 +1,23 @@
-#include "MessageHandlerMock.h"
-#include "CommunicatorTest.h"
+#include "Tests/Communication/MessageHandlerMock.h"
+#include "Tests/Communication/CommunicatorTest.h"
 
 #include <gtest/gtest.h>
+
+using namespace communication::messages;
 
 TEST(CommunicationLobby, SendTeamConfigs) {
     std::stringstream sstream;
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message teamConfigs{communication::messages::request::TeamConfig{}};
-    communication::messages::Message matchStart{
-        communication::messages::broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -39,18 +41,17 @@ TEST(CommunicationLobby, TeamConfigThreePlayerError) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
-    communication::messages::Message joinRequestA{communication::messages::request::JoinRequest{"lobby", "a", ""}};
-    communication::messages::Message joinRequestB{communication::messages::request::JoinRequest{"lobby", "b", ""}};
-    communication::messages::Message joinRequestC{communication::messages::request::JoinRequest{"lobby", "c", ""}};
-    communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
-    communication::messages::Message loginGreetingA{communication::messages::broadcast::LoginGreeting{"a"}};
-    communication::messages::Message loginGreetingB{communication::messages::broadcast::LoginGreeting{"b"}};
-    communication::messages::Message loginGreetingC{communication::messages::broadcast::LoginGreeting{"c"}};
-    communication::messages::Message teamConfigs{communication::messages::request::TeamConfig{}};
-    communication::messages::Message matchStart{
-            communication::messages::broadcast::MatchStart{{}, {}, {}, "a", "b"}};
-    communication::messages::Message matchFinishError{communication::messages::broadcast::MatchFinish{0,0,0,"",
-                                                 communication::messages::types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+    Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
+    Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
+    Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
+    Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
+    Message loginGreetingA{broadcast::LoginGreeting{"a"}};
+    Message loginGreetingB{broadcast::LoginGreeting{"b"}};
+    Message loginGreetingC{broadcast::LoginGreeting{"c"}};
+    Message teamConfigs{request::TeamConfig{}};
+    Message matchStart{
+            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+    Message matchFinishError{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);

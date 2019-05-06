@@ -27,7 +27,8 @@ namespace communication {
 
         virtual void sendAll(const messages::Message &message);
         virtual void send(const messages::Message &message, int client);
-        void send(const messages::ReplayMessage &message, int client);
+        virtual void send(const messages::ReplayMessage &message, int client);
+        virtual void send(const messages::ReplayWithSnapshotMessage &message, int client);
         const util::Listener<messages::Message,int> onReceive;
         const util::Listener<int> onClose;
     private:

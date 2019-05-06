@@ -9,8 +9,10 @@
 #define SERVER_LOBBY_HPP
 
 #include <utility>
+#include <set>
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
+#include <SopraMessages/ReplayWithSnapshot.h>
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 
@@ -20,7 +22,7 @@ namespace communication {
     struct Client {
         std::string userName, password;
         bool isAi;
-        std::vector<std::string> mods;
+        std::set<messages::types::Mods> mods;
     };
 
     enum class LobbyState {
@@ -35,13 +37,19 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
-        void onLeave(int id);
+        bool onLeave(int id);
 
-        void kickUser(int id);
+        auto getUserInLobby() const -> int;
+        auto isMatchStarted() const -> bool;
+        auto getName() const -> std::string;
     private:
+        void kickUser(int id);
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
         void sendSingle(const messages::broadcast::Replay &payload, int id);
+        void sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id);
+        void sendError(const std::string &payloadReason, const std::string &msg, int id);
+        void sendWarn(const std::string &payloadReason, const std::string &msg, int id);
 
         template <typename T>
         void onPayload(const T &, int id);
@@ -53,7 +61,7 @@ namespace communication {
         LobbyState state;
         std::string name;
 
-        messages::broadcast::Replay replay;
+        std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
         std::pair<std::optional<communication::messages::request::TeamConfig>,
@@ -62,7 +70,7 @@ namespace communication {
         std::optional<communication::messages::request::TeamFormation>> teamFormations;
         std::optional<Game> game;
         std::optional<communication::messages::broadcast::Next> lastNext;
-        const messages::broadcast::MatchConfig &matchConfig;
+        const messages::broadcast::MatchConfig matchConfig;
         util::Logging &log;
     };
 }

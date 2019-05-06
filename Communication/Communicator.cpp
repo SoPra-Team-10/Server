@@ -21,8 +21,9 @@ namespace communication {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             if (clientMapping.find(client) == clientMapping.end()) {
                 auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
+                std::set<messages::types::Mods> mods{joinRequest.getMods().begin(), joinRequest.getMods().end()};
                 Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
-                                 joinRequest.getIsAi(), joinRequest.getMods()};
+                                 joinRequest.getIsAi(), mods};
                 if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                     lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
                     clientMapping.emplace(client, lobbyMapping.at(joinRequest.getLobby()));
@@ -53,9 +54,15 @@ namespace communication {
     }
 
     void Communicator::closeEvent(int id) {
-        if (clientMapping.find(id) != clientMapping.end()) {
-            clientMapping.at(id)->onLeave(id);
-            clientMapping.erase(clientMapping.find(id));
+        auto cit = clientMapping.find(id);
+        if (cit != clientMapping.end()) {
+            auto name = cit->second->getName();
+            if(cit->second->onLeave(id)) {
+                auto lit = lobbyMapping.find(name);
+                if (lit != lobbyMapping.end()) {
+                    lobbyMapping.erase(lit);
+                }
+            }
         }
     }
 
