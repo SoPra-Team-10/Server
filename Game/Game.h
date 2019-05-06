@@ -83,6 +83,9 @@ namespace gameHandling{
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
+        TeamSide activeTeam = TeamSide::LEFT;
+
+        auto getNextPlayer() const -> std::shared_ptr<gameModel::Player>;
     };
 }
 

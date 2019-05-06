@@ -72,4 +72,9 @@ namespace gameHandling{
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
         return communication::messages::broadcast::Snapshot();
     }
+
+    auto Game::getNextPlayer() const -> std::shared_ptr<gameModel::Player> {
+
+        return std::shared_ptr<gameModel::Player>();
+    }
 }
