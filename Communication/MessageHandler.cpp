@@ -9,34 +9,35 @@
 
 namespace communication {
 
-    MessageHandler::MessageHandler(uint16_t port, util::Logging &log) :
+    MessageHandler::MessageHandler(uint16_t port, util::Logging &log, const std::string &protocolName) :
         connectionCount{0},
         log{log} {
-        webSocketServer.emplace(port, "http-only");
+        webSocketServer.emplace(port, protocolName);
         webSocketServer->connectionListener(
                 std::bind(&MessageHandler::connectionListener, this, std::placeholders::_1));
         webSocketServer->closeListener(
                 std::bind(&MessageHandler::closeListener, this, std::placeholders::_1));
     }
 
-    void MessageHandler::sendAll(const messages::Message &message) {
-        nlohmann::json json = message;
-        webSocketServer->broadcast(json.dump(4));
-    }
-
     void MessageHandler::send(const messages::Message &message, int client) {
-        nlohmann::json json = message;
-        activeConnections.at(client)->send(json.dump(4));
+        if (activeConnections.find(client) != activeConnections.end()) {
+            nlohmann::json json = message;
+            activeConnections.at(client)->send(json.dump(4));
+        }
     }
 
     void MessageHandler::send(const messages::ReplayMessage &message, int client) {
-        nlohmann::json json = message;
-        activeConnections.at(client)->send(json.dump(4));
+        if (activeConnections.find(client) != activeConnections.end()) {
+            nlohmann::json json = message;
+            activeConnections.at(client)->send(json.dump(4));
+        }
     }
 
-    void MessageHandler::send(const messages::ReplayWithSnapshotMessage &message, int client) {
-        nlohmann::json json = message;
-        activeConnections.at(client)->send(json.dump(4));
+    void MessageHandler::send(const messages::mods::other::LobbyMod &message, int client) {
+        if (activeConnections.find(client) != activeConnections.end()) {
+            nlohmann::json json = message;
+            activeConnections.at(client)->send(json.dump(4));
+        }
     }
 
     void MessageHandler::connectionListener(std::shared_ptr<network::Connection> connection) {
@@ -77,6 +78,4 @@ namespace communication {
             }
         }
     }
-
-
 }

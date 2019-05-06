@@ -354,12 +354,8 @@ namespace communication {
         this->communicator.send(messages::Message{payload}, id);
     }
 
-    void Lobby::sendSingle(const messages::broadcast::Replay &payload, int id) {
+    void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {
         this->communicator.send(messages::ReplayMessage{payload}, id);
-    }
-
-    void Lobby::sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id) {
-        this->communicator.send(messages::ReplayWithSnapshotMessage{payload}, id);
     }
 
     void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
