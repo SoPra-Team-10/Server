@@ -32,21 +32,36 @@ namespace gameHandling{
             case GameState::BallPhase:
                 switch (ballTurn){
                     case EntityId ::SNITCH :
+                        //Bludger1 turn next
                         ballTurn = EntityId::BLUDGER1;
+
+                        //Snitch has to make move if it exists
                         if(environment->snitch->exists){
                             return {ballTurn, TurnType::MOVE, 0};
                         }
                     case EntityId::BLUDGER1 :
+                        //Bludger2 turn next
                         ballTurn = EntityId::BLUDGER2;
                         return {ballTurn, TurnType::MOVE, 0};
                     case EntityId ::BLUDGER2 :
+                        //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
+                        //Ball phase end, Player phase next
                         roundState = GameState::PlayerPhase;
+
+                        //Determine team to begin by random
+                        if(gameController::rng(0, 1)){
+                            activeTeam = TeamSide::LEFT;
+                        } else {
+                            activeTeam = TeamSide::RIGHT;
+                        }
+
                         return {ballTurn, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
             case GameState::PlayerPhase:
+
                 break;
             case GameState::InterferencePhase:break;
         }
@@ -74,4 +89,5 @@ namespace gameHandling{
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
         return communication::messages::broadcast::Snapshot();
     }
+
 }

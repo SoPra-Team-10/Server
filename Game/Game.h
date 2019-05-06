@@ -79,6 +79,7 @@ namespace gameHandling{
         int roundNumber = 0;
         TeamSide activeTeam = TeamSide::LEFT;
         MemberSelector leftSelector, rightSelector;
+
     };
 }
 

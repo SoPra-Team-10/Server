@@ -21,13 +21,19 @@ namespace gameHandling{
          * @return the next randomly chosen player id from the team
          * @throws std::runtime_error when all players from team have been selected
          */
-        auto getNextPlayer() -> communication::messages::types::EntityId;
+        auto getNextPlayer() -> std::shared_ptr<gameModel::Player>;
 
         /**
          *
-         * @return true if all players have been selected, false otherwise
+         * @return true if at least one Player is available
          */
-        bool playersEmpty() const;
+        bool hasPlayers() const;
+
+        /**
+         *
+         * @return true if at least one Player not knocked out is available
+         */
+        bool hasConciousPlayer() const;
 
         /**
          *
@@ -38,9 +44,9 @@ namespace gameHandling{
 
         /**
          *
-         * @return true if all interferences have been selected, false otherwise
+         * @return false if all interferences have been selected, true otherwise
          */
-        bool interferencesEmpty() const;
+        bool hasInterference() const;
 
         /**
          * Restores the initial state of the player list just as after the construction
@@ -58,7 +64,7 @@ namespace gameHandling{
         std::shared_ptr<const gameModel::Team> team;
         const gameModel::Fanblock fanblock;
         const TeamSide side;
-        std::deque<communication::messages::types::EntityId> playersLeft;
+        std::deque<std::shared_ptr<gameModel::Player>> playersLeft;
         std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft;
 
         auto interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId;

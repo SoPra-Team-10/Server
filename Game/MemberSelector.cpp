@@ -10,20 +10,19 @@ namespace gameHandling{
         resteInterferences();
     }
 
-    auto MemberSelector::getNextPlayer() -> communication::messages::types::EntityId {
-        using Id = communication::messages::types::EntityId;
-        if(playersEmpty()){
+    auto MemberSelector::getNextPlayer() -> std::shared_ptr<gameModel::Player> {
+        if(hasPlayers()){
             throw std::runtime_error("No more players left to select");
         }
 
-        auto pos = selectRandom<Id>(playersLeft);
+        auto pos = selectRandom<std::shared_ptr<gameModel::Player>>(playersLeft);
         auto ret = *pos;
         playersLeft.erase(pos);
         return ret;
     }
 
     auto MemberSelector::getNextInterference() -> communication::messages::types::EntityId {
-        if(interferencesEmpty()){
+        if(hasInterference()){
             throw std::runtime_error("No more interferences left to select");
         }
 
@@ -52,19 +51,18 @@ namespace gameHandling{
         throw std::runtime_error("Fatal error! Enum out of bounds");
     }
 
-    bool MemberSelector::playersEmpty() const {
-        return playersLeft.empty();
+    bool MemberSelector::hasPlayers() const {
+        return !playersLeft.empty();
     }
 
-    bool MemberSelector::interferencesEmpty() const {
-        return interferencesLeft.empty();
+    bool MemberSelector::hasInterference() const {
+        return !interferencesLeft.empty();
     }
 
     void MemberSelector::resetPlayers() {
         playersLeft.clear();
         for(const auto &player : team->getAllPlayers()){
-            if(!player->isFined && !player->knockedOut)
-            playersLeft.emplace_back(player->id);
+            playersLeft.emplace_back(player);
         }
     }
 
@@ -80,5 +78,17 @@ namespace gameHandling{
                 it++;
             }
         }
+    }
+
+    bool MemberSelector::hasConciousPlayer() const {
+        bool found = false;
+        for(const auto &player : playersLeft){
+            if(!player->knockedOut){
+                found = true;
+                break;
+            }
+        }
+
+        return found;
     }
 }
