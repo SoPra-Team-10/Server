@@ -51,6 +51,9 @@ namespace gameHandling{
 
         bool executeDelta(communication::messages::request::DeltaRequest);
 
+        auto executeBallDelta(communication::messages::types::EntityId entityId)
+                -> communication::messages::request::DeltaRequest;
+
         auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
 
         /**

@@ -206,11 +206,18 @@ namespace communication {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
                 if (game->executeDelta(deltaRequest)) {
+                    this->sendAll(deltaRequest);
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
+                    if (next.getEntityId() == messages::types::EntityId::SNITCH
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        this->sendAll(game->executeBallDelta(next.getEntityId()));
+                    }
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     replay.second.addLog(communication::messages::Message{snapshot});
                     replay.second.addLog(communication::messages::Message{next});
