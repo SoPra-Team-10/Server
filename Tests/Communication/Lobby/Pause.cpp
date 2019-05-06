@@ -198,7 +198,6 @@ TEST(CommunicationLobby, PauseStartAStopA) {
     Message matchStart{
             broadcast::MatchStart{{}, {}, {}, "a", "b"}};
     Message teamFormations{request::TeamFormation{}};
-    Message snapshot{broadcast::Snapshot{}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message pauseResponse{broadcast::PauseResponse{"p", "a", true}};
     Message continueRequest{request::ContinueRequest{"c"}};
@@ -214,8 +213,9 @@ TEST(CommunicationLobby, PauseStartAStopA) {
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
 
-    EXPECT_CALL(messageHandler, send(snapshot, 1)).Times(1);
-    EXPECT_CALL(messageHandler, send(snapshot, 2)).Times(1);
+    // Snapshot
+    EXPECT_CALL(messageHandler, send(testing::_, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(testing::_, 2)).Times(1);
 
     EXPECT_CALL(messageHandler, send(pauseResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(pauseResponse, 2)).Times(1);
@@ -248,7 +248,6 @@ TEST(CommunicationLobby, PauseStartAStopB) {
     Message matchStart{
             broadcast::MatchStart{{}, {}, {}, "a", "b"}};
     Message teamFormations{request::TeamFormation{}};
-    Message snapshot{broadcast::Snapshot{}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message pauseResponse{broadcast::PauseResponse{"p", "a", true}};
     Message continueRequest{request::ContinueRequest{"c"}};
@@ -264,8 +263,9 @@ TEST(CommunicationLobby, PauseStartAStopB) {
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
 
-    EXPECT_CALL(messageHandler, send(snapshot, 1)).Times(1);
-    EXPECT_CALL(messageHandler, send(snapshot, 2)).Times(1);
+    // Snapshot
+    EXPECT_CALL(messageHandler, send(testing::_, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(testing::_, 2)).Times(1);
 
     EXPECT_CALL(messageHandler, send(pauseResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(pauseResponse, 2)).Times(1);
@@ -298,7 +298,6 @@ TEST(CommunicationLobby, PauseStartBStopA) {
     Message matchStart{
             broadcast::MatchStart{{}, {}, {}, "a", "b"}};
     Message teamFormations{request::TeamFormation{}};
-    Message snapshot{broadcast::Snapshot{}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message pauseResponse{broadcast::PauseResponse{"p", "b", true}};
     Message continueRequest{request::ContinueRequest{"c"}};
@@ -314,8 +313,8 @@ TEST(CommunicationLobby, PauseStartBStopA) {
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
 
-    EXPECT_CALL(messageHandler, send(snapshot, 1)).Times(1);
-    EXPECT_CALL(messageHandler, send(snapshot, 2)).Times(1);
+    EXPECT_CALL(messageHandler, send(testing::_, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(testing::_, 2)).Times(1);
 
     EXPECT_CALL(messageHandler, send(pauseResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(pauseResponse, 2)).Times(1);
@@ -348,7 +347,6 @@ TEST(CommunicationLobby, PauseStartBStopB) {
     Message matchStart{
             broadcast::MatchStart{{}, {}, {}, "a", "b"}};
     Message teamFormations{request::TeamFormation{}};
-    Message snapshot{broadcast::Snapshot{}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message pauseResponse{broadcast::PauseResponse{"p", "b", true}};
     Message continueRequest{request::ContinueRequest{"c"}};
@@ -364,8 +362,9 @@ TEST(CommunicationLobby, PauseStartBStopB) {
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
 
-    EXPECT_CALL(messageHandler, send(snapshot, 1)).Times(1);
-    EXPECT_CALL(messageHandler, send(snapshot, 2)).Times(1);
+    // Snapshot
+    EXPECT_CALL(messageHandler, send(testing::_, 1)).Times(1);
+    EXPECT_CALL(messageHandler, send(testing::_, 2)).Times(1);
 
     EXPECT_CALL(messageHandler, send(pauseResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(pauseResponse, 2)).Times(1);

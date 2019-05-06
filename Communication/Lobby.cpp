@@ -291,7 +291,7 @@ namespace communication {
 
         messages::broadcast::MatchFinish matchFinish;
         if (game) {
-            matchFinish = {game->getEndRound(),
+            matchFinish = {game->getRound(),
                            game->getLeftPoints(),
                            game->getRightPoints(), winner, victoryReason};
         } else {

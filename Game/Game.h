@@ -60,7 +60,7 @@ namespace gameHandling{
          * Returns the current round
          * @return
          */
-        auto getEndRound() const -> int;
+        auto getRound() const -> int;
 
         /**
          * Returns the left team's score
