@@ -2,8 +2,8 @@
 // Created by timluchterhand on 06.05.19.
 //
 
-#ifndef SERVER_TEAMMANAGER_H
-#define SERVER_TEAMMANAGER_H
+#ifndef SERVER_PHASEMANAGER_H
+#define SERVER_PHASEMANAGER_H
 
 #include <SopraMessages/types.hpp>
 #include <SopraGameLogic/GameModel.h>
@@ -13,9 +13,9 @@
 #include "MemberSelector.h"
 
 namespace gameHandling{
-    class TeamManager {
+    class PhaseManager {
     public:
-        TeamManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight);
+        PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight);
 
         /**
          * Returns the next action required by a client
@@ -73,4 +73,4 @@ namespace gameHandling{
 }
 
 
-#endif //SERVER_TEAMMANAGER_H
+#endif //SERVER_PHASEMANAGER_H

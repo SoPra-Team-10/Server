@@ -14,7 +14,7 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            playerPhaseManager(environment->team1, environment->team2){
+            phaseManager(environment->team1, environment->team2){
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -26,7 +26,7 @@ namespace gameHandling{
         std::cout<<"resume() is called"<<std::endl;
     }
 
-    auto Game::getNextActor() -> communication::messages::broadcast::Next {
+    auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
         switch (roundState){
             case GameState::BallPhase:
@@ -38,6 +38,8 @@ namespace gameHandling{
                         //Snitch has to make move if it exists
                         if(environment->snitch->exists){
                             return {ballTurn, TurnType::MOVE, 0};
+                        } else {
+                            return getNextAction();
                         }
                     case EntityId::BLUDGER1 :
                         //Bludger2 turn next
@@ -53,19 +55,25 @@ namespace gameHandling{
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
 
-            case GameState::PlayerPhase:
-               if(playerPhaseManager.hasNextPlayer()){
-                   return playerPhaseManager.nextPlayer(environment);
-               } else{
-                   playerPhaseManager.resetPlayers();
-                   roundState = GameState::InterferencePhase;
-               }
-
-            case GameState::InterferencePhase:break;
+            case GameState::PlayerPhase:{
+                if(phaseManager.hasNextPlayer()){
+                    return phaseManager.nextPlayer(environment);
+                } else{
+                    roundState = GameState::InterferencePhase;
+                    return getNextAction();
+                }
+            }
+            case GameState::InterferencePhase:
+                if(phaseManager.hasNextInterference()){
+                    return phaseManager.nextInterference(environment);
+                } else {
+                    roundState = GameState::BallPhase;
+                    endRound();
+                    return getNextAction();
+                }
+            default:
+                throw std::runtime_error("Fatal error, inconsistent game state!");
         }
-
-
-        return communication::messages::broadcast::Next();
     }
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest) {
@@ -86,6 +94,10 @@ namespace gameHandling{
 
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
         return communication::messages::broadcast::Snapshot();
+    }
+
+    void Game::endRound() {
+        phaseManager.reset();
     }
 
 }

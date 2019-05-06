@@ -208,7 +208,7 @@ namespace communication {
                 if (game->executeDelta(deltaRequest)) {
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
-                    auto next = game->getNextActor();
+                    auto next = game->getNextAction();
                     lastNext = next;
                     this->sendAll(next);
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});

@@ -2,15 +2,15 @@
 // Created by timluchterhand on 06.05.19.
 //
 
-#include "TeamManager.h"
+#include "PhaseManager.h"
 namespace gameHandling{
-    TeamManager::TeamManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight) :
+    PhaseManager::PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight) :
             teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT){
         chooseTeam(currentSidePlayers);
         chooseTeam(currentSideInter);
     }
 
-    auto TeamManager::nextPlayer(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
+    auto PhaseManager::nextPlayer(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
         if(!hasNextPlayer()){
             throw std::runtime_error("Player phase is over");
         }
@@ -19,7 +19,7 @@ namespace gameHandling{
         return {nextPlayer->id, getNextPlayerAction(nextPlayer, env), env->config.timeouts.playerTurn};
     }
 
-    auto TeamManager::nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
+    auto PhaseManager::nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
         if(!hasNextInterference()){
             throw std::runtime_error("Fan phase is over");
         }
@@ -44,34 +44,34 @@ namespace gameHandling{
         throw std::runtime_error("Fatal error, no interference found");
     }
 
-    bool TeamManager::hasNextPlayer() const{
+    bool PhaseManager::hasNextPlayer() const{
         return teamLeft.hasConciousPlayer() && teamRight.hasConciousPlayer();
     }
 
-    bool TeamManager::hasNextInterference() const {
+    bool PhaseManager::hasNextInterference() const {
         return teamLeft.hasInterference() && teamRight.hasInterference();
     }
 
-    void TeamManager::resetPlayers() {
+    void PhaseManager::resetPlayers() {
         oneTeamEmptyPlayers = false;
         teamRight.resetPlayers();
         teamLeft.resetPlayers();
         chooseTeam(currentSidePlayers);
     }
 
-    void TeamManager::resetInterferences() {
+    void PhaseManager::resetInterferences() {
         oneTeamEmptyInters = false;
         teamRight.resteInterferences();
         teamLeft.resteInterferences();
         chooseTeam(currentSideInter);
     }
 
-    void TeamManager::reset() {
+    void PhaseManager::reset() {
         resetPlayers();
         resetInterferences();
     }
 
-    auto TeamManager::getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player,
+    auto PhaseManager::getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player,
                                           const std::shared_ptr<const gameModel::Environment> &env) const -> communication::messages::types::TurnType {
         using TurnType = communication::messages::types::TurnType;
         static TurnType turnState = TurnType::MOVE;
@@ -97,7 +97,7 @@ namespace gameHandling{
         throw std::runtime_error("Fatal error, possible memory corruption");
     }
 
-    auto TeamManager::getTeam(TeamSide side) -> MemberSelector & {
+    auto PhaseManager::getTeam(TeamSide side) -> MemberSelector & {
         if(side == TeamSide::LEFT){
             return teamLeft;
         } else {
@@ -105,7 +105,7 @@ namespace gameHandling{
         }
     }
 
-    void TeamManager::chooseTeam(TeamSide &side) {
+    void PhaseManager::chooseTeam(TeamSide &side) {
         if(gameController::rng(0, 1)){
             side = TeamSide::LEFT;
         } else {
@@ -113,7 +113,7 @@ namespace gameHandling{
         }
     }
 
-    auto TeamManager::getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>> {
+    auto PhaseManager::getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>> {
         if(!hasNextPlayer()){
             throw std::runtime_error("Player phase over");
         }

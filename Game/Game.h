@@ -16,7 +16,7 @@
 #include <chrono>
 #include "GameTypes.h"
 #include "Timer.h"
-#include "TeamManager.h"
+#include "PhaseManager.h"
 
 namespace gameHandling{
 
@@ -47,7 +47,7 @@ namespace gameHandling{
          * Gets the next actor to make a move. If the actor is a player, the timeout timer is started
          * @return
          */
-        auto getNextActor() -> communication::messages::broadcast::Next;
+        auto getNextAction() -> communication::messages::broadcast::Next;
 
         bool executeDelta(communication::messages::request::DeltaRequest);
 
@@ -77,7 +77,9 @@ namespace gameHandling{
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
-        TeamManager playerPhaseManager;
+        PhaseManager phaseManager;
+
+        void endRound();
 
     };
 }
