@@ -16,114 +16,61 @@
 #include <chrono>
 #include "Timer.h"
 
-enum class TeamSide : char {
-    LEFT, RIGHT
-};
+namespace gameHandling{
+    enum class TeamSide : char {
+        LEFT, RIGHT
+    };
 
-class Game {
-public:
-    std::shared_ptr<gameModel::Environment> environment;
-    Game(communication::messages::broadcast::MatchConfig matchConfig,
-            const communication::messages::request::TeamConfig& teamConfig1,
-            const communication::messages::request::TeamConfig& teamConfig2,
-            communication::messages::request::TeamFormation teamFormation1,
-            communication::messages::request::TeamFormation teamFormation2);
-    const util::Listener<TeamSide> timeoutListener;
-    const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
-    void pause();
-    void resume();
-    auto getNextActor() -> communication::messages::broadcast::Next;
-    bool executeDelta(communication::messages::request::DeltaRequest);
-    auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
-    auto getEndRound() const -> int;
-    auto getLeftPoints() const -> int;
-    auto getRightPoints() const -> int;
+    class Game {
+    public:
+        std::shared_ptr<gameModel::Environment> environment;
+        Game(communication::messages::broadcast::MatchConfig matchConfig,
+             const communication::messages::request::TeamConfig& teamConfig1,
+             const communication::messages::request::TeamConfig& teamConfig2,
+             communication::messages::request::TeamFormation teamFormation1,
+             communication::messages::request::TeamFormation teamFormation2);
 
-private:
-    Timer timer;
-    communication::messages::broadcast::DeltaBroadcast deltaBroadcast;
-    int playerCounter = 0;
-    int phaseCounter = 0;
-    int ballCounter = 0;
-    int fanCounter = 0;
-    int round = 0;
-    int pointsLeft = 0;
-    int pointsRight = 0;
-    bool turnTeam1PlayerPhase = true;
-    bool turnTeam1FanPhase = true;
-    std::array<bool, 7> arrayTeam1PlayerTurnUsed {true};
-    std::array<bool, 7> arrayTeam2PlayerTurnUsed {true};
-    std::array<bool, 7> arrayTeam1PlayerKnockout {true};
-    std::array<bool, 7> arrayTeam2PlayerKnockout {true};
-    std::array<bool, 7> arrayTeam1Fan {true};
-    std::array<bool, 7> arrayTeam2Fan {true};
-    std::optional<std::shared_ptr<gameModel::Player>> quaffleHold;
-    std::optional<std::shared_ptr<gameModel::Player>> bludgerHold;
-    std::map<int ,communication::messages::types::EntityId> mapTeam1PlayerToEntityID {
-            {0, communication::messages::types::EntityId::LEFT_KEEPER},
-            {1, communication::messages::types::EntityId::LEFT_SEEKER},
-            {2, communication::messages::types::EntityId::LEFT_BEATER1},
-            {3, communication::messages::types::EntityId::LEFT_BEATER2},
-            {4, communication::messages::types::EntityId::LEFT_CHASER1},
-            {5, communication::messages::types::EntityId::LEFT_CHASER2},
-            {6, communication::messages::types::EntityId::LEFT_CHASER3}
-    };
-    std::map<int, communication::messages::types::EntityId> mapTeam2PlayerToEntityID {
-            {0, communication::messages::types::EntityId::RIGHT_KEEPER},
-            {1, communication::messages::types::EntityId::RIGHT_SEEKER},
-            {2, communication::messages::types::EntityId::RIGHT_BEATER1},
-            {3, communication::messages::types::EntityId::RIGHT_BEATER2},
-            {4, communication::messages::types::EntityId::RIGHT_CHASER1},
-            {5, communication::messages::types::EntityId::RIGHT_CHASER2},
-            {6, communication::messages::types::EntityId::RIGHT_CHASER3}
-    };
-    std::map<communication::messages::types::EntityId, int> mapTeam1PlayerFromEntityID {
-            {communication::messages::types::EntityId::LEFT_KEEPER, 0},
-            {communication::messages::types::EntityId::LEFT_SEEKER, 1},
-            {communication::messages::types::EntityId::LEFT_BEATER1, 2},
-            {communication::messages::types::EntityId::LEFT_BEATER2, 3},
-            {communication::messages::types::EntityId::LEFT_CHASER1, 4},
-            {communication::messages::types::EntityId::LEFT_CHASER2, 5},
-            {communication::messages::types::EntityId::LEFT_CHASER3, 6}
-    };
-    std::map<communication::messages::types::EntityId, int> mapTeam2PlayerFromEntityID {
-            {communication::messages::types::EntityId::RIGHT_KEEPER, 0},
-            {communication::messages::types::EntityId::RIGHT_SEEKER, 1},
-            {communication::messages::types::EntityId::RIGHT_BEATER1, 2},
-            {communication::messages::types::EntityId::RIGHT_BEATER2, 3},
-            {communication::messages::types::EntityId::RIGHT_CHASER1, 4},
-            {communication::messages::types::EntityId::RIGHT_CHASER2, 5},
-            {communication::messages::types::EntityId::RIGHT_CHASER3, 6}
-    };
-    std::map<int, communication::messages::types::PhaseType> gamePhase {
-            {0, communication::messages::types::PhaseType::PLAYER_PHASE},
-            {1, communication::messages::types::PhaseType::BALL_PHASE},
-            {2, communication::messages::types::PhaseType::FAN_PHASE},
-            {3, communication::messages::types::PhaseType::GAME_FINISH}
-    };
-    std::map<int, communication::messages::types::EntityId> mapBallPhase {
-            {0, communication::messages::types::EntityId::SNITCH},
-            {1, communication::messages::types::EntityId::BLUDGER1},
-            {2, communication::messages::types::EntityId::BLUDGER2}
-    };
-    std::map<int, communication::messages::types::EntityId > mapTeam1Fan {
-            {0, communication::messages::types::EntityId::LEFT_ELF },
-            {1, communication::messages::types::EntityId::LEFT_GOBLIN },
-            {2, communication::messages::types::EntityId::LEFT_NIFFLER },
-            {3, communication::messages::types::EntityId::LEFT_TROLL }
-    };
-    std::map<int, communication::messages::types::EntityId > mapTeam2Fan {
-            {0, communication::messages::types::EntityId::RIGHT_ELF },
-            {1, communication::messages::types::EntityId::RIGHT_GOBLIN },
-            {2, communication::messages::types::EntityId::RIGHT_NIFFLER },
-            {3, communication::messages::types::EntityId::RIGHT_TROLL }
-    };
-    std::vector<std::pair<communication::messages::types::FanType , bool>> fansTeam1 {};
-    std::vector<std::pair<communication::messages::types::FanType , bool>> fansTeam2 {};
+        const util::Listener<TeamSide> timeoutListener;
+        const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
 
-    auto getBallPhase(communication::messages::types::EntityId entityId) -> communication::messages::broadcast::Next;
+        /**
+         * Pauses the games timers
+         */
+        void pause();
 
-};
+        /**
+         * Reactivates all timers
+         */
+        void resume();
+
+        auto getNextActor() -> communication::messages::broadcast::Next;
+
+        bool executeDelta(communication::messages::request::DeltaRequest);
+
+        auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
+
+        /**
+         * Returns the current round
+         * @return
+         */
+        auto getEndRound() const -> int;
+
+        /**
+         * Returns the left team's score
+         * @return
+         */
+        auto getLeftPoints() const -> int;
+
+        /**
+         * Returns the right team's score
+         * @return
+         */
+        auto getRightPoints() const -> int;
+
+    private:
+        Timer timer;
+    };
+}
 
 
 #endif //SERVER_GAME_H

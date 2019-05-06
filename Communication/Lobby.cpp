@@ -262,9 +262,9 @@ namespace communication {
         onLeave(id);
     }
 
-    void Lobby::onTimeout(TeamSide teamSide) {
+    void Lobby::onTimeout(gameHandling::TeamSide teamSide) {
         int id;
-        if (teamSide == TeamSide::LEFT) {
+        if (teamSide == gameHandling::TeamSide::LEFT) {
             id = players.first.value();
         } else {
             id = players.second.value();
@@ -273,9 +273,9 @@ namespace communication {
         this->kickUser(id);
     }
 
-    void Lobby::onWin(TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
+    void Lobby::onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
         int winnerId;
-        if (teamSide == TeamSide::LEFT) {
+        if (teamSide == gameHandling::TeamSide::LEFT) {
             winnerId = players.first.value();
         } else {
             winnerId = players.second.value();
@@ -323,11 +323,11 @@ namespace communication {
         if (id == players.first || id == players.second) {
             if (id == players.first) {
                 if (players.second.has_value()) {
-                    onWin(TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             } else {
                 if (players.first.has_value()) {
-                    onWin(TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameHandling::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             }
         }
