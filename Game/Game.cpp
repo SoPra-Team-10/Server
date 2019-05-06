@@ -37,20 +37,20 @@ namespace gameHandling{
 
                         //Snitch has to make move if it exists
                         if(environment->snitch->exists){
-                            return {ballTurn, TurnType::MOVE, 0};
+                            return {EntityId::SNITCH, TurnType::MOVE, 0};
                         } else {
                             return getNextAction();
                         }
                     case EntityId::BLUDGER1 :
                         //Bludger2 turn next
                         ballTurn = EntityId::BLUDGER2;
-                        return {ballTurn, TurnType::MOVE, 0};
+                        return {EntityId::BLUDGER1, TurnType::MOVE, 0};
                     case EntityId ::BLUDGER2 :
                         //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
                         roundState = GameState::PlayerPhase;
-                        return {ballTurn, TurnType::MOVE, 0};
+                        return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
