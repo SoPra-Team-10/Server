@@ -21,6 +21,12 @@ namespace gameHandling{
         LEFT, RIGHT
     };
 
+    enum class GameState {
+        BallPhase,
+        PlayerPhase,
+        InterferencePhase
+    };
+
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
@@ -43,6 +49,10 @@ namespace gameHandling{
          */
         void resume();
 
+        /**
+         * Gets the next actor to make a move. If the actor is a player, the timeout timer is started
+         * @return
+         */
         auto getNextActor() -> communication::messages::broadcast::Next;
 
         bool executeDelta(communication::messages::request::DeltaRequest);
@@ -69,6 +79,10 @@ namespace gameHandling{
 
     private:
         Timer timer;
+        GameState roundState = GameState::BallPhase; ///< the basic game phases
+        communication::messages::types::EntityId ballTurn =
+                communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
+        int roundNumber = 0;
     };
 }
 

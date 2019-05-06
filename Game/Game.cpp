@@ -26,6 +26,30 @@ namespace gameHandling{
     }
 
     auto Game::getNextActor() -> communication::messages::broadcast::Next {
+        using namespace communication::messages::types;
+        switch (roundState){
+            case GameState::BallPhase:
+                switch (ballTurn){
+                    case EntityId ::SNITCH :
+                        ballTurn = EntityId::BLUDGER1;
+                        if(environment->snitch->exists){
+                            return {ballTurn, TurnType::MOVE, 0};
+                        }
+                    case EntityId::BLUDGER1 :
+                        ballTurn = EntityId::BLUDGER2;
+                        return {ballTurn, TurnType::MOVE, 0};
+                    case EntityId ::BLUDGER2 :
+                        ballTurn = EntityId::SNITCH;
+                        return {ballTurn, TurnType::MOVE, 0};
+                    default:
+                        throw std::runtime_error("Fatal Error! Inconsistent game state!");
+                }
+            case GameState::PlayerPhase:
+                break;
+            case GameState::InterferencePhase:break;
+        }
+
+
         return communication::messages::broadcast::Next();
     }
 

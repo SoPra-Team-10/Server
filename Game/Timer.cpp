@@ -4,6 +4,11 @@
 
 #include "Timer.h"
 
-void Timer::stop() {
-    this->clear = true;
+void Timer::pause() {
+    paused = true;
 }
+
+void Timer::resume() {
+    paused = false;
+}
+
