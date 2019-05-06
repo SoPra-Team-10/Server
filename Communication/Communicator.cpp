@@ -54,9 +54,15 @@ namespace communication {
     }
 
     void Communicator::closeEvent(int id) {
-        if (clientMapping.find(id) != clientMapping.end()) {
-            clientMapping.at(id)->onLeave(id);
-            clientMapping.erase(clientMapping.find(id));
+        auto cit = clientMapping.find(id);
+        if (cit != clientMapping.end()) {
+            auto name = cit->second->getName();
+            if(cit->second->onLeave(id)) {
+                auto lit = lobbyMapping.find(name);
+                if (lit != lobbyMapping.end()) {
+                    lobbyMapping.erase(lit);
+                }
+            }
         }
     }
 

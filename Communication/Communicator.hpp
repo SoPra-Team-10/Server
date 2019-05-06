@@ -23,7 +23,6 @@ namespace communication {
         void send(const messages::AbstractMessage<T> &message, int id);
 
         void removeClient(int id);
-
     protected:
         void receive(messages::Message message, int client);
         void closeEvent(int id);

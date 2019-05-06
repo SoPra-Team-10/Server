@@ -262,22 +262,6 @@ namespace communication {
         onLeave(id);
     }
 
-    void Lobby::onLeave(int id) {
-        if (id == players.first || id == players.second) {
-            if (id == players.first) {
-                if (players.second.has_value()) {
-                    onWin(TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
-                }
-            } else {
-                if (players.first.has_value()) {
-                    onWin(TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
-                }
-            }
-        }
-        clients.erase(clients.find(id));
-        communicator.removeClient(id);
-    }
-
     void Lobby::onTimeout(TeamSide teamSide) {
         int id;
         if (teamSide == TeamSide::LEFT) {
@@ -335,6 +319,24 @@ namespace communication {
         }
     }
 
+    bool Lobby::onLeave(int id) {
+        if (id == players.first || id == players.second) {
+            if (id == players.first) {
+                if (players.second.has_value()) {
+                    onWin(TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                }
+            } else {
+                if (players.first.has_value()) {
+                    onWin(TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                }
+            }
+        }
+        clients.erase(clients.find(id));
+        communicator.removeClient(id);
+        return getUserInLobby() <= 0;
+    }
+
+
     void Lobby::sendAll(const messages::Payload &payload) {
         for (const auto &c : clients) {
             this->sendSingle(payload,c.first);
@@ -352,7 +354,6 @@ namespace communication {
     void Lobby::sendSingle(const messages::mods::unicast::ReplayWithSnapshot &payload, int id) {
         this->communicator.send(messages::ReplayWithSnapshotMessage{payload}, id);
     }
-
 
     void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
         if (clients.at(id).mods.count(messages::types::Mods::ERROR) > 0) {
@@ -380,6 +381,10 @@ namespace communication {
 
     auto Lobby::isMatchStarted() const -> bool {
         return state == LobbyState::GAME;
+    }
+
+    auto Lobby::getName() const -> std::string {
+        return name;
     }
 
 }

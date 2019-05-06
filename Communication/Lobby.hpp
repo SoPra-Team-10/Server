@@ -37,10 +37,11 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         void onMessage(const messages::Message &message, int id);
-        void onLeave(int id);
+        bool onLeave(int id);
 
         auto getUserInLobby() const -> int;
         auto isMatchStarted() const -> bool;
+        auto getName() const -> std::string;
     private:
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);
