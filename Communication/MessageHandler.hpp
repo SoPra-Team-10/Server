@@ -18,6 +18,7 @@
 #include <SopraMessages/json.hpp>
 
 #include <Util/Logging.hpp>
+#include <SopraMessages/LobbyMod.hpp>
 
 
 namespace communication {
@@ -45,19 +46,27 @@ namespace communication {
         virtual void send(const messages::Message &message, int client);
 
         /**
-         * Send a message to the client specified by id
+         * Send a replayMessage to the client specified by id
          * @param message the replayMessage to send
          * @param client the client to which to send the message
          */
         virtual void send(const messages::ReplayMessage &message, int client);
 
         /**
-         * Send a message to the client specified by id
-         * @param message the ReplayWithSnapshot Message to send
+         * Send a lobbies to the client specified by id
+         * @param message the lobbyMod to send
          * @param client the client to which to send the message
          */
-        virtual void send(const messages::ReplayWithSnapshotMessage &message, int client);
+        virtual void send(const messages::mods::other::LobbyMod &message, int client);
+
+        /**
+         * Listener, that gets called on every new Message
+         */
         const util::Listener<messages::Message,int> onReceive;
+
+        /**
+         * Listener, that gets called when a client closes the connection
+         */
         const util::Listener<int> onClose;
     private:
         void connectionListener(std::shared_ptr<network::Connection> connection);
