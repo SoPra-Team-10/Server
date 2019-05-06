@@ -1,3 +1,5 @@
+#include <memory>
+
 /**
  * @file Game.cpp
  * @author paul
@@ -37,7 +39,7 @@ namespace communication {
                         matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
                         clients.at(players.first.value()).userName,
                         clients.at(players.second.value()).userName},
-                    game.value().getSnapshot()
+                    game->getSnapshot()
             }, id);
         }
     }
@@ -125,9 +127,8 @@ namespace communication {
     void Lobby::onPayload(const messages::request::TeamFormation &teamFormation, int id) {
         if (this->state == LobbyState::WAITING_FORMATION) {
             if (players.first == id || players.second == id) {
-                log.debug("Got teamFormation for left team");
-
                 if (players.first == id) {
+                    log.debug("Got teamFormation for left team");
                     if (teamFormations.first.has_value()) {
                         kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
@@ -135,6 +136,7 @@ namespace communication {
                         teamFormations.first = teamFormation;
                     }
                 } else if (players.second == id) {
+                    log.debug("Got teamFormation for right team");
                     if (teamFormations.second.has_value()) {
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
@@ -144,14 +146,15 @@ namespace communication {
                 }
 
                 if (teamFormations.first.has_value() && teamFormations.second.has_value()) {
-                    game.emplace(Game{matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                                      teamFormations.first.value(), teamFormations.second.value()});
-                    game.value().timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
-                    game.value().winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
-                                                       std::placeholders::_2));
                     state = LobbyState::GAME;
                     log.info("Starting game");
-                    auto snapshot = game.value().getSnapshot();
+
+                    game.emplace(matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                            teamFormations.first.value(), teamFormations.second.value());
+                    game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
+                    game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
+                                                       std::placeholders::_2));
+                    auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     replay.first.setFirstSnapshot(snapshot);
                     replay.second.setFirstSnapshot(snapshot);
@@ -202,12 +205,12 @@ namespace communication {
     void Lobby::onPayload(const messages::request::DeltaRequest &deltaRequest, int clientId) {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
-                if (game.value().executeDelta(deltaRequest)) {
-                    auto snapshot = game.value().getSnapshot();
+                if (game->executeDelta(deltaRequest)) {
+                    auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     replay.second.addLog(communication::messages::Message{snapshot});
-                    auto next = game.value().getNextActor();
+                    auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
                 } else {
@@ -295,10 +298,10 @@ namespace communication {
         std::string winner = clients.at(winnerId).userName;
 
         messages::broadcast::MatchFinish matchFinish;
-        if (game.has_value()) {
-            matchFinish = {game.value().getEndRound(),
-                           game.value().getLeftPoints(),
-                           game.value().getRightPoints(), winner, victoryReason};
+        if (game) {
+            matchFinish = {game->getEndRound(),
+                           game->getLeftPoints(),
+                           game->getRightPoints(), winner, victoryReason};
         } else {
             matchFinish = {0,0,0, winner, victoryReason};
         }
