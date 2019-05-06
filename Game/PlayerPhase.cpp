@@ -4,8 +4,7 @@
 
 #include "PlayerPhase.h"
 namespace gameHandling{
-    PlayerPhase::PlayerPhase(const std::shared_ptr<gameModel::Team> &teamLeft,
-                                           const std::shared_ptr<gameModel::Team> &teamRight) :
+    PlayerPhase::PlayerPhase(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight) :
             teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT){
         chooseTeam();
     }
@@ -77,7 +76,7 @@ namespace gameHandling{
             throw std::runtime_error("Player phase over");
         }
 
-        auto team = getTeam(currentSide);
+        auto &team = getTeam(currentSide);
         std::optional<std::shared_ptr<gameModel::Player>> player{};
         while(team.hasPlayers()){
             player = team.getNextPlayer();

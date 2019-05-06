@@ -11,7 +11,7 @@ namespace gameHandling{
     }
 
     auto MemberSelector::getNextPlayer() -> std::shared_ptr<gameModel::Player> {
-        if(hasPlayers()){
+        if(!hasPlayers()){
             throw std::runtime_error("No more players left to select");
         }
 
@@ -22,7 +22,7 @@ namespace gameHandling{
     }
 
     auto MemberSelector::getNextInterference() -> communication::messages::types::EntityId {
-        if(hasInterference()){
+        if(!hasInterference()){
             throw std::runtime_error("No more interferences left to select");
         }
 
