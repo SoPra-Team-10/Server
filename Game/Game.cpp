@@ -14,7 +14,7 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            leftSelector(environment->team1, TeamSide::LEFT), rightSelector(environment->team2, TeamSide::RIGHT){
+            playerPhaseManager(environment->team1, environment->team2){
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -48,21 +48,19 @@ namespace gameHandling{
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
                         roundState = GameState::PlayerPhase;
-
-                        //Determine team to begin by random
-                        if(gameController::rng(0, 1)){
-                            activeTeam = TeamSide::LEFT;
-                        } else {
-                            activeTeam = TeamSide::RIGHT;
-                        }
-
                         return {ballTurn, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
-            case GameState::PlayerPhase:
 
-                break;
+            case GameState::PlayerPhase:
+               if(playerPhaseManager.hasNextPlayer()){
+                   return playerPhaseManager.nextPlayer(environment);
+               } else{
+                   playerPhaseManager.resetPlayers();
+                   roundState = GameState::InterferencePhase;
+               }
+
             case GameState::InterferencePhase:break;
         }
 

@@ -16,7 +16,7 @@
 #include <chrono>
 #include "GameTypes.h"
 #include "Timer.h"
-#include "MemberSelector.h"
+#include "TeamManager.h"
 
 namespace gameHandling{
 
@@ -77,8 +77,7 @@ namespace gameHandling{
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
-        TeamSide activeTeam = TeamSide::LEFT;
-        MemberSelector leftSelector, rightSelector;
+        TeamManager playerPhaseManager;
 
     };
 }
