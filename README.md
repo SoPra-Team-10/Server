@@ -69,6 +69,6 @@ you can now run the server by executing the created `Server` file:
  * [SopraGameLogic](https://github.com/SoPra-Team-10/GameLogic)
  * [nlohmann::json](https://github.com/nlohmann/json)
 
-## Doygen Dokumentation
+## Doxygen Dokumentation
 - [Master Branch](https://sopra-team-10.github.io/Server/master/html/index.html)
 - [Develop Branch](https://sopra-team-10.github.io/Server/develop/html/index.html)
