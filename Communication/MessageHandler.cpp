@@ -9,19 +9,14 @@
 
 namespace communication {
 
-    MessageHandler::MessageHandler(uint16_t port, util::Logging &log) :
+    MessageHandler::MessageHandler(uint16_t port, util::Logging &log, const std::string &protocolName) :
         connectionCount{0},
         log{log} {
-        webSocketServer.emplace(port, "http-only");
+        webSocketServer.emplace(port, protocolName);
         webSocketServer->connectionListener(
                 std::bind(&MessageHandler::connectionListener, this, std::placeholders::_1));
         webSocketServer->closeListener(
                 std::bind(&MessageHandler::closeListener, this, std::placeholders::_1));
-    }
-
-    void MessageHandler::sendAll(const messages::Message &message) {
-        nlohmann::json json = message;
-        webSocketServer->broadcast(json.dump(4));
     }
 
     void MessageHandler::send(const messages::Message &message, int client) {

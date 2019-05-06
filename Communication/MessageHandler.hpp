@@ -21,13 +21,41 @@
 
 
 namespace communication {
+    /**
+     * The MessageHandler is responsible for the abstraction between the raw data from
+     * the Websocket and Message-Objects. Furthermore it provides an abstraction for
+     * connections.
+     */
     class MessageHandler {
     public:
-        MessageHandler(uint16_t port, util::Logging &log);
+        /**
+         * CTor, create a new message handler.
+         * @param port the port used for the websocket
+         * @param log a reference to the logger
+         * @param protocolName the name of the websocket protocol, "http-only" by default
+         * @see Logger for more information on the Logger
+         */
+        MessageHandler(uint16_t port, util::Logging &log, const std::string &protocolName = "http-only");
 
-        virtual void sendAll(const messages::Message &message);
+        /**
+         * Send a message to the client specified by id
+         * @param message the message to send
+         * @param client the client to which to send the message
+         */
         virtual void send(const messages::Message &message, int client);
+
+        /**
+         * Send a message to the client specified by id
+         * @param message the replayMessage to send
+         * @param client the client to which to send the message
+         */
         virtual void send(const messages::ReplayMessage &message, int client);
+
+        /**
+         * Send a message to the client specified by id
+         * @param message the ReplayWithSnapshot Message to send
+         * @param client the client to which to send the message
+         */
         virtual void send(const messages::ReplayWithSnapshotMessage &message, int client);
         const util::Listener<messages::Message,int> onReceive;
         const util::Listener<int> onClose;

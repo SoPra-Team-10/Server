@@ -2,7 +2,7 @@
  * @file ArgumentParser.cpp
  * @author paul
  * @date 01.05.19
- * @brief ArgumentParser @TODO
+ * @brief Definition of the ArgumentParser class
  */
 
 #include "ArgumentParser.hpp"

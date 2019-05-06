@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     nlohmann::json j;
     communication::messages::broadcast::MatchConfig matchConfig{};
     try {
-        ifstream >>  j;
+        ifstream >> j;
     } catch (nlohmann::json::exception &e) {
         std::cerr << "Not a valid json file: " << e.what() << std::endl;
         std::exit(1);
