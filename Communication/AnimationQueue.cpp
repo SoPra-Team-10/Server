@@ -71,5 +71,12 @@ namespace communication {
         this->finished = true;
         cv.notify_all();
         this->threadHandler.wait();
+
+        // Send all remaining messages now
+        for (const auto &msg : toSend) {
+            for (const auto &clients : msg.second.second) {
+                communicator.send(messages::Message{msg.second.first}, clients);
+            }
+        }
     }
 }
