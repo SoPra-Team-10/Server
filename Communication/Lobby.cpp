@@ -17,9 +17,9 @@ namespace communication {
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-        : communicator{communicator}, state{LobbyState::INITIAL}, name{name},
-        replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}},
-        matchConfig{matchConfig}, log{log} {
+             : log{log}, state{LobbyState::INITIAL},
+                communicator{communicator}, matchConfig{matchConfig}, name{name},
+                replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
         this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});

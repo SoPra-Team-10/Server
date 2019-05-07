@@ -106,23 +106,25 @@ namespace communication {
         void onTimeout(gameHandling::TeamSide teamSide);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
 
-        Communicator &communicator;
+        util::Logging &log;
+
         LobbyState state;
+        Communicator &communicator;
+        const messages::broadcast::MatchConfig matchConfig;
+        std::map<int, Client> clients;
         std::string name;
 
+        std::pair<std::optional<communication::messages::request::TeamConfig>,
+                std::optional<communication::messages::request::TeamConfig>> teamConfigs;
+        std::pair<std::optional<int>, std::optional<int>> players;
         util::Timer teamFormationTimer;
+        std::pair<std::optional<communication::messages::request::TeamFormation>,
+                std::optional<communication::messages::request::TeamFormation>> teamFormations;
+
+        std::optional<gameHandling::Game> game;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
-        std::map<int, Client> clients;
-        std::pair<std::optional<int>, std::optional<int>> players;
-        std::pair<std::optional<communication::messages::request::TeamConfig>,
-            std::optional<communication::messages::request::TeamConfig>> teamConfigs;
-        std::pair<std::optional<communication::messages::request::TeamFormation>,
-        std::optional<communication::messages::request::TeamFormation>> teamFormations;
-        std::optional<gameHandling::Game> game;
         std::optional<communication::messages::broadcast::Next> lastNext;
-        const messages::broadcast::MatchConfig matchConfig;
-        util::Logging &log;
     };
 }
 #endif //SERVER_LOBBY_HPP
