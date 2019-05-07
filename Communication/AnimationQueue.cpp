@@ -44,7 +44,7 @@ namespace communication {
             auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch());
             mapLock.lock();
-            while (!toSend.empty() && now > toSend.begin()->first) {
+            while (!toSend.empty() && now >= toSend.begin()->first) {
                 auto msgInfo = toSend.begin()->second;
                 for (const auto &id : msgInfo.second) {
                     communicator.send(messages::Message{msgInfo.first}, id);
