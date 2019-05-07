@@ -111,6 +111,8 @@ namespace communication {
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
         void onFatalError();
 
+        auto getSpectators() const -> std::vector<std::string>;
+
         util::Logging &log;
         AnimationQueue animationQueue;
 

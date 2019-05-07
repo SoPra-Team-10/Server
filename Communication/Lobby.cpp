@@ -160,6 +160,7 @@ namespace communication {
                                                        std::placeholders::_2));
                     //@TODO Fatal listener here
                     auto snapshot = game->getSnapshot();
+                    snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
                     replay.first.setFirstSnapshot(snapshot);
                     replay.second.setFirstSnapshot(snapshot);
@@ -182,6 +183,7 @@ namespace communication {
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
                 if (game->executeDelta(deltaRequest, teamSide)) {
                     auto snapshot = game->getSnapshot();
+                    snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
                     auto next = game->getNextActor();
                     lastNext = next;
@@ -195,6 +197,7 @@ namespace communication {
                             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
                         game->executeBallDelta(next.getEntityId());
                         snapshot = game->getSnapshot();
+                        snapshot.setSpectators(getSpectators());
                         sendAll(snapshot);
                         next = game->getNextActor();
                         lastNext = next;
@@ -315,6 +318,7 @@ namespace communication {
         game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
 
         auto snapshot = game->getSnapshot();
+        snapshot.setSpectators(getSpectators());
         this->sendAll(snapshot);
         auto next = game->getNextActor();
         lastNext = next;
@@ -433,7 +437,6 @@ namespace communication {
         } else {
             animationQueue.add(payload, {id});
         }
-        //this->communicator.send(messages::Message{payload}, id);
     }
 
     void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {
@@ -470,6 +473,17 @@ namespace communication {
 
     auto Lobby::getName() const -> std::string {
         return name;
+    }
+
+    auto Lobby::getSpectators() const -> std::vector<std::string> {
+        std::vector<std::string> ret;
+        ret.reserve(clients.size() - 2);
+        for (const auto &client : clients) {
+            if (client.first != players.first && client.first != players.second) {
+                ret.emplace_back(client.second.userName);
+            }
+        }
+        return ret;
     }
 
 
