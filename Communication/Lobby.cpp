@@ -101,24 +101,33 @@ namespace communication {
             log.debug("Got first teamConfig");
             teamConfigs.first = teamConfig;
         } else if (!players.second.has_value()) {
-            players.second = id;
-            log.info("Got second teamConfig, startingMatch");
-            teamConfigs.second = teamConfig;
-            this->sendAll(messages::broadcast::MatchStart{
-                matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
-                clients.at(players.first.value()).userName,
-                clients.at(players.second.value()).userName});
-            this->state = LobbyState::WAITING_FORMATION;
-            replay.first.setLeftTeamConfig(teamConfigs.first.value());
-            replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.first.setRightTeamConfig(teamConfigs.second.value());
-            replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
-            replay.second.setLeftTeamConfig(teamConfigs.first.value());
-            replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.second.setRightTeamConfig(teamConfigs.second.value());
-            replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
-            teamFormationTimer.setTimeout(
-                    std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
+            if (clients.find(players.first.value()) == clients.end()) {
+                log.warn("First client left after sending TeamConfig");
+                players.first.reset();
+                players.second.reset();
+                for (const auto &client : clients) {
+                    sendWarn("teamConfig", "Player 1 left, restarting game", client.first);
+                }
+            } else {
+                players.second = id;
+                log.info("Got second teamConfig, startingMatch");
+                teamConfigs.second = teamConfig;
+                this->sendAll(messages::broadcast::MatchStart{
+                        matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                        clients.at(players.first.value()).userName,
+                        clients.at(players.second.value()).userName});
+                this->state = LobbyState::WAITING_FORMATION;
+                replay.first.setLeftTeamConfig(teamConfigs.first.value());
+                replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
+                replay.first.setRightTeamConfig(teamConfigs.second.value());
+                replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
+                replay.second.setLeftTeamConfig(teamConfigs.first.value());
+                replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
+                replay.second.setRightTeamConfig(teamConfigs.second.value());
+                replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
+                teamFormationTimer.setTimeout(
+                        std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
+            }
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
