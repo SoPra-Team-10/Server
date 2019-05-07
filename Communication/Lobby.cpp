@@ -158,6 +158,7 @@ namespace communication {
                             std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
+                    //@TODO Fatal listener here
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     replay.first.setFirstSnapshot(snapshot);

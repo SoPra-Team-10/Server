@@ -127,8 +127,6 @@ namespace communication {
 
         std::optional<gameHandling::Game> game;
 
-        std::map<std::chrono::milliseconds,messages::Payload> messageSend;
-        std::chrono::milliseconds lastPlayerPhaseSnapshot, lastFanPhaseSnapshot, lastBallPhaseSnapshot;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::optional<communication::messages::broadcast::Next> lastNext;
