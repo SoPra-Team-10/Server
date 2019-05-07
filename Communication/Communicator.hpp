@@ -43,6 +43,7 @@ namespace communication {
          */
         void removeClient(int id);
     protected:
+        void onConnection(int id);
         void receive(messages::Message message, int client);
         void closeEvent(int id);
         void sendLobbyModMessage(int id);
@@ -50,6 +51,7 @@ namespace communication {
         MessageHandler &messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
+        std::set<std::string> userNameMapping;
         const messages::broadcast::MatchConfig matchConfig;
         util::Logging &log;
     };

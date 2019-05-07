@@ -10,6 +10,8 @@ TEST(CommunicationLobby, PausRequestAiA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", "", true}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -17,7 +19,7 @@ TEST(CommunicationLobby, PausRequestAiA) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
     Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
@@ -36,7 +38,7 @@ TEST(CommunicationLobby, PausRequestAiA) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
@@ -49,6 +51,8 @@ TEST(CommunicationLobby, PausRequestAiB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", "", true}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -56,7 +60,7 @@ TEST(CommunicationLobby, PausRequestAiB) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
     Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
@@ -75,7 +79,7 @@ TEST(CommunicationLobby, PausRequestAiB) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
@@ -110,6 +114,8 @@ TEST(CommunicationLobby, ContinueNotPauseA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -117,7 +123,7 @@ TEST(CommunicationLobby, ContinueNotPauseA) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message continueRequest{request::ContinueRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
     Message error{unicast::PrivateDebug{"Error in continueRequest:\tNot paused!"}};
@@ -136,7 +142,7 @@ TEST(CommunicationLobby, ContinueNotPauseA) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
@@ -149,6 +155,8 @@ TEST(CommunicationLobby, ContinueNotPauseB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -156,7 +164,7 @@ TEST(CommunicationLobby, ContinueNotPauseB) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message continueRequest{request::ContinueRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
     Message error{unicast::PrivateDebug{"Error in continueRequest:\tNot paused!"}};
@@ -175,7 +183,7 @@ TEST(CommunicationLobby, ContinueNotPauseB) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));

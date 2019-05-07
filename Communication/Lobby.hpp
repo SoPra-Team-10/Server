@@ -102,12 +102,15 @@ namespace communication {
         template <typename T>
         void onPayload(const T &, int id);
 
+        void onTeamFormationTimeout();
         void onTimeout(gameHandling::TeamSide teamSide);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
 
         Communicator &communicator;
         LobbyState state;
         std::string name;
+
+        util::Timer teamFormationTimer;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::map<int, Client> clients;

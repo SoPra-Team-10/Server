@@ -15,7 +15,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
 #include "GameTypes.h"
-#include "Timer.h"
+#include "Util/Timer.h"
 #include "MemberSelector.h"
 
 namespace gameHandling{
@@ -75,7 +75,7 @@ namespace gameHandling{
         auto getRightPoints() const -> int;
 
     private:
-        Timer timer;
+        util::Timer timer;
         GameState roundState = GameState::BallPhase; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move

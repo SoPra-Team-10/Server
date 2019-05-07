@@ -60,6 +60,11 @@ namespace communication {
         virtual void send(const messages::mods::other::LobbyMod &message, int client);
 
         /**
+         * Listener that gets called on every new connection
+         */
+        const util::Listener<int> onConnect;
+
+        /**
          * Listener, that gets called on every new Message
          */
         const util::Listener<messages::Message,int> onReceive;

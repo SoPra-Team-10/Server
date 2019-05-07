@@ -45,6 +45,8 @@ namespace communication {
         connection->receiveListener(std::bind(&MessageHandler::receiveListener,
                 this, this->connectionCount, std::placeholders::_1));
         log.info("New connection");
+        onConnect(this->connectionCount);
+        ++this->connectionCount;
     }
 
     void MessageHandler::receiveListener(int client, std::string string) {
