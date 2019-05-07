@@ -91,4 +91,33 @@ namespace gameHandling{
 
         return found;
     }
+
+    bool MemberSelector::playerUsed(communication::messages::types::EntityId id) const {
+        if(!team->getPlayerByID(id).has_value()){
+            throw std::runtime_error("Player not in Team");
+        }
+
+        for(const auto &player: playersLeft){
+            if(player->id == id){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    int MemberSelector::usedInterferences(communication::messages::types::FanType type) const {
+        int initial = team->fanblock.getUses(type) + team->fanblock.getBannedCount(type);
+        if(initial == 0){
+            throw std::runtime_error("Team does not have that type of fan");
+        }
+
+        for(const auto& fan : interferencesLeft){
+            if(fan.first == gameModel::Fanblock::fanToInterference(type)){
+                return team->fanblock.getUses(type) - fan.second;
+            }
+        }
+
+        return team->fanblock.getUses(type);
+    }
 }

@@ -9,6 +9,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <SopraGameLogic/GameController.h>
 #include <deque>
+#include <SopraGameLogic/Interference.h>
 #include "GameTypes.h"
 
 namespace gameHandling{
@@ -29,6 +30,8 @@ namespace gameHandling{
          */
         bool hasPlayers() const;
 
+        bool playerUsed(communication::messages::types::EntityId id) const;
+
         /**
          *
          * @return true if at least one Player not knocked out is available
@@ -47,6 +50,8 @@ namespace gameHandling{
          * @return false if all interferences have been selected, true otherwise
          */
         bool hasInterference() const;
+
+        int usedInterferences(communication::messages::types::FanType type) const;
 
         /**
          * Restores the initial state of the player list just as after the construction

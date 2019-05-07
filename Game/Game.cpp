@@ -9,11 +9,6 @@
 #include <SopraGameLogic/GameModel.h>
 
 namespace gameHandling{
-
-    struct PosDelta{
-        int oldX, oldY, newX, newY;
-    };
-
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
                const communication::messages::request::TeamConfig& teamConfig1,
                const communication::messages::request::TeamConfig& teamConfig2,
@@ -340,11 +335,117 @@ namespace gameHandling{
         }
     }
 
-    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
+    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
         -> communication::messages::broadcast::TeamSnapshot {
+        using FType = communication::messages::types::FanType;
+        using Id = communication::messages::types::EntityId;
         std::vector<communication::messages::broadcast::Fan> fans;
         fans.reserve(7);
-        //@TODO fans erstellen
-        return {};
+
+        auto makeFans = [this, &fans, &team, &side](FType type){
+            for(int i = 0; i < team->fanblock.getBannedCount(type); i++){
+                fans.emplace_back(type, true, false);
+            }
+
+            int used = side == TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
+                    phaseManager.interferencesUsedRight(type);
+            int left = team->fanblock.getUses(type) - used;
+            for(int i = 0; i < used; i++){
+                fans.emplace_back(type, false, true);
+            }
+
+            for(int i = 0; i < left; i++){
+                fans.emplace_back(team, false, false);
+            }
+        };
+
+        try{
+            makeFans(FType::NIFFLER);
+            makeFans(FType::TROLL);
+            makeFans(FType::ELF);
+            makeFans(FType::GOBLIN);
+        } catch (std::runtime_error &e){
+            fatalErrorListener(e.what());
+        }
+
+        if(fans.size() != 7){
+            fatalErrorListener("Fanblock corrupt");
+        }
+
+        communication::messages::broadcast::TeamSnapshot ret;
+
+        try{
+            if(side == TeamSide::LEFT){
+                ret = {team->score, fans,
+
+                       team->seeker->position.x, team->seeker->position.y,
+                       team->seeker->isFined, phaseManager.playerUsedLeft(team->seeker->id),
+                       team->seeker->knockedOut,
+
+                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
+                       team->keeper->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->keeper->id), team->keeper->knockedOut,
+
+                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
+                       team->chasers[0]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[0]->id), team->chasers[0]->knockedOut,
+
+                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
+                       team->chasers[1]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[1]->id), team->chasers[1]->knockedOut,
+
+                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
+                       team->chasers[2]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[2]->id), team->chasers[2]->knockedOut,
+
+                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
+                       (team->beaters[0]->position == environment->bludgers[0]->position ||
+                        team->beaters[0]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedLeft(team->beaters[0]->id), team->beaters[0]->knockedOut,
+
+                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
+                       (team->beaters[1]->position == environment->bludgers[0]->position ||
+                        team->beaters[1]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedLeft(team->beaters[1]->id), team->beaters[1]->knockedOut
+                };
+            } else {
+                ret = {team->score, fans,
+
+                       team->seeker->position.x, team->seeker->position.y,
+                       team->seeker->isFined, phaseManager.playerUsedRight(team->seeker->id),
+                       team->seeker->knockedOut,
+
+                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
+                       team->keeper->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->keeper->id), team->keeper->knockedOut,
+
+                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
+                       team->chasers[0]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[0]->id), team->chasers[0]->knockedOut,
+
+                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
+                       team->chasers[1]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[1]->id), team->chasers[1]->knockedOut,
+
+                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
+                       team->chasers[2]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[2]->id), team->chasers[2]->knockedOut,
+
+                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
+                       (team->beaters[0]->position == environment->bludgers[0]->position ||
+                        team->beaters[0]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedRight(team->beaters[0]->id), team->beaters[0]->knockedOut,
+
+                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
+                       (team->beaters[1]->position == environment->bludgers[0]->position ||
+                        team->beaters[1]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedRight(team->beaters[1]->id), team->beaters[1]->knockedOut
+                };
+            }
+        } catch (std::runtime_error &e){
+            fatalErrorListener(e.what());
+        }
+
+        return ret;
     }
 }
