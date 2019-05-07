@@ -18,6 +18,7 @@
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 #include <SopraMessages/ReplayMessage.h>
+#include "AnimationQueue.h"
 
 namespace communication {
     class Communicator;
@@ -111,6 +112,7 @@ namespace communication {
         void onFatalError();
 
         util::Logging &log;
+        AnimationQueue animationQueue;
 
         LobbyState state;
         Communicator &communicator;

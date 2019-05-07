@@ -14,8 +14,7 @@ namespace communication {
 
     void AnimationQueue::add(const messages::Payload& payload, const std::vector<int>& clients, std::chrono::milliseconds timeOffset) {
         std::lock_guard<std::mutex> lock{mapLock};
-        auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-        std::chrono::milliseconds toSendTime = now;
+        std::chrono::milliseconds toSendTime{0};
         if (!toSend.empty()) {
             toSendTime = (--toSend.end())->first;
         }
@@ -36,6 +35,10 @@ namespace communication {
                 }
             }
         }
+        // Keep the elements unique, if there is not enough time to the next message we have a problem
+        while (toSend.find(toSendTime) != toSend.end()) {
+            ++toSendTime;
+        }
         auto [newIt,tookPlace] = toSend.emplace(toSendTime, std::make_pair(payload, clients));
         if(newIt == toSend.begin()) {
             cv.notify_all();
@@ -44,6 +47,12 @@ namespace communication {
 
     void AnimationQueue::run() {
         while (!finished) {
+            std::unique_lock<std::mutex> lock{delayLock};
+            if (toSend.empty()) {
+                cv.wait(lock);
+            } else {
+                cv.wait_until(lock, std::chrono::system_clock::time_point{toSend.begin()->first});
+            }
             auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch());
             mapLock.lock();
@@ -55,18 +64,12 @@ namespace communication {
                 toSend.erase(toSend.begin());
             }
             mapLock.unlock();
-
-            std::unique_lock<std::mutex> lock{delayLock};
-            if (toSend.empty()) {
-                cv.wait(lock);
-            } else {
-                cv.wait_until(lock, std::chrono::system_clock::time_point{toSend.begin()->first});
-            }
         }
     }
 
     AnimationQueue::~AnimationQueue() {
         this->finished = true;
+        cv.notify_all();
         this->threadHandler.wait();
     }
 }

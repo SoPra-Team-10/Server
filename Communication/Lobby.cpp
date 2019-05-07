@@ -17,7 +17,7 @@ namespace communication {
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-             : log{log}, state{LobbyState::INITIAL},
+             : log{log}, animationQueue{communicator}, state{LobbyState::INITIAL},
                 communicator{communicator}, matchConfig{matchConfig}, name{name},
                 replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
         this->clients.emplace(id, client);
@@ -414,7 +414,26 @@ namespace communication {
     }
 
     void Lobby::sendSingle(const messages::Payload &payload, int id) {
-        this->communicator.send(messages::Message{payload}, id);
+        if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
+            auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
+            int offset = 0;
+            switch (snapshot.getPhase()) {
+                case messages::types::PhaseType::BALL_PHASE:
+                    offset = matchConfig.getBallPhaseTime();
+                    break;
+                case messages::types::PhaseType::FAN_PHASE:
+                    offset = matchConfig.getFanPhaseTime();
+                    break;
+                case messages::types::PhaseType::PLAYER_PHASE:
+                    offset = matchConfig.getPlayerPhaseTime();
+                    break;
+                default:break;
+            }
+            animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
+        } else {
+            animationQueue.add(payload, {id});
+        }
+        //this->communicator.send(messages::Message{payload}, id);
     }
 
     void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {
