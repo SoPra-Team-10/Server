@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "iostream"
 #include <SopraGameLogic/GameController.h>
+#include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
 
 namespace gameHandling{
@@ -77,11 +78,24 @@ namespace gameHandling{
     }
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest command) {
-        switch (command.getDeltaType()){
+        if(roundState != GameState::PlayerPhase || roundState != GameState::InterferencePhase){
+            return false;
+        }
 
+        switch (command.getDeltaType()){
             case communication::messages::types::DeltaType::SNITCH_CATCH:
                 return false;
-            case communication::messages::types::DeltaType::BLUDGER_BEATING:break;
+            case communication::messages::types::DeltaType::BLUDGER_BEATING:
+                if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
+                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
+                    auto player = environment->getPlayerById(command.getActiveEntity().value());
+                    if(!gameController::playerCanShoot(player, environment)){
+                        return false;
+                    }
+
+                    gameModel::Position target(command.getXPosNew(), command.getYPosNew());
+                    gameController::Shot bShot(environment, player, )
+                }
             case communication::messages::types::DeltaType::QUAFFLE_THROW:
                 if(command.getPassiveEntity().has_value() && command.getActiveEntity().has_value() &&
                     command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
@@ -109,16 +123,32 @@ namespace gameHandling{
                 } else{
                     return false;
                 }
-            case communication::messages::types::DeltaType::SNITCH_SNATCH:break;
-            case communication::messages::types::DeltaType::TROLL_ROAR:break;
-            case communication::messages::types::DeltaType::ELF_TELEPORTATION:break;
-            case communication::messages::types::DeltaType::GOBLIN_SHOCK:break;
-            case communication::messages::types::DeltaType::BAN:break;
-            case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:break;
+            case communication::messages::types::DeltaType::SNITCH_SNATCH:
+                //@TODO
+                break;
+            case communication::messages::types::DeltaType::TROLL_ROAR:
+                //@TODO
+                break;
+            case communication::messages::types::DeltaType::ELF_TELEPORTATION:
+                if(command.getPassiveEntity().has_value()){
+
+                } else {
+                    return false;
+                }
+            case communication::messages::types::DeltaType::GOBLIN_SHOCK:
+                //@TODO
+                break;
+            case communication::messages::types::DeltaType::BAN:
+                return false;
+            case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:
+                return false;
             case communication::messages::types::DeltaType::MOVE:break;
-            case communication::messages::types::DeltaType::PHASE_CHANGE:break;
-            case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:break;
-            case communication::messages::types::DeltaType::ROUND_CHANGE:break;
+            case communication::messages::types::DeltaType::PHASE_CHANGE:
+                return false;
+            case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:
+                return false;
+            case communication::messages::types::DeltaType::ROUND_CHANGE:
+                return false;
             case communication::messages::types::DeltaType::SKIP:
                 return true;
             case communication::messages::types::DeltaType::UNBAN:break;
