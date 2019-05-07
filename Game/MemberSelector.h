@@ -58,7 +58,7 @@ namespace gameHandling{
          * Restores the initial state of the interference list just as after the construction
          * Resets the internal representation of the interference list, so that it is possible to randomly choose interferences again.
          */
-        void resteInterferences();
+        void resetInterferences();
 
     private:
         std::shared_ptr<const gameModel::Team> team;

@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "iostream"
 #include <SopraGameLogic/GameController.h>
+#include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
 
 namespace gameHandling{
@@ -14,7 +15,7 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            leftSelector(environment->team1, TeamSide::LEFT), rightSelector(environment->team2, TeamSide::RIGHT){
+            phaseManager(environment->team1, environment->team2){
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -26,7 +27,7 @@ namespace gameHandling{
         std::cout<<"resume() is called"<<std::endl;
     }
 
-    auto Game::getNextActor() -> communication::messages::broadcast::Next {
+    auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
         switch (roundState){
             case GameState::BallPhase:
@@ -37,41 +38,212 @@ namespace gameHandling{
 
                         //Snitch has to make move if it exists
                         if(environment->snitch->exists){
-                            return {ballTurn, TurnType::MOVE, 0};
+                            return {EntityId::SNITCH, TurnType::MOVE, 0};
+                        } else {
+                            return getNextAction();
                         }
                     case EntityId::BLUDGER1 :
                         //Bludger2 turn next
                         ballTurn = EntityId::BLUDGER2;
-                        return {ballTurn, TurnType::MOVE, 0};
+                        return {EntityId::BLUDGER1, TurnType::MOVE, 0};
                     case EntityId ::BLUDGER2 :
                         //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
                         roundState = GameState::PlayerPhase;
-
-                        //Determine team to begin by random
-                        if(gameController::rng(0, 1)){
-                            activeTeam = TeamSide::LEFT;
-                        } else {
-                            activeTeam = TeamSide::RIGHT;
-                        }
-
-                        return {ballTurn, TurnType::MOVE, 0};
+                        return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
-            case GameState::PlayerPhase:
 
-                break;
-            case GameState::InterferencePhase:break;
+            case GameState::PlayerPhase:{
+                if(phaseManager.hasNextPlayer()){
+                    return phaseManager.nextPlayer(environment);
+                } else{
+                    roundState = GameState::InterferencePhase;
+                    return getNextAction();
+                }
+            }
+            case GameState::InterferencePhase:
+                if(phaseManager.hasNextInterference()){
+                    return phaseManager.nextInterference(environment);
+                } else {
+                    roundState = GameState::BallPhase;
+                    endRound();
+                    return getNextAction();
+                }
+            default:
+                throw std::runtime_error("Fatal error, inconsistent game state!");
         }
-
-
-        return communication::messages::broadcast::Next();
     }
 
-    bool Game::executeDelta(communication::messages::request::DeltaRequest, TeamSide) {
-        return false;
+    bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
+        if(roundState != GameState::PlayerPhase || roundState != GameState::InterferencePhase){
+            return false;
+        }
+
+        switch (command.getDeltaType()){
+            case communication::messages::types::DeltaType::SNITCH_CATCH:
+                return false;
+            case communication::messages::types::DeltaType::BLUDGER_BEATING:{
+                if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
+                   command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
+                    try{
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        if(!gameController::playerCanShoot(player, environment)){
+                            return false;
+                        }
+
+                        gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        auto bludger = environment->getBallByID(command.getPassiveEntity().value());
+                        gameController::Shot bShot(environment, player, bludger, target);
+                        if(bShot.check() == gameController::ActionCheckResult::Impossible){
+                            return false;
+                        }
+
+                        bShot.execute();
+                        return true;
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            case communication::messages::types::DeltaType::QUAFFLE_THROW:{
+                if(command.getPassiveEntity().has_value() && command.getActiveEntity().has_value() &&
+                   command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
+                   command.getXPosOld().has_value() && command.getYPosOld().has_value()){
+                    try{
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        if(!gameController::playerCanShoot(player, environment)){
+                            return false;
+                        }
+
+                        gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        gameController::Shot qThrow(environment, player, environment->quaffle, target);
+                        if(qThrow.check() == gameController::ActionCheckResult::Impossible){
+                            return false;
+                        }
+
+                        qThrow.execute();
+                        return true;
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+                } else{
+                    return false;
+                }
+            }
+            case communication::messages::types::DeltaType::SNITCH_SNATCH:{
+                try{
+                    auto &team = getTeam(side);
+                    gameController::SnitchPush sPush(environment, team);
+                    if(!sPush.isPossible()){
+                        return false;
+                    }
+
+                    sPush.execute();
+                    return true;
+                } catch (std::runtime_error &e){
+                    fatalErrorListener(e.what());
+                    return false;
+                }
+            }
+            case communication::messages::types::DeltaType::TROLL_ROAR:{
+                try{
+                    auto &team= getTeam(side);
+                    gameController::Impulse impulse(environment, team);
+                    if(!impulse.isPossible()){
+                        return false;
+                    }
+
+                    impulse.execute();
+                    return true;
+                } catch (std::runtime_error &e){
+                    fatalErrorListener(e.what());
+                    return false;
+                }
+            }
+            case communication::messages::types::DeltaType::ELF_TELEPORTATION:{
+                if(command.getPassiveEntity().has_value()){
+                    try{
+                        auto &team = getTeam(side);
+                        auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
+                        gameController::Teleport teleport(environment, team, targetPlayer);
+                        if(!teleport.isPossible()){
+                            return false;
+                        }
+
+                        teleport.execute();
+                        return true;
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            case communication::messages::types::DeltaType::GOBLIN_SHOCK:
+                if(command.getPassiveEntity().has_value()){
+                    try{
+                        auto &team = getTeam(side);
+                        auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
+                        gameController::RangedAttack rAttack(environment, team, targetPlayer);
+                        if(!rAttack.isPossible()){
+                            return false;
+                        }
+
+                        rAttack.execute();
+                        return true;
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            case communication::messages::types::DeltaType::BAN:
+                return false;
+            case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:
+                return false;
+            case communication::messages::types::DeltaType::MOVE:
+                if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
+                    command.getYPosNew().has_value()){
+                    try{
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        gameController::Move move(environment, player, target);
+                        if(move.check() == gameController::ActionCheckResult::Impossible){
+                            return false;
+                        }
+
+                        move.execute();
+                        return true;
+                    } catch (std::runtime_error &e) {
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            case communication::messages::types::DeltaType::PHASE_CHANGE:
+                return false;
+            case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:
+                return false;
+            case communication::messages::types::DeltaType::ROUND_CHANGE:
+                return false;
+            case communication::messages::types::DeltaType::SKIP:
+                return true;
+            case communication::messages::types::DeltaType::UNBAN:
+                return false;
+            default:
+                fatalErrorListener("Fatal error, DeltaType out of range! Possible memory corruption!");
+                return false;
+        }
     }
 
     auto Game::getRound() const -> int {
@@ -136,5 +308,17 @@ namespace gameHandling{
             getRound(),
             std::nullopt
         };
+    }
+
+    void Game::endRound() {
+        phaseManager.reset();
+    }
+
+    auto Game::getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team> & {
+        if(side == TeamSide::LEFT){
+            return environment->team1;
+        } else {
+            return environment->team2;
+        }
     }
 }

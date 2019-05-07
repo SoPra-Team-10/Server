@@ -16,7 +16,7 @@
 #include <chrono>
 #include "GameTypes.h"
 #include "Util/Timer.h"
-#include "MemberSelector.h"
+#include "PhaseManager.h"
 
 namespace gameHandling{
     class Game {
@@ -30,6 +30,7 @@ namespace gameHandling{
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
+        const util::Listener<const char*> fatalErrorListener;
 
         /**
          * Pauses the games timers
@@ -45,9 +46,9 @@ namespace gameHandling{
          * Gets the next actor to make a move. If the actor is a player, the timeout timer is started
          * @return
          */
-        auto getNextActor() -> communication::messages::broadcast::Next;
+        auto getNextAction() -> communication::messages::broadcast::Next;
 
-        bool executeDelta(communication::messages::request::DeltaRequest, TeamSide teamSide);
+        bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
         auto executeBallDelta(communication::messages::types::EntityId entityId)
                 -> communication::messages::request::DeltaRequest;
@@ -78,8 +79,11 @@ namespace gameHandling{
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
-        TeamSide activeTeam = TeamSide::LEFT;
-        MemberSelector leftSelector, rightSelector;
+        PhaseManager phaseManager;
+
+        void endRound();
+
+        auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
     };
 }
 

@@ -185,7 +185,7 @@ namespace communication {
                     auto snapshot = game->getSnapshot();
                     snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
-                    auto next = game->getNextActor();
+                    auto next = game->getNextAction();
                     lastNext = next;
                     this->sendAll(next);
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
@@ -199,7 +199,7 @@ namespace communication {
                         snapshot = game->getSnapshot();
                         snapshot.setSpectators(getSpectators());
                         sendAll(snapshot);
-                        next = game->getNextActor();
+                        next = game->getNextAction();
                         lastNext = next;
                         sendAll(next);
                         replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
@@ -320,7 +320,7 @@ namespace communication {
         auto snapshot = game->getSnapshot();
         snapshot.setSpectators(getSpectators());
         this->sendAll(snapshot);
-        auto next = game->getNextActor();
+        auto next = game->getNextAction();
         lastNext = next;
         this->sendAll(next);
         if (next.getEntityId() == messages::types::EntityId::SNITCH
