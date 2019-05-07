@@ -74,7 +74,7 @@ namespace communication {
          * @param id the id of the player
          * @return true if the lobby is empty after the player left and thus if the lobby should be closed
          */
-        bool onLeave(int id);
+        auto onLeave(int id) -> std::pair<bool, std::string>;
 
         /**
          * Get the number of users in the lobby
@@ -93,6 +93,7 @@ namespace communication {
          * @return the name of the lobby
          */
         auto getName() const -> std::string;
+
     private:
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);

@@ -370,7 +370,7 @@ namespace communication {
         }
     }
 
-    bool Lobby::onLeave(int id) {
+    auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
         if (id == players.first || id == players.second) {
             if (id == players.first) {
                 if (players.second.has_value()) {
@@ -382,9 +382,11 @@ namespace communication {
                 }
             }
         }
+        auto userName = clients.find(id)->second.userName;
         clients.erase(clients.find(id));
         communicator.removeClient(id);
-        return getUserInLobby() <= 0;
+        log.info("User left");
+        return std::make_pair(getUserInLobby() <= 0, userName);
     }
 
 
@@ -433,5 +435,4 @@ namespace communication {
     auto Lobby::getName() const -> std::string {
         return name;
     }
-
 }
