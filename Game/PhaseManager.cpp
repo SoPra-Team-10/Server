@@ -22,6 +22,16 @@ namespace gameHandling{
 
         auto action = getNextPlayerAction(currentPlayer, env);
         currentTurnFinished = action.second;
+        if(!hasNextPlayer()){
+            while(teamLeft.hasPlayers()){
+                teamLeft.getNextPlayer()->knockedOut = false;
+            }
+
+            while(teamRight.hasPlayers()){
+                teamRight.getNextPlayer()->knockedOut = false;
+            }
+        }
+
         return {currentPlayer->id, action.first, env->config.timeouts.playerTurn};
     }
 
