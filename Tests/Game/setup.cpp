@@ -44,6 +44,7 @@ auto setup::createGame() -> gameHandling::Game {
     int playerPhaseTime = 300;
     int fanPhaseTime = 300;
     int ballPhaseTime = 300;
+    int teamFormationTimeout = 10;
 
     float throwSuccess = 0.8;
     float knockOut = 0.8;
@@ -54,7 +55,7 @@ auto setup::createGame() -> gameHandling::Game {
     float extraTurn = 1;
     float foulDetection = 1;
     float fanFoulDetection = 1;
-    broadcast::MatchConfig matchConfig(maxRounds, playerTurnTimeout, fanTurnTimeout,
+    broadcast::MatchConfig matchConfig(maxRounds, teamFormationTimeout, playerTurnTimeout, fanTurnTimeout,
             playerPhaseTime, fanPhaseTime, ballPhaseTime, throwSuccess, knockOut, foolAway,
             catchSnitch, catchQuaffle, wrestQuaffle, extraTurn, extraTurn, extraTurn, extraTurn,
             extraTurn, foulDetection, foulDetection, foulDetection, foulDetection, fanFoulDetection,

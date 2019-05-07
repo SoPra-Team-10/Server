@@ -80,7 +80,7 @@ namespace gameHandling{
         return false;
     }
 
-    auto Game::getEndRound() const -> int {
+    auto Game::getRound() const -> int {
         return 0;
     }
 
@@ -96,8 +96,55 @@ namespace gameHandling{
         return communication::messages::broadcast::Snapshot();
     }
 
+    auto Game::executeBallDelta(
+            communication::messages::types::EntityId entityId) -> communication::messages::request::DeltaRequest {
+        std::shared_ptr<gameModel::Ball> ball;
+        int oldX, oldY;
+
+        if (entityId == communication::messages::types::EntityId::BLUDGER1 ||
+            entityId == communication::messages::types::EntityId::BLUDGER2) {
+            std::shared_ptr<gameModel::Bludger> currBludger;
+            for (auto &bludger : environment->bludgers) {
+                if (bludger->id == entityId) {
+                    ball = currBludger = bludger;
+                    break;
+                }
+            }
+
+            if (!currBludger) {
+                throw std::runtime_error{"Ball for entity id not found, we fucked up!"};
+            }
+            oldX = currBludger->position.x;
+            oldY = currBludger->position.y;
+
+            gameController::moveBludger(currBludger, environment);
+        } else if (entityId == communication::messages::types::EntityId::SNITCH) {
+            ball = environment->snitch;
+            oldX = ball->position.x;
+            oldY = ball->position.y;
+            //@TODO actually move the snitch
+        } else {
+            throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
+        }
+
+        return communication::messages::request::DeltaRequest{
+            communication::messages::types::DeltaType::MOVE,
+            true,
+            oldX,
+            oldY,
+            ball->position.x,
+            ball->position.y,
+            entityId,
+            std::nullopt,
+            communication::messages::types::PhaseType::BALL_PHASE,
+            getLeftPoints(),
+            getRightPoints(),
+            getRound(),
+            std::nullopt
+        };
+    }
+
     void Game::endRound() {
         phaseManager.reset();
     }
-
 }

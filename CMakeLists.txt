@@ -24,22 +24,9 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/Game/Game.cpp
         ${CMAKE_SOURCE_DIR}/Game/MemberSelector.cpp
         ${CMAKE_SOURCE_DIR}/Game/PhaseManager.cpp
-        ${CMAKE_SOURCE_DIR}/Game/Timer.cpp)
-set(LIBS pthread)
+        ${CMAKE_SOURCE_DIR}/Util/Timer.cpp)
 
-
-if (USE_LOCAL_NETWORK)
-    include_directories(../Network/)
-    include_directories(../Network/Server)
-    set(SOURCES ${SOURCES}
-            ${CMAKE_SOURCE_DIR}/../Network/Server/Connection.cpp
-            ${CMAKE_SOURCE_DIR}/../Network/Server/WebSocketServer.cpp)
-    set(LIBS ${LIBS} websockets)
-else()
-    set(LIBS ${LIBS} SopraNetwork)
-endif()
-
-set(LIBS ${LIBS} stdc++fs SopraGameLogic SopraMessages)
+set(LIBS pthread stdc++fs SopraGameLogic SopraMessages SopraNetwork)
 
 include_directories(${CMAKE_SOURCE_DIR})
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})

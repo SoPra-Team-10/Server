@@ -15,7 +15,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
 #include "GameTypes.h"
-#include "Timer.h"
+#include "Util/Timer.h"
 #include "PhaseManager.h"
 
 namespace gameHandling{
@@ -51,13 +51,16 @@ namespace gameHandling{
 
         bool executeDelta(communication::messages::request::DeltaRequest);
 
+        auto executeBallDelta(communication::messages::types::EntityId entityId)
+                -> communication::messages::request::DeltaRequest;
+
         auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
 
         /**
          * Returns the current round
          * @return
          */
-        auto getEndRound() const -> int;
+        auto getRound() const -> int;
 
         /**
          * Returns the left team's score
@@ -72,7 +75,7 @@ namespace gameHandling{
         auto getRightPoints() const -> int;
 
     private:
-        Timer timer;
+        util::Timer timer;
         GameState roundState = GameState::BallPhase; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
