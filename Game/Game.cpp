@@ -15,7 +15,8 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            phaseManager(environment->team1, environment->team2){
+            phaseManager(environment->team1, environment->team2), lastDelta(communication::messages::types::DeltaType::ROUND_CHANGE,
+                    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 0, {}){
         std::cout<<"Constructor is called"<<std::endl;
     }
 
