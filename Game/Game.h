@@ -19,8 +19,6 @@
 #include "PhaseManager.h"
 
 namespace gameHandling{
-
-
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
@@ -30,7 +28,7 @@ namespace gameHandling{
              communication::messages::request::TeamFormation teamFormation1,
              communication::messages::request::TeamFormation teamFormation2);
 
-        const util::Listener<TeamSide> timeoutListener;
+        const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
         const util::Listener<const char*> fatalErrorListener;
 
@@ -50,7 +48,7 @@ namespace gameHandling{
          */
         auto getNextAction() -> communication::messages::broadcast::Next;
 
-        bool executeDelta(communication::messages::request::DeltaRequest command);
+        bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
         auto executeBallDelta(communication::messages::types::EntityId entityId)
                 -> communication::messages::request::DeltaRequest;
@@ -85,6 +83,7 @@ namespace gameHandling{
 
         void endRound();
 
+        auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
     };
 }
 
