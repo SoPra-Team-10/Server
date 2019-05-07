@@ -154,7 +154,8 @@ namespace communication {
 
                     game.emplace(matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
                             teamFormations.first.value(), teamFormations.second.value());
-                    game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1));
+                    game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1,
+                            std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
                     auto snapshot = game->getSnapshot();
@@ -287,15 +288,37 @@ namespace communication {
         }
     }
 
-    void Lobby::onTimeout(gameHandling::TeamSide teamSide) {
-        int id;
-        if (teamSide == gameHandling::TeamSide::LEFT) {
-            id = players.first.value();
-        } else {
-            id = players.second.value();
+    void Lobby::onTimeout(communication::messages::types::EntityId entityId,
+            communication::messages::types::PhaseType phaseType) {
+        communication::messages::request::DeltaRequest deltaRequest{
+            messages::types::DeltaType::SKIP,
+            std::nullopt,
+            std::nullopt,std::nullopt,std::nullopt,std::nullopt,
+            entityId,
+            std::nullopt,
+            phaseType,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt
+        };
+        sendAll(deltaRequest);
+        game.value().executeDelta(deltaRequest);
+
+        auto snapshot = game->getSnapshot();
+        this->sendAll(snapshot);
+        auto next = game->getNextActor();
+        lastNext = next;
+        this->sendAll(next);
+        if (next.getEntityId() == messages::types::EntityId::SNITCH
+            || next.getEntityId() == messages::types::EntityId::BLUDGER1
+            || next.getEntityId() == messages::types::EntityId::BLUDGER2
+            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+            this->sendAll(game->executeBallDelta(next.getEntityId()));
         }
-        sendError("None", "Timeout", id);
-        this->kickUser(id);
+        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+        replay.second.addLog(communication::messages::Message{snapshot});
+        replay.second.addLog(communication::messages::Message{next});
     }
 
     void Lobby::onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {

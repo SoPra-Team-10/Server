@@ -10,6 +10,8 @@
 
 #include <utility>
 #include <set>
+#include <chrono>
+#include <queue>
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
 #include <SopraMessages/ReplayWithSnapshot.h>
@@ -103,7 +105,8 @@ namespace communication {
         void onPayload(const T &, int id);
 
         void onTeamFormationTimeout();
-        void onTimeout(gameHandling::TeamSide teamSide);
+        void onTimeout(communication::messages::types::EntityId entityId,
+                communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
 
         util::Logging &log;
@@ -122,6 +125,9 @@ namespace communication {
                 std::optional<communication::messages::request::TeamFormation>> teamFormations;
 
         std::optional<gameHandling::Game> game;
+
+        std::map<std::chrono::milliseconds,messages::Payload> messageSend;
+        std::chrono::milliseconds lastPlayerPhaseSnapshot, lastFanPhaseSnapshot, lastBallPhaseSnapshot;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::optional<communication::messages::broadcast::Next> lastNext;
