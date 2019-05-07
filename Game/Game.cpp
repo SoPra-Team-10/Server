@@ -4,72 +4,136 @@
 
 #include "Game.h"
 #include "iostream"
+#include <SopraGameLogic/GameController.h>
+#include <SopraGameLogic/GameModel.h>
+
+namespace gameHandling{
+    Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
+               const communication::messages::request::TeamConfig& teamConfig1,
+               const communication::messages::request::TeamConfig& teamConfig2,
+               communication::messages::request::TeamFormation teamFormation1,
+               communication::messages::request::TeamFormation teamFormation2) :
+            environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
+            leftSelector(environment->team1, TeamSide::LEFT), rightSelector(environment->team2, TeamSide::RIGHT){
+        std::cout<<"Constructor is called"<<std::endl;
+    }
+
+    void Game::pause() {
+        std::cout<<"pause() is called"<<std::endl;
+    }
+
+    void Game::resume() {
+        std::cout<<"resume() is called"<<std::endl;
+    }
+
+    auto Game::getNextActor() -> communication::messages::broadcast::Next {
+        using namespace communication::messages::types;
+        switch (roundState){
+            case GameState::BallPhase:
+                switch (ballTurn){
+                    case EntityId ::SNITCH :
+                        //Bludger1 turn next
+                        ballTurn = EntityId::BLUDGER1;
+
+                        //Snitch has to make move if it exists
+                        if(environment->snitch->exists){
+                            return {ballTurn, TurnType::MOVE, 0};
+                        }
+                    case EntityId::BLUDGER1 :
+                        //Bludger2 turn next
+                        ballTurn = EntityId::BLUDGER2;
+                        return {ballTurn, TurnType::MOVE, 0};
+                    case EntityId ::BLUDGER2 :
+                        //Snitch turn next time entering ball phase
+                        ballTurn = EntityId::SNITCH;
+                        //Ball phase end, Player phase next
+                        roundState = GameState::PlayerPhase;
+
+                        //Determine team to begin by random
+                        if(gameController::rng(0, 1)){
+                            activeTeam = TeamSide::LEFT;
+                        } else {
+                            activeTeam = TeamSide::RIGHT;
+                        }
+
+                        return {ballTurn, TurnType::MOVE, 0};
+                    default:
+                        throw std::runtime_error("Fatal Error! Inconsistent game state!");
+                }
+            case GameState::PlayerPhase:
+
+                break;
+            case GameState::InterferencePhase:break;
+        }
 
 
-Game::Game(communication::messages::broadcast::MatchConfig ,
-           communication::messages::request::TeamConfig ,
-           communication::messages::request::TeamConfig ,
-           communication::messages::request::TeamFormation ,
-           communication::messages::request::TeamFormation )
-           //: env(config(matchConfig.getMaxRounds(),
-           //{matchConfig.getPlayerTurnTimeout(),matchConfig.getFanTurnTimeout(), matchConfig.getPlayerPhaseTime(), matchConfig.getFanPhaseTime(), matchConfig.getBallPhaseTime()},
-           //{matchConfig.getProbFoulStooging(),matchConfig}))
-           {
+        return communication::messages::broadcast::Next();
+    }
 
-    /*static std::map<communication::messages::types::Broom, gameModel::Broom > broomMap;
-    broomMap[communication::messages::types::Broom::THINDERBLAST] = gameModel::Broom::Thinderblast;
-    broomMap[communication::messages::types::Broom ::NIMBUS2001] = gameModel::Broom::Nimbus_2001;
-    broomMap[communication::messages::types::Broom ::COMET260] = gameModel::Broom::Comet_260;
-    broomMap[communication::messages::types::Broom ::CLEANSWEEP11] = gameModel::Broom::Cleansweep_11;
-    broomMap[communication::messages::types::Broom ::FIREBOLT] = gameModel::Broom::Firebolt;
-    this->env.team1.seeker.broom = broomMap[teamConfig1.getSeeker().getBroom()];
-    this->env.team1.keeper.broom = broomMap[teamConfig1.getKeeper().getBroom()];
-    this->env.team1.beaters[0].broom = broomMap[teamConfig1.getBeater1().getBroom()];
-    this->env.team1.beaters[1].broom = broomMap[teamConfig1.getBeater2().getBroom()];
-    this->env.team1.chasers[0].broom = broomMap[teamConfig1.getChaser1().getBroom()];
-    this->env.team1.chasers[1].broom = broomMap[teamConfig1.getChaser2().getBroom()];
-    this->env.team1.chasers[2].broom = broomMap[teamConfig1.getChaser3().getBroom()];
-    this->env.team2.seeker.broom = broomMap[teamConfig2.getSeeker().getBroom()];
-    this->env.team2.keeper.broom = broomMap[teamConfig2.getKeeper().getBroom()];
-    this->env.team2.beaters[0].broom = broomMap[teamConfig2.getBeater1().getBroom()];
-    this->env.team2.beaters[1].broom = broomMap[teamConfig2.getBeater2().getBroom()];
-    this->env.team2.chasers[0].broom = broomMap[teamConfig2.getChaser1().getBroom()];
-    this->env.team2.chasers[1].broom = broomMap[teamConfig2.getChaser2().getBroom()];
-    this->env.team2.chasers[2].broom = broomMap[teamConfig2.getChaser3().getBroom()];*/
+    bool Game::executeDelta(communication::messages::request::DeltaRequest) {
+        return false;
+    }
 
-    std::cout<<"Constructor is called"<<std::endl;
-}
+    auto Game::getRound() const -> int {
+        return 0;
+    }
 
-void Game::pause() {
-    std::cout<<"pause() is called"<<std::endl;
-}
+    auto Game::getLeftPoints() const -> int {
+        return 0;
+    }
 
-void Game::resume() {
-    std::cout<<"resume() is called"<<std::endl;
-}
+    auto Game::getRightPoints() const -> int {
+        return 0;
+    }
 
-communication::messages::broadcast::Next Game::getNextActor() {
-    std::cout<<"getNextActor() is called"<<std::endl;
-    return communication::messages::broadcast::Next();
-}
+    auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
+        return communication::messages::broadcast::Snapshot();
+    }
 
-bool Game::executeDelta(communication::messages::request::DeltaRequest) {
-    std::cout<<"executeDelta is called"<<std::endl;
-    return false;
-}
+    auto Game::executeBallDelta(
+            communication::messages::types::EntityId entityId) -> communication::messages::request::DeltaRequest {
+        std::shared_ptr<gameModel::Ball> ball;
+        int oldX, oldY;
 
-auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
-    return communication::messages::broadcast::Snapshot();
-}
+        if (entityId == communication::messages::types::EntityId::BLUDGER1 ||
+            entityId == communication::messages::types::EntityId::BLUDGER2) {
+            std::shared_ptr<gameModel::Bludger> currBludger;
+            for (auto &bludger : environment->bludgers) {
+                if (bludger->id == entityId) {
+                    ball = currBludger = bludger;
+                    break;
+                }
+            }
 
-auto Game::getEndRound() const -> int {
-    return 0;
-}
+            if (!currBludger) {
+                throw std::runtime_error{"Ball for entity id not found, we fucked up!"};
+            }
+            oldX = currBludger->position.x;
+            oldY = currBludger->position.y;
 
-auto Game::getLeftPoints() const -> int {
-    return 0;
-}
+            gameController::moveBludger(currBludger, environment);
+        } else if (entityId == communication::messages::types::EntityId::SNITCH) {
+            ball = environment->snitch;
+            oldX = ball->position.x;
+            oldY = ball->position.y;
+            //@TODO actual move the snitch
+        } else {
+            throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
+        }
 
-auto Game::getRightPoints() const -> int {
-    return 0;
+        return communication::messages::request::DeltaRequest{
+            communication::messages::types::DeltaType::MOVE,
+            true,
+            oldX,
+            oldY,
+            ball->position.x,
+            ball->position.y,
+            entityId,
+            std::nullopt,
+            communication::messages::types::PhaseType::BALL_PHASE,
+            getLeftPoints(),
+            getRightPoints(),
+            getRound()
+        };
+    }
 }

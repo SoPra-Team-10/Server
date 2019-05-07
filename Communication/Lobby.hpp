@@ -102,8 +102,8 @@ namespace communication {
         template <typename T>
         void onPayload(const T &, int id);
 
-        void onTimeout(TeamSide teamSide);
-        void onWin(TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
+        void onTimeout(gameHandling::TeamSide teamSide);
+        void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
 
         Communicator &communicator;
         LobbyState state;
@@ -116,7 +116,7 @@ namespace communication {
             std::optional<communication::messages::request::TeamConfig>> teamConfigs;
         std::pair<std::optional<communication::messages::request::TeamFormation>,
         std::optional<communication::messages::request::TeamFormation>> teamFormations;
-        std::optional<Game> game;
+        std::optional<gameHandling::Game> game;
         std::optional<communication::messages::broadcast::Next> lastNext;
         const messages::broadcast::MatchConfig matchConfig;
         util::Logging &log;

@@ -206,11 +206,18 @@ namespace communication {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
                 if (game->executeDelta(deltaRequest)) {
+                    this->sendAll(deltaRequest);
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
+                    if (next.getEntityId() == messages::types::EntityId::SNITCH
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        this->sendAll(game->executeBallDelta(next.getEntityId()));
+                    }
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     replay.second.addLog(communication::messages::Message{snapshot});
                     replay.second.addLog(communication::messages::Message{next});
@@ -262,9 +269,9 @@ namespace communication {
         onLeave(id);
     }
 
-    void Lobby::onTimeout(TeamSide teamSide) {
+    void Lobby::onTimeout(gameHandling::TeamSide teamSide) {
         int id;
-        if (teamSide == TeamSide::LEFT) {
+        if (teamSide == gameHandling::TeamSide::LEFT) {
             id = players.first.value();
         } else {
             id = players.second.value();
@@ -273,9 +280,9 @@ namespace communication {
         this->kickUser(id);
     }
 
-    void Lobby::onWin(TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
+    void Lobby::onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
         int winnerId;
-        if (teamSide == TeamSide::LEFT) {
+        if (teamSide == gameHandling::TeamSide::LEFT) {
             winnerId = players.first.value();
         } else {
             winnerId = players.second.value();
@@ -284,7 +291,7 @@ namespace communication {
 
         messages::broadcast::MatchFinish matchFinish;
         if (game) {
-            matchFinish = {game->getEndRound(),
+            matchFinish = {game->getRound(),
                            game->getLeftPoints(),
                            game->getRightPoints(), winner, victoryReason};
         } else {
@@ -323,11 +330,11 @@ namespace communication {
         if (id == players.first || id == players.second) {
             if (id == players.first) {
                 if (players.second.has_value()) {
-                    onWin(TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             } else {
                 if (players.first.has_value()) {
-                    onWin(TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameHandling::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                 }
             }
         }
