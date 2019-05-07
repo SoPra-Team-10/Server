@@ -159,6 +159,7 @@ namespace communication {
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
                     //@TODO Fatal listener here
+                    game->fatalErrorListener(std::bind(&Lobby::onFatalError, this, std::placeholders::_1));
                     auto snapshot = game->getSnapshot();
                     snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
@@ -399,9 +400,9 @@ namespace communication {
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
 
-    void Lobby::onFatalError() {
+    void Lobby::onFatalError(std::string error) {
         for (const auto &c : clients) {
-            sendWarn("None", "Internal Server error resetting game!", c.first);
+            sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
         state = LobbyState::GAME;
         game.reset();

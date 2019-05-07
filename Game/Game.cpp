@@ -105,7 +105,7 @@ namespace gameHandling{
                         bShot.execute();
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(e.what());
+                        fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -131,7 +131,7 @@ namespace gameHandling{
                         qThrow.execute();
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(e.what());
+                        fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else{
@@ -149,7 +149,7 @@ namespace gameHandling{
                     sPush.execute();
                     return true;
                 } catch (std::runtime_error &e){
-                    fatalErrorListener(e.what());
+                    fatalErrorListener(std::string(e.what()));
                     return false;
                 }
             }
@@ -164,7 +164,7 @@ namespace gameHandling{
                     impulse.execute();
                     return true;
                 } catch (std::runtime_error &e){
-                    fatalErrorListener(e.what());
+                    fatalErrorListener(std::string(e.what()));
                     return false;
                 }
             }
@@ -181,7 +181,7 @@ namespace gameHandling{
                         teleport.execute();
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(e.what());
+                        fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -201,7 +201,7 @@ namespace gameHandling{
                         rAttack.execute();
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(e.what());
+                        fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -225,7 +225,7 @@ namespace gameHandling{
                         move.execute();
                         return true;
                     } catch (std::runtime_error &e) {
-                        fatalErrorListener(e.what());
+                        fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -242,7 +242,7 @@ namespace gameHandling{
             case communication::messages::types::DeltaType::UNBAN:
                 return false;
             default:
-                fatalErrorListener("Fatal error, DeltaType out of range! Possible memory corruption!");
+                fatalErrorListener(std::string("Fatal error, DeltaType out of range! Possible memory corruption!"));
                 return false;
         }
     }

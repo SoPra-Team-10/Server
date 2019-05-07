@@ -30,7 +30,7 @@ namespace gameHandling{
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
-        const util::Listener<const char*> fatalErrorListener;
+        const util::Listener<std::string> fatalErrorListener;
 
         /**
          * Pauses the games timers

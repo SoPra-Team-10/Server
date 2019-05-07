@@ -110,7 +110,7 @@ namespace communication {
         void onTimeout(communication::messages::types::EntityId entityId,
                 communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
-        void onFatalError();
+        void onFatalError(std::string error);
 
         auto getSpectators() const -> std::vector<std::string>;
 
