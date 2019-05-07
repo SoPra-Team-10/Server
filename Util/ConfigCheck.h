@@ -7,14 +7,15 @@
 
 #include <Game/GameTypes.h>
 #include <SopraMessages/TeamFormation.hpp>
+#include <SopraMessages/TeamConfig.hpp>
 
 namespace configCheck {
 
-    static bool checkTeamConfig(const communication::messages::request::TeamConfig &config, const gameHandling::TeamSide &side);
+    bool checkTeamConfig(const communication::messages::request::TeamConfig &config);
 
-    bool checkTeamFormation(const communication::messages::request::TeamFormation &formation, const gameHandling::TeamSide &side);
+    //bool checkTeamFormation(const communication::messages::request::TeamFormation &formation, const gameHandling::TeamSide &side);
 
-    bool checkPlayerOnField(int x, int y);
+    //bool checkPlayerOnField(int x, int y);
 
 }
 
