@@ -43,6 +43,11 @@ set -e
 mkdir code_docs
 cd code_docs
 
+# Copy the README
+rm README.md
+cp ${TRAVIS_BUILD_DIR}/README.md .
+
+
 # Get the current gh-pages branch
 git clone -b gh-pages https://git@$GH_REPO_REF
 cd $GH_REPO_NAME
@@ -78,10 +83,6 @@ fi
 # Presumably this is only needed when the SHORT_NAMES option in Doxygen is set
 # to NO, which it is by default. So creating the file just in case.
 echo "" > .nojekyll
-
-# Copy the README
-rm README.md
-cp ${TRAVIS_BUILD_DIR}/README.md .
 
 ################################################################################
 ##### Generate the Doxygen code documentation and log the output.          #####
