@@ -177,7 +177,9 @@ namespace communication {
     void Lobby::onPayload(const messages::request::DeltaRequest &deltaRequest, int clientId) {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
-                if (game->executeDelta(deltaRequest)) {
+                gameHandling::TeamSide teamSide =
+                        (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
+                if (game->executeDelta(deltaRequest, teamSide)) {
                     this->sendAll(deltaRequest);
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
@@ -303,7 +305,8 @@ namespace communication {
             std::nullopt
         };
         sendAll(deltaRequest);
-        game.value().executeDelta(deltaRequest);
+
+        game.value().executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
 
         auto snapshot = game->getSnapshot();
         this->sendAll(snapshot);

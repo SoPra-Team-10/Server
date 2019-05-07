@@ -70,7 +70,7 @@ namespace gameHandling{
         return communication::messages::broadcast::Next();
     }
 
-    bool Game::executeDelta(communication::messages::request::DeltaRequest) {
+    bool Game::executeDelta(communication::messages::request::DeltaRequest, TeamSide) {
         return false;
     }
 
@@ -90,8 +90,8 @@ namespace gameHandling{
         return communication::messages::broadcast::Snapshot();
     }
 
-    auto Game::executeBallDelta(
-            communication::messages::types::EntityId entityId) -> communication::messages::request::DeltaRequest {
+    auto Game::executeBallDelta(communication::messages::types::EntityId entityId)
+            -> communication::messages::request::DeltaRequest {
         std::shared_ptr<gameModel::Ball> ball;
         int oldX, oldY;
 

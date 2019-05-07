@@ -19,8 +19,6 @@
 #include "MemberSelector.h"
 
 namespace gameHandling{
-
-
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
@@ -49,7 +47,7 @@ namespace gameHandling{
          */
         auto getNextActor() -> communication::messages::broadcast::Next;
 
-        bool executeDelta(communication::messages::request::DeltaRequest);
+        bool executeDelta(communication::messages::request::DeltaRequest, TeamSide teamSide);
 
         auto executeBallDelta(communication::messages::types::EntityId entityId)
                 -> communication::messages::request::DeltaRequest;
@@ -82,7 +80,6 @@ namespace gameHandling{
         int roundNumber = 0;
         TeamSide activeTeam = TeamSide::LEFT;
         MemberSelector leftSelector, rightSelector;
-
     };
 }
 
