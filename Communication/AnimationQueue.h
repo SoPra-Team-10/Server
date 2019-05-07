@@ -14,6 +14,9 @@
 namespace communication {
     class Communicator;
 
+    /**
+     * The AnimationQueue is responsible for delaying messages
+     */
     class AnimationQueue {
     public:
         explicit AnimationQueue(Communicator &communicator);
