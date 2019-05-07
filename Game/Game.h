@@ -52,7 +52,7 @@ namespace gameHandling{
 
         void executeBallDelta(communication::messages::types::EntityId entityId);
 
-        auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
+        auto getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot>;
 
         /**
          * Returns the current round
@@ -79,9 +79,7 @@ namespace gameHandling{
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
         PhaseManager phaseManager;
-        communication::messages::broadcast::DeltaBroadcast lastDelta;
-
-        void endRound();
+        std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas;
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
