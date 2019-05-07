@@ -84,6 +84,9 @@ namespace gameHandling{
         void endRound();
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
+
+        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
+            -> communication::messages::broadcast::TeamSnapshot;
     };
 }
 

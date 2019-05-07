@@ -70,7 +70,7 @@ namespace gameHandling{
         using Id = gameModel::InterferenceType;
         interferencesLeft = {{Id::Teleport, 0}, {Id::RangedAttack, 0}, {Id::Impulse, 0}, {Id::SnitchPush, 0}};
         for(auto it = interferencesLeft.begin(); it < interferencesLeft.end();){
-            int uses = fanblock.getUses(it->first);
+            int uses = team->fanblock.getUses(it->first);
             if(uses == 0){
                 it = interferencesLeft.erase(it);
             } else {

@@ -35,7 +35,7 @@ namespace gameHandling{
     auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
         switch (roundState){
-            case PhaseType::BALL_PHASE
+            case PhaseType::BALL_PHASE:
                 switch (ballTurn){
                     case EntityId ::SNITCH :
                         //Bludger1 turn next
@@ -265,7 +265,18 @@ namespace gameHandling{
     }
 
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
-        return communication::messages::broadcast::Snapshot();
+        using namespace communication::messages::broadcast;
+        std::optional<int> snitchX = {};
+        std::optional<int> snitchY = {};
+        if(environment->snitch->exists){
+            snitchX = environment->snitch->position.x;
+            snitchY = environment->snitch->position.y;
+        }
+        return {lastDelta, roundState, {}, getRound(), teamToTeamSnapshot(environment->team1),
+                teamToTeamSnapshot(environment->team2), snitchX, snitchY, environment->quaffle->position.x,
+                environment->quaffle->position.y, environment->bludgers[0]->position.x,
+                environment->bludgers[0]->position.y, environment->bludgers[1]->position.x,
+                environment->bludgers[1]->position.y};
     }
 
     void Game::executeBallDelta(communication::messages::types::EntityId entityId){
@@ -327,5 +338,13 @@ namespace gameHandling{
         } else {
             return environment->team2;
         }
+    }
+
+    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
+        -> communication::messages::broadcast::TeamSnapshot {
+        std::vector<communication::messages::broadcast::Fan> fans;
+        fans.reserve(7);
+        //@TODO fans erstellen
+        return {};
     }
 }
