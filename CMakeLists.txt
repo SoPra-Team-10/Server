@@ -21,6 +21,7 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/AnimationQueue.cpp
         ${CMAKE_SOURCE_DIR}/Game/Game.cpp
         ${CMAKE_SOURCE_DIR}/Game/GameTypes.cpp
         ${CMAKE_SOURCE_DIR}/Game/MemberSelector.cpp

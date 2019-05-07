@@ -38,6 +38,9 @@ namespace util {
          */
         void stop();
 
+        /**
+         * DTor: Necessary for cleanup and stopping of the thread
+         */
         ~Timer();
     private:
         std::atomic_bool paused{false};

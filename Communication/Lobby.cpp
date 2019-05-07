@@ -17,7 +17,7 @@ namespace communication {
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-             : log{log}, state{LobbyState::INITIAL},
+             : log{log}, animationQueue{communicator}, state{LobbyState::INITIAL},
                 communicator{communicator}, matchConfig{matchConfig}, name{name},
                 replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
         this->clients.emplace(id, client);
@@ -158,7 +158,9 @@ namespace communication {
                             std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
+                    //@TODO Fatal listener here
                     auto snapshot = game->getSnapshot();
+                    snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
                     replay.first.setFirstSnapshot(snapshot);
                     replay.second.setFirstSnapshot(snapshot);
@@ -180,21 +182,30 @@ namespace communication {
                 gameHandling::TeamSide teamSide =
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
                 if (game->executeDelta(deltaRequest, teamSide)) {
-                    this->sendAll(deltaRequest);
                     auto snapshot = game->getSnapshot();
+                    snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
                     auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
-                    if (next.getEntityId() == messages::types::EntityId::SNITCH
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
-                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-                        this->sendAll(game->executeBallDelta(next.getEntityId()));
-                    }
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     replay.second.addLog(communication::messages::Message{snapshot});
                     replay.second.addLog(communication::messages::Message{next});
+                    while (next.getEntityId() == messages::types::EntityId::SNITCH
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        game->executeBallDelta(next.getEntityId());
+                        snapshot = game->getSnapshot();
+                        snapshot.setSpectators(getSpectators());
+                        sendAll(snapshot);
+                        next = game->getNextActor();
+                        lastNext = next;
+                        sendAll(next);
+                        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                        replay.second.addLog(communication::messages::Message{snapshot});
+                        replay.second.addLog(communication::messages::Message{next});
+                    }
                 } else {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
@@ -304,11 +315,10 @@ namespace communication {
             std::nullopt,
             std::nullopt
         };
-        sendAll(deltaRequest);
-
-        game.value().executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
+        game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
 
         auto snapshot = game->getSnapshot();
+        snapshot.setSpectators(getSpectators());
         this->sendAll(snapshot);
         auto next = game->getNextActor();
         lastNext = next;
@@ -389,6 +399,19 @@ namespace communication {
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
 
+    void Lobby::onFatalError() {
+        for (const auto &c : clients) {
+            sendWarn("None", "Internal Server error resetting game!", c.first);
+        }
+        state = LobbyState::GAME;
+        game.reset();
+        teamConfigs.first.reset();
+        teamConfigs.second.reset();
+        teamFormations.first.reset();
+        teamFormations.second.reset();
+        players.first.reset();
+        players.second.reset();
+    }
 
     void Lobby::sendAll(const messages::Payload &payload) {
         for (const auto &c : clients) {
@@ -397,7 +420,25 @@ namespace communication {
     }
 
     void Lobby::sendSingle(const messages::Payload &payload, int id) {
-        this->communicator.send(messages::Message{payload}, id);
+        if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
+            auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
+            int offset = 0;
+            switch (snapshot.getPhase()) {
+                case messages::types::PhaseType::BALL_PHASE:
+                    offset = matchConfig.getBallPhaseTime();
+                    break;
+                case messages::types::PhaseType::FAN_PHASE:
+                    offset = matchConfig.getFanPhaseTime();
+                    break;
+                case messages::types::PhaseType::PLAYER_PHASE:
+                    offset = matchConfig.getPlayerPhaseTime();
+                    break;
+                default:break;
+            }
+            animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
+        } else {
+            animationQueue.add(payload, {id});
+        }
     }
 
     void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {
@@ -435,4 +476,17 @@ namespace communication {
     auto Lobby::getName() const -> std::string {
         return name;
     }
+
+    auto Lobby::getSpectators() const -> std::vector<std::string> {
+        std::vector<std::string> ret;
+        ret.reserve(clients.size() - 2);
+        for (const auto &client : clients) {
+            if (client.first != players.first && client.first != players.second) {
+                ret.emplace_back(client.second.userName);
+            }
+        }
+        return ret;
+    }
+
+
 }

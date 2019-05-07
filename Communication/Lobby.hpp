@@ -18,6 +18,7 @@
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 #include <SopraMessages/ReplayMessage.h>
+#include "AnimationQueue.h"
 
 namespace communication {
     class Communicator;
@@ -109,8 +110,12 @@ namespace communication {
         void onTimeout(communication::messages::types::EntityId entityId,
                 communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
+        void onFatalError();
+
+        auto getSpectators() const -> std::vector<std::string>;
 
         util::Logging &log;
+        AnimationQueue animationQueue;
 
         LobbyState state;
         Communicator &communicator;
@@ -127,8 +132,6 @@ namespace communication {
 
         std::optional<gameHandling::Game> game;
 
-        std::map<std::chrono::milliseconds,messages::Payload> messageSend;
-        std::chrono::milliseconds lastPlayerPhaseSnapshot, lastFanPhaseSnapshot, lastBallPhaseSnapshot;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::optional<communication::messages::broadcast::Next> lastNext;
