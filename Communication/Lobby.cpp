@@ -181,21 +181,28 @@ namespace communication {
                 gameHandling::TeamSide teamSide =
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
                 if (game->executeDelta(deltaRequest, teamSide)) {
-                    this->sendAll(deltaRequest);
                     auto snapshot = game->getSnapshot();
                     this->sendAll(snapshot);
                     auto next = game->getNextActor();
                     lastNext = next;
                     this->sendAll(next);
-                    if (next.getEntityId() == messages::types::EntityId::SNITCH
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
-                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-                        this->sendAll(game->executeBallDelta(next.getEntityId()));
-                    }
                     replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
                     replay.second.addLog(communication::messages::Message{snapshot});
                     replay.second.addLog(communication::messages::Message{next});
+                    while (next.getEntityId() == messages::types::EntityId::SNITCH
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        game->executeBallDelta(next.getEntityId());
+                        snapshot = game->getSnapshot();
+                        sendAll(snapshot);
+                        next = game->getNextActor();
+                        lastNext = next;
+                        sendAll(next);
+                        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                        replay.second.addLog(communication::messages::Message{snapshot});
+                        replay.second.addLog(communication::messages::Message{next});
+                    }
                 } else {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
@@ -305,9 +312,7 @@ namespace communication {
             std::nullopt,
             std::nullopt
         };
-        sendAll(deltaRequest);
-
-        game.value().executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
+        game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
 
         auto snapshot = game->getSnapshot();
         this->sendAll(snapshot);
