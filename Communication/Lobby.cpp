@@ -328,7 +328,7 @@ namespace communication {
             || next.getEntityId() == messages::types::EntityId::BLUDGER1
             || next.getEntityId() == messages::types::EntityId::BLUDGER2
             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-            this->sendAll(game->executeBallDelta(next.getEntityId()));
+            game->executeBallDelta(next.getEntityId());
         }
         replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
         replay.second.addLog(communication::messages::Message{snapshot});
