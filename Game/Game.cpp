@@ -133,7 +133,8 @@ namespace gameHandling{
             communication::messages::types::PhaseType::BALL_PHASE,
             getLeftPoints(),
             getRightPoints(),
-            getRound()
+            getRound(),
+            std::nullopt
         };
     }
 }
