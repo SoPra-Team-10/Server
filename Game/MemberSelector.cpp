@@ -5,7 +5,7 @@
 #include "MemberSelector.h"
 #include <SopraGameLogic/GameController.h>
 namespace gameHandling{
-    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), fanblock(team->fanblock), side(side){
+    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), side(side){
         resetPlayers();
         resetInterferences();
     }
@@ -70,7 +70,7 @@ namespace gameHandling{
         using Id = gameModel::InterferenceType;
         interferencesLeft = {{Id::Teleport, 0}, {Id::RangedAttack, 0}, {Id::Impulse, 0}, {Id::SnitchPush, 0}};
         for(auto it = interferencesLeft.begin(); it < interferencesLeft.end();){
-            int uses = fanblock.getUses(it->first);
+            int uses = team->fanblock.getUses(it->first);
             if(uses == 0){
                 it = interferencesLeft.erase(it);
             } else {
@@ -90,5 +90,34 @@ namespace gameHandling{
         }
 
         return found;
+    }
+
+    bool MemberSelector::playerUsed(communication::messages::types::EntityId id) const {
+        if(!team->getPlayerByID(id).has_value()){
+            throw std::runtime_error("Player not in Team");
+        }
+
+        for(const auto &player: playersLeft){
+            if(player->id == id){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    int MemberSelector::usedInterferences(communication::messages::types::FanType type) const {
+        int initial = team->fanblock.getUses(type) + team->fanblock.getBannedCount(type);
+        if(initial == 0){
+            return 0;
+        }
+
+        for(const auto& fan : interferencesLeft){
+            if(fan.first == gameModel::Fanblock::fanToInterference(type)){
+                return team->fanblock.getUses(type) - fan.second;
+            }
+        }
+
+        return team->fanblock.getUses(type);
     }
 }

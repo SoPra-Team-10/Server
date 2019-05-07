@@ -190,4 +190,20 @@ namespace gameHandling{
 
         return {};
     }
+
+    bool PhaseManager::playerUsedLeft(communication::messages::types::EntityId id) const {
+        return teamLeft.playerUsed(id);
+    }
+
+    bool PhaseManager::playerUsedRight(communication::messages::types::EntityId id) const {
+        return teamRight.playerUsed(id);
+    }
+
+    int PhaseManager::interferencesUsedLeft(communication::messages::types::FanType type) const {
+        return teamLeft.usedInterferences(type);
+    }
+
+    int PhaseManager::interferencesUsedRight(communication::messages::types::FanType type) const {
+        return teamRight.usedInterferences(type);
+    }
 }
