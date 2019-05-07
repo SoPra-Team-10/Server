@@ -51,35 +51,6 @@ namespace communication {
     }
 
     template<>
-    void Lobby::onPayload(const messages::request::TeamConfig &teamConfig, int id) {
-        if (!players.first.has_value()) {
-            players.first = id;
-            log.debug("Got first teamConfig");
-            teamConfigs.first = teamConfig;
-        } else if (!players.second.has_value()) {
-            players.second = id;
-            log.info("Got second teamConfig, startingMatch");
-            teamConfigs.second = teamConfig;
-            this->sendAll(messages::broadcast::MatchStart{
-                matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
-                clients.at(players.first.value()).userName,
-                clients.at(players.second.value()).userName});
-            this->state = LobbyState::WAITING_FORMATION;
-            replay.first.setLeftTeamConfig(teamConfigs.first.value());
-            replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.first.setRightTeamConfig(teamConfigs.second.value());
-            replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
-            replay.second.setLeftTeamConfig(teamConfigs.first.value());
-            replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.second.setRightTeamConfig(teamConfigs.second.value());
-            replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
-        } else {
-            this->kickUser(id);
-            log.warn("Got more than two teamConfigs, kicking user");
-        }
-    }
-
-    template<>
     void Lobby::onPayload(const messages::request::GetReplay&, int id) {
         if (state == LobbyState::FINISHED) {
             this->sendSingle(replay.first, id);
@@ -124,6 +95,37 @@ namespace communication {
     }
 
     template<>
+    void Lobby::onPayload(const messages::request::TeamConfig &teamConfig, int id) {
+        if (!players.first.has_value()) {
+            players.first = id;
+            log.debug("Got first teamConfig");
+            teamConfigs.first = teamConfig;
+        } else if (!players.second.has_value()) {
+            players.second = id;
+            log.info("Got second teamConfig, startingMatch");
+            teamConfigs.second = teamConfig;
+            this->sendAll(messages::broadcast::MatchStart{
+                matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                clients.at(players.first.value()).userName,
+                clients.at(players.second.value()).userName});
+            this->state = LobbyState::WAITING_FORMATION;
+            replay.first.setLeftTeamConfig(teamConfigs.first.value());
+            replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
+            replay.first.setRightTeamConfig(teamConfigs.second.value());
+            replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
+            replay.second.setLeftTeamConfig(teamConfigs.first.value());
+            replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
+            replay.second.setRightTeamConfig(teamConfigs.second.value());
+            replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
+            teamFormationTimer.setTimeout(
+                    std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
+        } else {
+            this->kickUser(id);
+            log.warn("Got more than two teamConfigs, kicking user");
+        }
+    }
+
+    template<>
     void Lobby::onPayload(const messages::request::TeamFormation &teamFormation, int id) {
         if (this->state == LobbyState::WAITING_FORMATION) {
             if (players.first == id || players.second == id) {
@@ -146,6 +148,7 @@ namespace communication {
                 }
 
                 if (teamFormations.first.has_value() && teamFormations.second.has_value()) {
+                    teamFormationTimer.stop();
                     state = LobbyState::GAME;
                     log.info("Starting game");
 
@@ -166,38 +169,6 @@ namespace communication {
         } else {
             this->kickUser(id);
             log.warn("Got teamFormation in wrong state");
-        }
-    }
-
-    template<>
-    void Lobby::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
-        if (!clients.at(id).isAi && (state == LobbyState::GAME || state == LobbyState::PAUSE)) {
-            messages::broadcast::PauseResponse pauseResponse{
-                    pauseRequest.getMessage(), this->clients.at(id).userName, true};
-            this->sendAll(pauseResponse);
-            log.info("Pause");
-            state = LobbyState::PAUSE;
-        } else {
-            sendError(messages::request::PauseRequest::getName(),
-                    "Invalid pause request: either AI or Game not started", id);
-            this->kickUser(id);
-            log.warn("Invalid pause request");
-        }
-    }
-
-    template<>
-    void Lobby::onPayload(const messages::request::ContinueRequest &continueRequest, int id) {
-        if (state == LobbyState::PAUSE) {
-            messages::broadcast::PauseResponse pauseResponse{
-                    continueRequest.getMessage(), this->clients.at(id).userName, false};
-            this->sendAll(pauseResponse);
-            log.info("Continue");
-            state = LobbyState::GAME;
-        } else {
-            sendError(messages::request::ContinueRequest::getName(),
-                      "Not paused!", id);
-            this->kickUser(id);
-            log.warn("Client sent a continue while not paused");
         }
     }
 
@@ -237,6 +208,38 @@ namespace communication {
         } else {
             this->kickUser(clientId);
             log.warn("Spectator send a DeltaRequest, kicking user");
+        }
+    }
+
+    template<>
+    void Lobby::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
+        if (!clients.at(id).isAi && (state == LobbyState::GAME || state == LobbyState::PAUSE)) {
+            messages::broadcast::PauseResponse pauseResponse{
+                    pauseRequest.getMessage(), this->clients.at(id).userName, true};
+            this->sendAll(pauseResponse);
+            log.info("Pause");
+            state = LobbyState::PAUSE;
+        } else {
+            sendError(messages::request::PauseRequest::getName(),
+                      "Invalid pause request: either AI or Game not started", id);
+            this->kickUser(id);
+            log.warn("Invalid pause request");
+        }
+    }
+
+    template<>
+    void Lobby::onPayload(const messages::request::ContinueRequest &continueRequest, int id) {
+        if (state == LobbyState::PAUSE) {
+            messages::broadcast::PauseResponse pauseResponse{
+                    continueRequest.getMessage(), this->clients.at(id).userName, false};
+            this->sendAll(pauseResponse);
+            log.info("Continue");
+            state = LobbyState::GAME;
+        } else {
+            sendError(messages::request::ContinueRequest::getName(),
+                      "Not paused!", id);
+            this->kickUser(id);
+            log.warn("Client sent a continue while not paused");
         }
     }
 

@@ -110,6 +110,8 @@ namespace communication {
         LobbyState state;
         std::string name;
 
+        util::Timer teamFormationTimer;
+
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::map<int, Client> clients;
         std::pair<std::optional<int>, std::optional<int>> players;
