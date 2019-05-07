@@ -15,29 +15,28 @@ namespace communication {
     void AnimationQueue::add(const messages::Payload& payload, const std::vector<int>& clients, std::chrono::milliseconds timeOffset) {
         std::lock_guard<std::mutex> lock{mapLock};
         auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-        std::chrono::milliseconds lastMessageTime = now;
+        std::chrono::milliseconds toSendTime = now;
         if (!toSend.empty()) {
-            lastMessageTime = (--toSend.end())->first;
+            toSendTime = (--toSend.end())->first;
         }
 
         if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
             auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
             if (lastSnapshotForType.find(snapshot.getPhase()) != lastSnapshotForType.end()) {
-                if (lastSnapshotForType.at(snapshot.getPhase()) > lastMessageTime) {
-                    lastMessageTime = lastSnapshotForType.at(snapshot.getPhase());
+                if (lastSnapshotForType.at(snapshot.getPhase()) + timeOffset > toSendTime) {
+                    toSendTime = lastSnapshotForType.at(snapshot.getPhase()) + timeOffset;
                 }
             }
             for (const auto &msg : toSend) {
                 if (std::holds_alternative<messages::broadcast::Snapshot>(msg.second.first)) {
                     auto &otherSnapshot = std::get<messages::broadcast::Snapshot>(msg.second.first);
-                    if (otherSnapshot.getPhase() == snapshot.getPhase() && msg.first > lastMessageTime) {
-                        lastMessageTime = msg.first;
+                    if (otherSnapshot.getPhase() == snapshot.getPhase() && msg.first + timeOffset > toSendTime) {
+                        toSendTime = msg.first + timeOffset;
                     }
                 }
             }
         }
-        auto toCallTime = lastMessageTime + timeOffset;
-        auto [newIt,tookPlace] = toSend.emplace(toCallTime, std::make_pair(payload, clients));
+        auto [newIt,tookPlace] = toSend.emplace(toSendTime, std::make_pair(payload, clients));
         if(newIt == toSend.begin()) {
             cv.notify_all();
         }
