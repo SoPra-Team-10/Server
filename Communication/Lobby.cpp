@@ -39,7 +39,7 @@ namespace communication {
                         matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
                         clients.at(players.first.value()).userName,
                         clients.at(players.second.value()).userName},
-                    game->getSnapshot()
+                        game->getSnapshot(), lastNext.value()
             }, id);
         }
     }
