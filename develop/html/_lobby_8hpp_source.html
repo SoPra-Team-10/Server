@@ -144,26 +144,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordtype">void</span> onTimeout(gameHandling::TeamSide teamSide);</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <span class="keywordtype">void</span> onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        <a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        LobbyState state;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        std::string name;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <a class="code" href="classutil_1_1_timer.html">util::Timer</a> teamFormationTimer;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        std::pair&lt;messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot&gt; replay;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;        std::map&lt;int, Client&gt; clients;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        std::pair&lt;std::optional&lt;int&gt;, std::optional&lt;int&gt;&gt; players;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        std::pair&lt;std::optional&lt;communication::messages::request::TeamConfig&gt;,</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;            std::optional&lt;communication::messages::request::TeamConfig&gt;&gt; teamConfigs;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        std::pair&lt;std::optional&lt;communication::messages::request::TeamFormation&gt;,</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        std::optional&lt;communication::messages::request::TeamFormation&gt;&gt; teamFormations;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        std::optional&lt;gameHandling::Game&gt; game;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        std::optional&lt;communication::messages::broadcast::Next&gt; lastNext;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        <span class="keyword">const</span> messages::broadcast::MatchConfig matchConfig;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        <a class="code" href="classutil_1_1_logging.html">util::Logging</a> &amp;log;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    };</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#endif //SERVER_LOBBY_HPP</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        <a class="code" href="classutil_1_1_logging.html">util::Logging</a> &amp;log;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        LobbyState state;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        <a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <span class="keyword">const</span> messages::broadcast::MatchConfig matchConfig;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        std::map&lt;int, Client&gt; clients;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        std::string name;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        std::pair&lt;std::optional&lt;communication::messages::request::TeamConfig&gt;,</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                std::optional&lt;communication::messages::request::TeamConfig&gt;&gt; teamConfigs;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        std::pair&lt;std::optional&lt;int&gt;, std::optional&lt;int&gt;&gt; players;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        <a class="code" href="classutil_1_1_timer.html">util::Timer</a> teamFormationTimer;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        std::pair&lt;std::optional&lt;communication::messages::request::TeamFormation&gt;,</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                std::optional&lt;communication::messages::request::TeamFormation&gt;&gt; teamFormations;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        std::optional&lt;gameHandling::Game&gt; game;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        std::pair&lt;messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot&gt; replay;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        std::optional&lt;communication::messages::broadcast::Next&gt; lastNext;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    };</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;}</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#endif //SERVER_LOBBY_HPP</span></div>
 <div class="ttc" id="classcommunication_1_1_lobby_html_a25b9b029f4087e0f268b9b5cc2edb0d5"><div class="ttname"><a href="classcommunication_1_1_lobby.html#a25b9b029f4087e0f268b9b5cc2edb0d5">communication::Lobby::onMessage</a></div><div class="ttdeci">void onMessage(const messages::Message &amp;message, int id)</div></div>
 <div class="ttc" id="classutil_1_1_logging_html"><div class="ttname"><a href="classutil_1_1_logging.html">util::Logging</a></div><div class="ttdef"><b>Definition:</b> Logging.hpp:18</div></div>
 <div class="ttc" id="structcommunication_1_1_client_html"><div class="ttname"><a href="structcommunication_1_1_client.html">communication::Client</a></div><div class="ttdef"><b>Definition:</b> Lobby.hpp:26</div></div>
