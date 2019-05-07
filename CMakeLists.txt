@@ -7,7 +7,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror -Wno-implicit-fallthrough")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 endif ()
@@ -21,22 +21,12 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
         ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp
-        ${CMAKE_SOURCE_DIR}/Game/Game.cpp)
-set(LIBS pthread)
+        ${CMAKE_SOURCE_DIR}/Game/Game.cpp
+        ${CMAKE_SOURCE_DIR}/Game/MemberSelector.cpp
+        ${CMAKE_SOURCE_DIR}/Game/PlayerPhase.cpp
+        ${CMAKE_SOURCE_DIR}/Util/Timer.cpp)
 
-
-if (USE_LOCAL_NETWORK)
-    include_directories(../Network/)
-    include_directories(../Network/Server)
-    set(SOURCES ${SOURCES}
-            ${CMAKE_SOURCE_DIR}/../Network/Server/Connection.cpp
-            ${CMAKE_SOURCE_DIR}/../Network/Server/WebSocketServer.cpp)
-    set(LIBS ${LIBS} websockets)
-else()
-    set(LIBS ${LIBS} SopraNetwork)
-endif()
-
-set(LIBS ${LIBS} stdc++fs SopraGameLogic SopraMessages)
+set(LIBS pthread stdc++fs SopraGameLogic SopraMessages SopraNetwork)
 
 include_directories(${CMAKE_SOURCE_DIR})
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
