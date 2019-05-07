@@ -9,6 +9,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <SopraGameLogic/GameController.h>
 #include <SopraMessages/Next.hpp>
+#include <queue>
 #include "GameTypes.h"
 #include "MemberSelector.h"
 
@@ -56,6 +57,9 @@ namespace gameHandling{
         bool oneTeamEmptyPlayers = false;
         bool oneTeamEmptyInters = false;
 
+        bool currentTurnFinished = true;
+        std::shared_ptr<const gameModel::Player> currentPlayer;
+
         /**
          * Determines the next action a player may take
          * @param player player to calculate the action for
@@ -63,7 +67,7 @@ namespace gameHandling{
          * @return
          */
         auto getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player, const std::shared_ptr<const gameModel::Environment> &env) const ->
-        communication::messages::types::TurnType;
+        std::pair<communication::messages::types::TurnType, bool>;
         void chooseTeam(TeamSide &side);
 
         auto getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>>;

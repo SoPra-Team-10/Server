@@ -30,7 +30,7 @@ auto setup::createEnv(const gameModel::Config &config) -> std::shared_ptr<gameMo
     auto t1 = std::make_shared<gameModel::Team>(s1, k1, std::array<gameModel::Beater, 2>{b1, b2}, std::array<gameModel::Chaser, 3>{c1, c2, c3}, "", "", "", f);
     auto t2 = std::make_shared<gameModel::Team>(s2, k2, std::array<gameModel::Beater, 2>{b3, b4}, std::array<gameModel::Chaser, 3>{c4, c5, c6}, "", "", "", f);
 
-    return std::make_shared<gameModel::Environment>(config, t2, t2);
+    return std::make_shared<gameModel::Environment>(config, t1, t2);
 }
 
 
@@ -61,8 +61,8 @@ auto setup::createGame() -> gameHandling::Game {
             fanFoulDetection, fanFoulDetection, fanFoulDetection, foulDetection);
 
     auto t1 = createEnv({matchConfig})->team1;
-    auto t2 = createEnv({matchConfig})->team1;
-    TeamFormation formation1(t2->seeker->position.x, t1->seeker->position.y, t1->keeper->position.x,
+    auto t2 = createEnv({matchConfig})->team2;
+    TeamFormation formation1(t1->seeker->position.x, t1->seeker->position.y, t1->keeper->position.x,
             t1->keeper->position.y, t1->chasers[0]->position.x, t1->chasers[0]->position.y,
             t1->chasers[1]->position.x, t1->chasers[1]->position.y, t1->chasers[2]->position.x,
             t1->chasers[2]->position.y, t1->beaters[0]->position.x, t1->beaters[0]->position.y,

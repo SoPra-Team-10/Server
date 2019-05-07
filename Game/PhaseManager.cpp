@@ -15,8 +15,14 @@ namespace gameHandling{
             throw std::runtime_error("Player phase is over");
         }
 
-        auto nextPlayer = getNextPlayer().value();
-        return {nextPlayer->id, getNextPlayerAction(nextPlayer, env), env->config.timeouts.playerTurn};
+        if(currentTurnFinished){
+            currentPlayer = getNextPlayer().value();
+            currentTurnFinished = false;
+        }
+
+        auto action = getNextPlayerAction(currentPlayer, env);
+        currentTurnFinished = action.second;
+        return {currentPlayer->id, action.first, env->config.timeouts.playerTurn};
     }
 
     auto PhaseManager::nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
@@ -45,11 +51,11 @@ namespace gameHandling{
     }
 
     bool PhaseManager::hasNextPlayer() const{
-        return teamLeft.hasConciousPlayer() && teamRight.hasConciousPlayer();
+        return !currentTurnFinished || teamLeft.hasConciousPlayer() || teamRight.hasConciousPlayer();
     }
 
     bool PhaseManager::hasNextInterference() const {
-        return teamLeft.hasInterference() && teamRight.hasInterference();
+        return teamLeft.hasInterference() || teamRight.hasInterference();
     }
 
     void PhaseManager::resetPlayers() {
@@ -57,12 +63,13 @@ namespace gameHandling{
         teamRight.resetPlayers();
         teamLeft.resetPlayers();
         chooseTeam(currentSidePlayers);
+        currentTurnFinished = true;
     }
 
     void PhaseManager::resetInterferences() {
         oneTeamEmptyInters = false;
-        teamRight.resteInterferences();
-        teamLeft.resteInterferences();
+        teamRight.resetInterferences();
+        teamLeft.resetInterferences();
         chooseTeam(currentSideInter);
     }
 
@@ -72,26 +79,56 @@ namespace gameHandling{
     }
 
     auto PhaseManager::getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player,
-                                          const std::shared_ptr<const gameModel::Environment> &env) const -> communication::messages::types::TurnType {
+                                          const std::shared_ptr<const gameModel::Environment> &env) const -> std::pair<communication::messages::types::TurnType, bool> {
         using TurnType = communication::messages::types::TurnType;
         static TurnType turnState = TurnType::MOVE;
         static bool extraMove = false;
 
+        //Mothod does not handel knocked out state
+        if(player->knockedOut){
+            throw std::runtime_error("Player is knocked out! No action possible!");
+        }
+
+        //If player is banned -> turn = remove ban
+        if(player->isFined){
+            extraMove = false;
+            turnState = TurnType::MOVE;
+            return {TurnType::REMOVE_BAN, true};
+        }
+
         if(turnState == TurnType::MOVE && !extraMove){
+            //First move of player
             if(gameController::actionTriggered(env->config.getExtraTurnProb(player->broom))){
+                //turn = move, turn not finished
                 extraMove = true;
+                return {TurnType::MOVE, false};
             } else {
-                turnState = TurnType::ACTION;
+                //no extra turn, turn = move
+                if(gameController::playerCanShoot(player, env)){
+                    //turn not finished, action in next turn
+                    turnState = TurnType::ACTION;
+                    return {TurnType::MOVE, false};
+                } else {
+                    //no action possible, end of turn
+                    return {TurnType::MOVE, true};
+                }
             }
 
-            return TurnType::MOVE;
         } else if(turnState == TurnType::MOVE){
+            //extra move turn
             extraMove = false;
-            turnState = TurnType::ACTION;
-            return TurnType::MOVE;
+            if(gameController::playerCanShoot(player, env)){
+                //player can make action -> turn not finished
+                turnState = TurnType::ACTION;
+                return {TurnType::MOVE, false};
+            } else {
+                //No action possible, end of turn
+                return {TurnType::MOVE, true};
+            }
         } else if(turnState == TurnType::ACTION){
+            //turn = action, end of turn, start anew
             turnState = TurnType::MOVE;
-            return TurnType::ACTION;
+            return {TurnType::ACTION, true};
         }
 
         throw std::runtime_error("Fatal error, possible memory corruption");

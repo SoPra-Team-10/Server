@@ -7,7 +7,7 @@
 namespace gameHandling{
     MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), fanblock(team->fanblock), side(side){
         resetPlayers();
-        resteInterferences();
+        resetInterferences();
     }
 
     auto MemberSelector::getNextPlayer() -> std::shared_ptr<gameModel::Player> {
@@ -66,7 +66,7 @@ namespace gameHandling{
         }
     }
 
-    void MemberSelector::resteInterferences() {
+    void MemberSelector::resetInterferences() {
         using Id = gameModel::InterferenceType;
         interferencesLeft = {{Id::Teleport, 0}, {Id::RangedAttack, 0}, {Id::Impulse, 0}, {Id::SnitchPush, 0}};
         for(auto it = interferencesLeft.begin(); it < interferencesLeft.end();){
