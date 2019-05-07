@@ -43,14 +43,13 @@ set -e
 mkdir code_docs
 cd code_docs
 
-# Copy the README
-rm README.md
-cp ${TRAVIS_BUILD_DIR}/README.md .
-
-
 # Get the current gh-pages branch
 git clone -b gh-pages https://git@$GH_REPO_REF
 cd $GH_REPO_NAME
+
+# Copy the README
+rm README.md
+cp ${TRAVIS_BUILD_DIR}/README.md .
 
 ##### Configure git.
 # Set the push default to simple i.e. push only the current branch.
