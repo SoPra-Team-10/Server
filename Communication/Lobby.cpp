@@ -310,7 +310,7 @@ namespace communication {
 
         auto snapshot = game->getSnapshot();
         this->sendAll(snapshot);
-        auto next = game->getNextActor();
+        auto next = game->getNextAction();
         lastNext = next;
         this->sendAll(next);
         if (next.getEntityId() == messages::types::EntityId::SNITCH
