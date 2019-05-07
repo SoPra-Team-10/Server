@@ -66,17 +66,6 @@ namespace util {
                 }
             }
         });
-        /*thread = std::thread([=]() {
-            std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
-            if (stopRequired) {
-                return;
-            } else if (!paused) {
-                if (--steps <= 0) {
-                    function();
-                    return;
-                }
-            }
-        });*/
     }
 }
 

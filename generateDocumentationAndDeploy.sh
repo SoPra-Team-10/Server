@@ -79,6 +79,10 @@ fi
 # to NO, which it is by default. So creating the file just in case.
 echo "" > .nojekyll
 
+# Copy the README
+rm README.md
+cp ${TRAVIS_BUILD_DIR}/README.md .
+
 ################################################################################
 ##### Generate the Doxygen code documentation and log the output.          #####
 echo 'Generating Doxygen code documentation...'
