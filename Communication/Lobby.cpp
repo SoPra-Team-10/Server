@@ -199,7 +199,7 @@ namespace communication {
                         snapshot = game->getSnapshot();
                         snapshot.setSpectators(getSpectators());
                         sendAll(snapshot);
-                        next = game->getNextActor();
+                        next = game->getNextAction();
                         lastNext = next;
                         sendAll(next);
                         replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
