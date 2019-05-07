@@ -73,7 +73,9 @@ namespace communication {
         auto cit = clientMapping.find(id);
         if (cit != clientMapping.end()) {
             auto name = cit->second->getName();
-            if(cit->second->onLeave(id)) {
+            auto [lobbyEmpty, userName] = cit->second->onLeave(id);
+            userNameMapping.erase(userName);
+            if(lobbyEmpty) {
                 auto lit = lobbyMapping.find(name);
                 if (lit != lobbyMapping.end()) {
                     lobbyMapping.erase(lit);
@@ -83,8 +85,9 @@ namespace communication {
     }
 
     void Communicator::removeClient(int id) {
-        if (clientMapping.find(id) != clientMapping.end()) {
-            clientMapping.erase(clientMapping.find(id));
+        auto cmIt = clientMapping.find(id);
+        if (cmIt != clientMapping.end()) {
+            clientMapping.erase(cmIt);
         }
     }
 
