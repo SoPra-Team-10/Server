@@ -7,10 +7,11 @@
 
 
 #include <thread>
+#include <future>
 #include <atomic>
 #include <cmath>
 
-#define RESOLUTION 100
+#define RESOLUTION 10
 
 namespace util {
     class Timer {
@@ -37,10 +38,12 @@ namespace util {
          */
         void stop();
 
+        ~Timer();
     private:
         std::atomic_bool paused{false};
         std::atomic_bool stopRequired{false};
         int steps = 0;
+        std::future<void> threadHandler;
     };
 
     template<typename Function>
@@ -52,7 +55,7 @@ namespace util {
         stopRequired = false;
         paused = false;
         steps = static_cast<int>(std::ceil(delay * (1000.0 / RESOLUTION)));
-        std::thread t([=]() {
+        threadHandler = std::async(std::launch::async, [=](){
             std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
             if (stopRequired) {
                 return;
@@ -63,7 +66,17 @@ namespace util {
                 }
             }
         });
-        t.detach();
+        /*thread = std::thread([=]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
+            if (stopRequired) {
+                return;
+            } else if (!paused) {
+                if (--steps <= 0) {
+                    function();
+                    return;
+                }
+            }
+        });*/
     }
 }
 

@@ -16,4 +16,11 @@ namespace util {
     void Timer::stop() {
         stopRequired = true;
     }
+
+    Timer::~Timer() {
+        if (threadHandler.valid()) {
+            this->stop();
+            this->threadHandler.wait();
+        }
+    }
 }

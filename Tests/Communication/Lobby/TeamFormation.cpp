@@ -11,6 +11,8 @@ TEST(CommunicationLobby, DoubleTeamFormationA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -18,7 +20,7 @@ TEST(CommunicationLobby, DoubleTeamFormationA) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message teamFormation{request::TeamFormation{}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
@@ -35,7 +37,7 @@ TEST(CommunicationLobby, DoubleTeamFormationA) {
     EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
@@ -49,6 +51,8 @@ TEST(CommunicationLobby, DoubleTeamFormationB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -56,7 +60,7 @@ TEST(CommunicationLobby, DoubleTeamFormationB) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message teamFormation{request::TeamFormation{}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
@@ -73,7 +77,7 @@ TEST(CommunicationLobby, DoubleTeamFormationB) {
     EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));

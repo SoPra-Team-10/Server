@@ -10,6 +10,8 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationA) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", "", true}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -17,7 +19,7 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationA) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message deltaRequest{request::DeltaRequest{}};
 
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
@@ -37,7 +39,8 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationA) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
@@ -50,6 +53,8 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationB) {
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
 
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     Message joinRequestA{request::JoinRequest{"lobby", "a", "", true}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
     Message joinResponse{unicast::JoinResponse{"Welcome to the Lobby"}};
@@ -57,7 +62,7 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationB) {
     Message loginGreetingB{broadcast::LoginGreeting{"b"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message deltaRequest{request::DeltaRequest{}};
 
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
@@ -77,7 +82,7 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationB) {
     EXPECT_CALL(messageHandler, send(matchFinish, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish, 2)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(teamConfigs, 1));
