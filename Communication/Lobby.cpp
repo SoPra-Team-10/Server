@@ -387,6 +387,19 @@ namespace communication {
         return getUserInLobby() <= 0;
     }
 
+    void Lobby::onFatalError() {
+        for (const auto &c : clients) {
+            sendWarn("None", "Internal Server error resetting game!", c.first);
+        }
+        state = LobbyState::GAME;
+        game.reset();
+        teamConfigs.first.reset();
+        teamConfigs.second.reset();
+        teamFormations.first.reset();
+        teamFormations.second.reset();
+        players.first.reset();
+        players.second.reset();
+    }
 
     void Lobby::sendAll(const messages::Payload &payload) {
         for (const auto &c : clients) {
@@ -433,5 +446,6 @@ namespace communication {
     auto Lobby::getName() const -> std::string {
         return name;
     }
+
 
 }
