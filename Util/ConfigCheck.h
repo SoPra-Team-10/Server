@@ -5,6 +5,9 @@
 #ifndef SERVER_CONFIGCHECK_H
 #define SERVER_CONFIGCHECK_H
 
+#include <Game/GameTypes.h>
+#include <SopraMessages/TeamFormation.hpp>
+
 namespace configCheck {
 
     static bool checkTeamConfig(const communication::messages::request::TeamConfig &config, const gameHandling::TeamSide &side);
