@@ -167,13 +167,33 @@ namespace communication {
                             std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
-                    //@TODO Fatal listener here
                     game->fatalErrorListener(std::bind(&Lobby::onFatalError, this, std::placeholders::_1));
                     auto snapshot = game->getSnapshot();
                     snapshot.setSpectators(getSpectators());
                     this->sendAll(snapshot);
                     replay.first.setFirstSnapshot(snapshot);
                     replay.second.setFirstSnapshot(snapshot);
+                    auto next = game->getNextAction();
+                    lastNext = next;
+                    this->sendAll(next);
+                    replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                    replay.second.addLog(communication::messages::Message{snapshot});
+                    replay.second.addLog(communication::messages::Message{next});
+                    while (next.getEntityId() == messages::types::EntityId::SNITCH
+                           || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                           || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                           || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        game->executeBallDelta(next.getEntityId());
+                        snapshot = game->getSnapshot();
+                        snapshot.setSpectators(getSpectators());
+                        sendAll(snapshot);
+                        next = game->getNextAction();
+                        lastNext = next;
+                        sendAll(next);
+                        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
+                        replay.second.addLog(communication::messages::Message{snapshot});
+                        replay.second.addLog(communication::messages::Message{next});
+                    }
                 }
             } else {
                 this->kickUser(id);
@@ -351,7 +371,10 @@ namespace communication {
         } else {
             winnerId = players.second.value();
         }
-        std::string winner = clients.at(winnerId).userName;
+        std::string winner;
+        if (clients.find(winnerId) != clients.end()) {
+            winner = clients.at(winnerId).userName;
+        }
 
         messages::broadcast::MatchFinish matchFinish;
         if (game) {
@@ -460,7 +483,7 @@ namespace communication {
             this->sendSingle(communication::messages::mods::unicast::PrivateError{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
-            sstream << "Error in " << payloadReason << ":\t" << msg;
+            sstream << "Error in " << payloadReason << ":" << msg;
             this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
         }
     }
@@ -470,7 +493,7 @@ namespace communication {
             this->sendSingle(communication::messages::mods::unicast::PrivateWarning{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
-            sstream << "Warning in " << payloadReason << ":\t" << msg;
+            sstream << "Warning in " << payloadReason << ":" << msg;
             this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
         }
     }
