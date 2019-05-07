@@ -43,6 +43,7 @@ namespace communication {
          */
         void removeClient(int id);
     protected:
+        void onConnection(int id);
         void receive(messages::Message message, int client);
         void closeEvent(int id);
         void sendLobbyModMessage(int id);

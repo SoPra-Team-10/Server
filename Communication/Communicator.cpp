@@ -12,10 +12,16 @@ namespace communication {
     Communicator::Communicator(MessageHandler &messageHandler, util::Logging &log,
                                const messages::broadcast::MatchConfig &matchConfig)
                                : messageHandler{messageHandler}, matchConfig{matchConfig}, log{log} {
+        messageHandler.onConnect(
+                std::bind(&Communicator::onConnection, this, std::placeholders::_1));
         messageHandler.onReceive(
                 std::bind(&Communicator::receive, this, std::placeholders::_1, std::placeholders::_2));
         messageHandler.onClose(
                 std::bind(&Communicator::closeEvent, this, std::placeholders::_1));
+    }
+
+    void Communicator::onConnection(int id) {
+        sendLobbyModMessage(id);
     }
 
     void Communicator::receive(messages::Message message, int client) {

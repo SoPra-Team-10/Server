@@ -116,7 +116,7 @@ namespace gameHandling{
             ball = environment->snitch;
             oldX = ball->position.x;
             oldY = ball->position.y;
-            //@TODO actual move the snitch
+            //@TODO actually move the snitch
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
         }

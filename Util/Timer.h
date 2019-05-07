@@ -32,8 +32,14 @@ namespace util {
          */
         void resume();
 
+        /**
+         * Stops the timer without calling the event
+         */
+        void stop();
+
     private:
         std::atomic_bool paused{false};
+        std::atomic_bool stopRequired{false};
         int steps = 0;
     };
 
@@ -43,10 +49,14 @@ namespace util {
         if (steps > 0) {
             throw std::runtime_error{"A timer can only manage a single event!"};
         }
+        stopRequired = false;
+        paused = false;
         steps = static_cast<int>(std::ceil(delay * (1000.0 / RESOLUTION)));
         std::thread t([=]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
-            if (!paused) {
+            if (stopRequired) {
+                return;
+            } else if (!paused) {
                 if (--steps <= 0) {
                     function();
                     return;

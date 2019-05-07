@@ -12,4 +12,8 @@ namespace util {
     void Timer::resume() {
         paused = false;
     }
+
+    void Timer::stop() {
+        stopRequired = true;
+    }
 }

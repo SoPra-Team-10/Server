@@ -102,6 +102,7 @@ namespace communication {
         template <typename T>
         void onPayload(const T &, int id);
 
+        void onTeamFormationTimeout();
         void onTimeout(gameHandling::TeamSide teamSide);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
 
