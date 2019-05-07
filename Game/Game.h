@@ -32,6 +32,7 @@ namespace gameHandling{
 
         const util::Listener<TeamSide> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
+        const util::Listener<const char*> fatalErrorListener;
 
         /**
          * Pauses the games timers
@@ -49,7 +50,7 @@ namespace gameHandling{
          */
         auto getNextAction() -> communication::messages::broadcast::Next;
 
-        bool executeDelta(communication::messages::request::DeltaRequest);
+        bool executeDelta(communication::messages::request::DeltaRequest command);
 
         auto executeBallDelta(communication::messages::types::EntityId entityId)
                 -> communication::messages::request::DeltaRequest;

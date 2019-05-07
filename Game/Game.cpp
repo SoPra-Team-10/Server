@@ -76,7 +76,53 @@ namespace gameHandling{
         }
     }
 
-    bool Game::executeDelta(communication::messages::request::DeltaRequest) {
+    bool Game::executeDelta(communication::messages::request::DeltaRequest command) {
+        switch (command.getDeltaType()){
+
+            case communication::messages::types::DeltaType::SNITCH_CATCH:
+                return false;
+            case communication::messages::types::DeltaType::BLUDGER_BEATING:break;
+            case communication::messages::types::DeltaType::QUAFFLE_THROW:
+                if(command.getPassiveEntity().has_value() && command.getActiveEntity().has_value() &&
+                    command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
+                    command.getXPosOld().has_value() && command.getYPosOld().has_value()){
+                    auto player = environment->getPlayerById(command.getActiveEntity().value());
+                    if(!gameController::playerCanShoot(player, environment)){
+                        return false;
+                    }
+
+                    gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                    gameController::Shot qThrow(environment, player, environment->quaffle, target);
+                    if(qThrow.check() == gameController::ActionCheckResult::Impossible){
+                        return false;
+                    }
+
+                    try {
+                        qThrow.execute();
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(e.what());
+                        return false;
+                    }
+
+                    return true;
+
+                } else{
+                    return false;
+                }
+            case communication::messages::types::DeltaType::SNITCH_SNATCH:break;
+            case communication::messages::types::DeltaType::TROLL_ROAR:break;
+            case communication::messages::types::DeltaType::ELF_TELEPORTATION:break;
+            case communication::messages::types::DeltaType::GOBLIN_SHOCK:break;
+            case communication::messages::types::DeltaType::BAN:break;
+            case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:break;
+            case communication::messages::types::DeltaType::MOVE:break;
+            case communication::messages::types::DeltaType::PHASE_CHANGE:break;
+            case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:break;
+            case communication::messages::types::DeltaType::ROUND_CHANGE:break;
+            case communication::messages::types::DeltaType::SKIP:
+                return true;
+            case communication::messages::types::DeltaType::UNBAN:break;
+        }
         return false;
     }
 
