@@ -67,7 +67,6 @@ namespace gameHandling{
 
     private:
         std::shared_ptr<const gameModel::Team> team;
-        //const gameModel::Fanblock fanblock;
         const TeamSide side;
         std::deque<std::shared_ptr<gameModel::Player>> playersLeft;
         std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft;

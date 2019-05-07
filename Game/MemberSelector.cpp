@@ -5,7 +5,7 @@
 #include "MemberSelector.h"
 #include <SopraGameLogic/GameController.h>
 namespace gameHandling{
-    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), fanblock(team->fanblock), side(side){
+    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), side(side){
         resetPlayers();
         resetInterferences();
     }

@@ -267,8 +267,8 @@ namespace gameHandling{
             snitchX = environment->snitch->position.x;
             snitchY = environment->snitch->position.y;
         }
-        return {lastDelta, roundState, {}, getRound(), teamToTeamSnapshot(environment->team1),
-                teamToTeamSnapshot(environment->team2), snitchX, snitchY, environment->quaffle->position.x,
+        return {lastDelta, roundState, {}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
+                teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x,
                 environment->bludgers[0]->position.y, environment->bludgers[1]->position.x,
                 environment->bludgers[1]->position.y};
@@ -286,7 +286,7 @@ namespace gameHandling{
                 std::shared_ptr<gameModel::Bludger> bludger = std::dynamic_pointer_cast<gameModel::Bludger>(ball);
 
                 if(!bludger){
-                    fatalErrorListener("We done fucked it up!");
+                    fatalErrorListener(std::string{"We done fucked it up!"});
                 }
 
                 oldX = bludger->position.x;
@@ -303,7 +303,7 @@ namespace gameHandling{
                                  {}, roundState, {}, {}, {}, {}};
                 }
             } catch (std::runtime_error &e){
-                fatalErrorListener(e.what());
+                fatalErrorListener(std::string{e.what()});
             }
 
         } else if (entityId == communication::messages::types::EntityId::SNITCH) {
@@ -312,7 +312,7 @@ namespace gameHandling{
             oldY = ball->position.y;
             auto snitch = std::dynamic_pointer_cast<gameModel::Snitch>(ball);
             if(!snitch){
-                fatalErrorListener("We done fucked it up!");
+                fatalErrorListener(std::string{"We done fucked it up!"});
             }
 
             gameController::moveSnitch(snitch, environment);
@@ -338,24 +338,23 @@ namespace gameHandling{
     auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
         -> communication::messages::broadcast::TeamSnapshot {
         using FType = communication::messages::types::FanType;
-        using Id = communication::messages::types::EntityId;
         std::vector<communication::messages::broadcast::Fan> fans;
         fans.reserve(7);
 
         auto makeFans = [this, &fans, &team, &side](FType type){
             for(int i = 0; i < team->fanblock.getBannedCount(type); i++){
-                fans.emplace_back(type, true, false);
+                fans.emplace_back(communication::messages::broadcast::Fan{type, true, false});
             }
 
             int used = side == TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
                     phaseManager.interferencesUsedRight(type);
             int left = team->fanblock.getUses(type) - used;
             for(int i = 0; i < used; i++){
-                fans.emplace_back(type, false, true);
+                fans.emplace_back(communication::messages::broadcast::Fan{type, false, true});
             }
 
             for(int i = 0; i < left; i++){
-                fans.emplace_back(team, false, false);
+                fans.emplace_back(communication::messages::broadcast::Fan{type, false, false});
             }
         };
 
@@ -365,11 +364,11 @@ namespace gameHandling{
             makeFans(FType::ELF);
             makeFans(FType::GOBLIN);
         } catch (std::runtime_error &e){
-            fatalErrorListener(e.what());
+            fatalErrorListener(std::string{e.what()});
         }
 
         if(fans.size() != 7){
-            fatalErrorListener("Fanblock corrupt");
+            fatalErrorListener(std::string{"Fanblock corrupt"});
         }
 
         communication::messages::broadcast::TeamSnapshot ret;
@@ -443,7 +442,7 @@ namespace gameHandling{
                 };
             }
         } catch (std::runtime_error &e){
-            fatalErrorListener(e.what());
+            fatalErrorListener(std::string{e.what()});
         }
 
         return ret;
