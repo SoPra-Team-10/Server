@@ -7,7 +7,7 @@
 
 #include <SopraMessages/types.hpp>
 
-namespace gameHandling{
+namespace gameHandling {
     enum class GameState {
         BallPhase,
         PlayerPhase,
