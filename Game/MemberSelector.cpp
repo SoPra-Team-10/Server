@@ -109,7 +109,7 @@ namespace gameHandling{
     int MemberSelector::usedInterferences(communication::messages::types::FanType type) const {
         int initial = team->fanblock.getUses(type) + team->fanblock.getBannedCount(type);
         if(initial == 0){
-            throw std::runtime_error("Team does not have that type of fan");
+            return 0;
         }
 
         for(const auto& fan : interferencesLeft){

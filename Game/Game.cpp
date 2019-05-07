@@ -113,9 +113,8 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::QUAFFLE_THROW:{
-                if(command.getPassiveEntity().has_value() && command.getActiveEntity().has_value() &&
-                   command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
-                   command.getXPosOld().has_value() && command.getYPosOld().has_value()){
+                if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
+                command.getYPosNew().has_value()){
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         if(!gameController::playerCanShoot(player, environment)){
