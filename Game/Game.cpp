@@ -251,11 +251,11 @@ namespace gameHandling{
     }
 
     auto Game::getLeftPoints() const -> int {
-        return 0;
+        return environment->team1->score;
     }
 
     auto Game::getRightPoints() const -> int {
-        return 0;
+        return environment->team2->score;
     }
 
     auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
