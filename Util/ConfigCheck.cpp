@@ -6,7 +6,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <SopraMessages/types.hpp>
 
-namespace confconfigCheck {
+namespace configCheck {
     bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
                                          const gameHandling::TeamSide &side) {
         gameModel::Team team = {{"", "", "", "", "", 1,1,1,4,{},{},{},{},{},{},{}}, formation, true};
