@@ -244,6 +244,7 @@ namespace communication {
                     pauseRequest.getMessage(), this->clients.at(id).userName, true};
             this->sendAll(pauseResponse);
             log.info("Pause");
+            game->pause();
             state = LobbyState::PAUSE;
         } else {
             sendError(messages::request::PauseRequest::getName(),
@@ -260,6 +261,7 @@ namespace communication {
                     continueRequest.getMessage(), this->clients.at(id).userName, false};
             this->sendAll(pauseResponse);
             log.info("Continue");
+            game->resume();
             state = LobbyState::GAME;
         } else {
             sendError(messages::request::ContinueRequest::getName(),
