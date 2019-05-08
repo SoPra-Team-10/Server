@@ -71,8 +71,6 @@ namespace gameHandling{
         std::deque<std::shared_ptr<gameModel::Player>> playersLeft;
         std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft;
 
-        auto interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId;
-
         template <typename T>
         auto selectRandom(std::deque<T> &list) const -> typename std::deque<T>::iterator;
     };

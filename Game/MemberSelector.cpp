@@ -4,6 +4,7 @@
 
 #include "MemberSelector.h"
 #include <SopraGameLogic/GameController.h>
+#include "conversions.h"
 namespace gameHandling{
     MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), side(side){
         resetPlayers();
@@ -32,23 +33,7 @@ namespace gameHandling{
             interferencesLeft.erase(pos);
         }
 
-        return interferenceToID(ret);
-    }
-
-    auto MemberSelector::interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId {
-        using Id = communication::messages::types::EntityId;
-        switch(type){
-            case gameModel::InterferenceType::RangedAttack:
-                return side == TeamSide::LEFT ? Id::LEFT_GOBLIN : Id::RIGHT_GOBLIN;
-            case gameModel::InterferenceType::Teleport:
-                return side == TeamSide::LEFT ? Id::LEFT_ELF : Id::RIGHT_ELF;
-            case gameModel::InterferenceType::Impulse:
-                return side == TeamSide::LEFT ? Id::LEFT_TROLL : Id::RIGHT_TROLL;
-            case gameModel::InterferenceType::SnitchPush:
-                return side == TeamSide::LEFT ? Id::LEFT_NIFFLER : Id::RIGHT_NIFFLER;
-        }
-
-        throw std::runtime_error("Fatal error! Enum out of bounds");
+        return conversions::interfernceToId(ret, side);
     }
 
     bool MemberSelector::hasPlayers() const {
