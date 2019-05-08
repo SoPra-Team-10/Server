@@ -247,7 +247,7 @@ namespace gameHandling{
     }
 
     auto Game::getRound() const -> int {
-        return 0;
+        return roundNumber;
     }
 
     auto Game::getLeftPoints() const -> int {
