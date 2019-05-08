@@ -402,7 +402,7 @@ namespace communication {
         }
 
         std::stringstream sstreamSnapshot;
-        sstream << this->name << "_replaySnapshot.json";
+        sstreamSnapshot << this->name << "_replaySnapshot.json";
         auto fnameSnapshot = sstreamSnapshot.str();
         std::ofstream ofstreamSnapshot{fnameSnapshot};
         if (ofstreamSnapshot.good()) {
@@ -418,10 +418,12 @@ namespace communication {
             if (id == players.first) {
                 if (players.second.has_value()) {
                     onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    players.second.reset();
                 }
             } else {
                 if (players.first.has_value()) {
                     onWin(gameHandling::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    players.first.reset();
                 }
             }
         }
