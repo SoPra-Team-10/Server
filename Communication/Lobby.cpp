@@ -357,7 +357,7 @@ namespace communication {
         }
 
         messages::broadcast::MatchFinish matchFinish;
-        if (game) {
+        if (game.has_value()) {
             matchFinish = {game->getRound(),
                            game->getLeftPoints(),
                            game->getRightPoints(), winner, victoryReason};
@@ -376,7 +376,7 @@ namespace communication {
         std::ofstream ofstream{fname};
         if (ofstream.good()) {
             nlohmann::json j = this->replay.first;
-            ofstream << j.dump();
+            ofstream << j.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
@@ -387,7 +387,7 @@ namespace communication {
         std::ofstream ofstreamSnapshot{fnameSnapshot};
         if (ofstreamSnapshot.good()) {
             nlohmann::json jSnapshot = this->replay.second;
-            ofstreamSnapshot << jSnapshot.dump();
+            ofstreamSnapshot << jSnapshot.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
@@ -435,7 +435,7 @@ namespace communication {
     }
 
     void Lobby::sendSingle(const messages::Payload &payload, int id) {
-        if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
+        /*if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
             auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
             int offset = 0;
             switch (snapshot.getPhase()) {
@@ -453,7 +453,8 @@ namespace communication {
             animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
         } else {
             animationQueue.add(payload, {id});
-        }
+        }*/
+        communicator.send(messages::Message{payload}, id);
     }
 
     void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {
