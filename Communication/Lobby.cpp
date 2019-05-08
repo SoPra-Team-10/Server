@@ -409,7 +409,7 @@ namespace communication {
         }
         auto userName = clients.find(id)->second.userName;
         clients.erase(clients.find(id));
-        communicator.removeClient(id);
+        communicator.removeClient(id, userName);
         log.info("User left");
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
