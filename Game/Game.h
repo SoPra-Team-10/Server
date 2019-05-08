@@ -48,6 +48,12 @@ namespace gameHandling{
          */
         auto getNextAction() -> communication::messages::broadcast::Next;
 
+        /**
+         * Executess the requested command if compliant with the game rules
+         * @param command Command to be executed
+         * @param teamSide Side which executes the command
+         * @return true if successful, false if rule violation
+         */
         bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
         void executeBallDelta(communication::messages::types::EntityId entityId);

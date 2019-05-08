@@ -100,6 +100,11 @@ namespace gameHandling{
             case communication::messages::types::DeltaType::BLUDGER_BEATING:{
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
+                    if(!conversions::isPlayer(command.getActiveEntity().value())  ||
+                       !conversions::isBall(command.getPassiveEntity().value())){
+                        return false;
+                    }
+
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         if(!gameController::playerCanShoot(player, environment)){
@@ -175,6 +180,10 @@ namespace gameHandling{
             case communication::messages::types::DeltaType::QUAFFLE_THROW:{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                 command.getYPosNew().has_value()){
+                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        return false;
+                    }
+
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         if(!gameController::playerCanShoot(player, environment)){
@@ -313,6 +322,10 @@ namespace gameHandling{
             }
             case communication::messages::types::DeltaType::ELF_TELEPORTATION:{
                 if(command.getPassiveEntity().has_value()){
+                    if(!conversions::isPlayer(command.getPassiveEntity().value())){
+                        return false;
+                    }
+
                     try{
                         auto &team = getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
@@ -344,6 +357,10 @@ namespace gameHandling{
             }
             case communication::messages::types::DeltaType::GOBLIN_SHOCK:
                 if(command.getPassiveEntity().has_value()){
+                    if(!conversions::isPlayer(command.getPassiveEntity().value())){
+                        return false;
+                    }
+
                     try{
                         auto &team = getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
@@ -387,6 +404,10 @@ namespace gameHandling{
             case communication::messages::types::DeltaType::MOVE:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
+                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        return false;
+                    }
+
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         auto oldX = player->position.x;
@@ -459,9 +480,44 @@ namespace gameHandling{
             case communication::messages::types::DeltaType::ROUND_CHANGE:
                 return false;
             case communication::messages::types::DeltaType::SKIP:
+                if(command.getActiveEntity().has_value()){
+                    lastDeltas.push({DeltaType::SKIP, {}, {}, {}, {}, {}, command.getActiveEntity().value(),
+                                     {}, {}, {}, {}, {}, {}});
+                    return true;
+                } else {
+                    return false;
+                }
                 return true;
             case communication::messages::types::DeltaType::UNBAN:
-                return false;
+                if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
+                    command.getYPosNew().has_value()){
+                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        return false;
+                    }
+
+                    try {
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        if(!player->isFined){
+                            return false;
+                        }
+
+                        gameModel::Position target{command.getXPosNew().value(), command.getYPosNew().value()};
+                        if(!environment->cellIsFree(target)){
+                            return false;
+                        }
+
+                        player->position = target;
+                        player->isFined = false;
+                        lastDeltas.push({DeltaType::UNBAN, {}, {}, {}, target.x, target.y, player->id, {}, {}, {}, {}, {}, {}});
+                        return true;
+                    } catch (std::runtime_error &e) {
+                        fatalErrorListener(std::string(e.what()));
+                        return false;
+                    }
+
+                } else {
+                    return false;
+                }
             default:
                 fatalErrorListener(std::string("Fatal error, DeltaType out of range! Possible memory corruption!"));
                 return false;
