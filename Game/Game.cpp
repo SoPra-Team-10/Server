@@ -17,8 +17,9 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
             phaseManager(environment->team1, environment->team2), lastDeltas(){
-        lastDeltas.push({communication::messages::types::DeltaType::ROUND_CHANGE,
-                    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 0, {}});
+        lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE,
+                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                    std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -85,8 +86,8 @@ namespace gameHandling{
 
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
-                lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {}, player->id, {}, {}, {}, {},
-                                 conversions::foulToBanReason(foul)});
+                lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                        player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
             }
         };
 
@@ -140,9 +141,9 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::Knockout:
-                                    lastDeltas.push({DeltaType::BLUDGER_KNOCKOUT, true, player->position.x, player->position.y,
+                                    lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, player->position.x, player->position.y,
                                                      bludger->position.x, bludger->position.y, bludger->id, player->id,
-                                                     {}, {}, {}, {}, {}});
+                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::SnitchCatch:
                                     fatalErrorListener(std::string{"Unexpected action result"});
@@ -151,9 +152,10 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::FoolAway:
-                                    lastDeltas.push({DeltaType::FOOL_AWAY, {}, player->position.x, player->position.y,
+                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, player->position.x, player->position.y,
                                                      environment->quaffle->position.x, environment->quaffle->position.y,
-                                                     environment->quaffle->id, player->id, {}, {}, {}, {}, {}});
+                                                     environment->quaffle->id, player->id, std::nullopt, std::nullopt,
+                                                     std::nullopt, std::nullopt, std::nullopt);
                                     break;
                                 default:
                                     fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
@@ -162,12 +164,13 @@ namespace gameHandling{
 
                         //Failed Knockout
                         if(res.first.empty() && bludger->position == player->position){
-                            lastDeltas.push({DeltaType::BLUDGER_KNOCKOUT, false, player->position.x, player->position.y,
-                                             {}, {}, bludger->id, player->id, {}, {}, {}, {}, {}});
+                            lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, false, player->position.x, player->position.y,
+                                             std::nullopt, std::nullopt, bludger->id, player->id, std::nullopt, std::nullopt,
+                                             std::nullopt, std::nullopt, std::nullopt);
                         }
 
-                        lastDeltas.push({DeltaType::BLUDGER_BEATING, {}, oldX, oldY, bludger->position.x, bludger->position.y, player->id, bludger->id,
-                                     {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::BLUDGER_BEATING, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y,
+                                player->id, bludger->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -218,12 +221,14 @@ namespace gameHandling{
                                     success = false;
                                     break;
                                 case gameController::ActionResult::ScoreRight:
-                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
-                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                     environment->team2->score, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::ScoreLeft:
-                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
-                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                     environment->team2->score, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::ThrowSuccess:
                                     break;
@@ -244,9 +249,9 @@ namespace gameHandling{
                             }
                         }
 
-                        lastDeltas.push({DeltaType ::QUAFFLE_THROW, success, oldX, oldY, environment->quaffle->position.x,
+                        lastDeltas.emplace(DeltaType ::QUAFFLE_THROW, success, oldX, oldY, environment->quaffle->position.x,
                                          environment->quaffle->position.y, player->id, destPlayerId,
-                                         {}, {}, {}, {}, {}});
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
                     } catch (std::runtime_error &e){
@@ -268,14 +273,14 @@ namespace gameHandling{
                     auto oldX = environment->snitch->position.x;
                     auto oldY = environment->snitch->position.y;
                     if(sPush.execute() == gameController::ActionCheckResult::Foul){
-                        lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::SnitchPush, side),
-                                         {}, {}, {}, {}, BanReason::SNITCH_SNATCH});
+                        lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                         std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::SNITCH_SNATCH);
                     }
 
-                    lastDeltas.push({DeltaType::SNITCH_SNATCH, {}, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
-                                     conversions::interfernceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
-                                     {}, {}, {}, {}, {}});
+                    lastDeltas.emplace(DeltaType::SNITCH_SNATCH, std::nullopt, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
+                                     conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
+                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::runtime_error &e){
                     fatalErrorListener(std::string(e.what()));
@@ -299,21 +304,21 @@ namespace gameHandling{
                     }
 
                     if(impulse.execute() == gameController::ActionCheckResult::Foul){
-                        lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::Impulse, side),
-                                         {}, {}, {}, {}, BanReason::TROLL_ROAR});
+                        lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                         std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt,  BanReason::TROLL_ROAR);
                     }
 
                     auto playerWithQuaffle = environment->getPlayer({oldX, oldY});
                     if(playerWithQuaffle.has_value()){
-                        lastDeltas.push({DeltaType::FOOL_AWAY, {}, oldX, oldY,
-                                         environment->quaffle->position.x, environment->quaffle->position.y,
-                                         environment->quaffle->id, playerWithQuaffle.value()->id, {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldX, oldY, environment->quaffle->position.x,
+                                         environment->quaffle->position.y, environment->quaffle->id, playerWithQuaffle.value()->id,
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     }
 
-                    lastDeltas.push({DeltaType::TROLL_ROAR, {}, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
-                                     conversions::interfernceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
-                                     {}, {}, {}, {}, {}});
+                    lastDeltas.emplace(DeltaType::TROLL_ROAR, std::nullopt, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
+                                     conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
+                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::runtime_error &e){
                     fatalErrorListener(std::string(e.what()));
@@ -337,15 +342,15 @@ namespace gameHandling{
                         }
 
                         if(teleport.execute() == gameController::ActionCheckResult::Foul){
-                         lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::Teleport, side),
-                                         {}, {}, {}, {}, BanReason::ELF_TELEPORTATION});
+                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::ELF_TELEPORTATION);
                         }
 
                         //@TODO was tun, wenn target den quaffle hält?
-                        lastDeltas.push({DeltaType::ELF_TELEPORTATION, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interfernceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
-                                         {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::ELF_TELEPORTATION, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
+                                         conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -374,20 +379,20 @@ namespace gameHandling{
                         }
 
                         if(rAttack.execute() == gameController::ActionCheckResult::Foul){
-                          lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::RangedAttack, side),
-                                         {}, {}, {}, {}, BanReason::GOBLIN_SHOCK});
+                          lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                           conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::GOBLIN_SHOCK);
                         }
 
                         if(gameModel::Position{oldX, oldY} == gameModel::Position{oldXQuaf, oldYQuaf}){
-                            lastDeltas.push({DeltaType::FOOL_AWAY, {}, oldXQuaf, oldYQuaf,
+                            lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
                                          environment->quaffle->position.x, environment->quaffle->position.y,
-                                         environment->quaffle->id, targetPlayer->id, {}, {}, {}, {}, {}});
+                                         environment->quaffle->id, targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         }
 
-                        lastDeltas.push({DeltaType::GOBLIN_SHOCK, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interfernceToId(gameModel::InterferenceType::RangedAttack, side),
-                                         targetPlayer->id, {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::GOBLIN_SHOCK, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
+                                         conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
+                                         targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
                     } catch (std::runtime_error &e){
@@ -430,12 +435,14 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::ScoreRight:
-                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
-                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                     environment->team2->score, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::ScoreLeft:
-                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
-                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                     environment->team2->score, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::ThrowSuccess:
                                     fatalErrorListener(std::string{"Unexpected action result"});
@@ -458,12 +465,13 @@ namespace gameHandling{
                         }
 
                         if(environment->snitch->position == player->position){
-                            lastDeltas.push({DeltaType::SNITCH_CATCH, snitchCought, {}, {}, {}, {}, player->id, {}, {},
-                                             environment->team1->score, environment->team2->score, {}, {}});
+                            lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCought, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                             player->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
+                                             std::nullopt, std::nullopt);
                         }
 
-                        lastDeltas.push({DeltaType::MOVE, {}, oldX, oldY, player->position.x, player->position.y,
-                                         player->id, {}, {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::MOVE, std::nullopt, oldX, oldY, player->position.x, player->position.y,
+                                         player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
                     } catch (std::runtime_error &e) {
@@ -481,8 +489,9 @@ namespace gameHandling{
                 return false;
             case communication::messages::types::DeltaType::SKIP:
                 if(command.getActiveEntity().has_value()){
-                    lastDeltas.push({DeltaType::SKIP, {}, {}, {}, {}, {}, command.getActiveEntity().value(),
-                                     {}, {}, {}, {}, {}, {}});
+                    lastDeltas.emplace(DeltaType::SKIP, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                     command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                     std::nullopt, std::nullopt);
                     return true;
                 } else {
                     return false;
@@ -508,7 +517,8 @@ namespace gameHandling{
 
                         player->position = target;
                         player->isFined = false;
-                        lastDeltas.push({DeltaType::UNBAN, {}, {}, {}, target.x, target.y, player->id, {}, {}, {}, {}, {}, {}});
+                        lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt, target.x, target.y, player->id,
+                                         std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e) {
                         fatalErrorListener(std::string(e.what()));
@@ -547,11 +557,11 @@ namespace gameHandling{
                 snitchY = environment->snitch->position.y;
             }
 
-            ret.push({lastDeltas.front(), roundState, {}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
+            ret.emplace(lastDeltas.front(), roundState, std::nullopt, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
                 teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x,
                 environment->bludgers[0]->position.y, environment->bludgers[1]->position.x,
-                environment->bludgers[1]->position.y});
+                environment->bludgers[1]->position.y);
             lastDeltas.pop();
         }
 
@@ -580,12 +590,12 @@ namespace gameHandling{
                 if(res.has_value()){
                     oldX = res.value()->position.x;
                     oldY = res.value()->position.y;
-                    lastDeltas.push({DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
-                                 bludger->id, res.value()->id, roundState, {}, {}, {}, {}});
+                    lastDeltas.emplace(DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
+                                 bludger->id, res.value()->id, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                 }
 
-                lastDeltas.push({DType::MOVE, {}, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
-                             {}, roundState, {}, {}, {}, {}});
+                lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
+                             std::nullopt, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
             } catch (std::runtime_error &e){
                 fatalErrorListener(std::string{e.what()});
             }
@@ -600,8 +610,8 @@ namespace gameHandling{
             }
 
             gameController::moveSnitch(snitch, environment);
-            lastDeltas.push({DType::MOVE, {}, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
-                         {}, roundState, {}, {}, {}, {}});
+            lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
+                         std::nullopt, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
         }

@@ -22,7 +22,7 @@ TEST(CommunicationLobby, PausRequestAiA) {
             broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:Invalid pause request: either AI or Game not started"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -63,7 +63,7 @@ TEST(CommunicationLobby, PausRequestAiB) {
             broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message pauseRequest{request::PauseRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:Invalid pause request: either AI or Game not started"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -96,7 +96,7 @@ TEST(CommunicationLobby, PauseGameNotStarted) {
     communication::messages::Message joinResponse{communication::messages::unicast::JoinResponse{"Welcome to the Lobby"}};
     communication::messages::Message loginGreeting{communication::messages::broadcast::LoginGreeting{}};
     Message pauseRequest{request::PauseRequest{"p"}};
-    Message error{unicast::PrivateDebug{"Error in pauseRequest:\tInvalid pause request: either AI or Game not started"}};
+    Message error{unicast::PrivateDebug{"Error in pauseRequest:Invalid pause request: either AI or Game not started"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
@@ -126,7 +126,7 @@ TEST(CommunicationLobby, ContinueNotPauseA) {
             broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message continueRequest{request::ContinueRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in continueRequest:\tNot paused!"}};
+    Message error{unicast::PrivateDebug{"Error in continueRequest:Not paused!"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -167,7 +167,7 @@ TEST(CommunicationLobby, ContinueNotPauseB) {
             broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message continueRequest{request::ContinueRequest{"p"}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in continueRequest:\tNot paused!"}};
+    Message error{unicast::PrivateDebug{"Error in continueRequest:Not paused!"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);

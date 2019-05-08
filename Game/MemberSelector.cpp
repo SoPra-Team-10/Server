@@ -33,7 +33,7 @@ namespace gameHandling{
             interferencesLeft.erase(pos);
         }
 
-        return conversions::interfernceToId(ret, side);
+        return conversions::interferenceToId(ret, side);
     }
 
     bool MemberSelector::hasPlayers() const {
