@@ -155,6 +155,7 @@ namespace gameHandling{
                                     break;
                                 default:
                                     fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                                    return false;
                             }
                         }
 
@@ -457,6 +458,7 @@ namespace gameHandling{
                                     return false;
                                 default:
                                     fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                                    return false;
                             }
                         }
 
@@ -492,7 +494,6 @@ namespace gameHandling{
                 } else {
                     return false;
                 }
-                return true;
             case communication::messages::types::DeltaType::UNBAN:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
@@ -521,6 +522,40 @@ namespace gameHandling{
                         return false;
                     }
 
+                } else {
+                    return false;
+                }
+            case communication::messages::types::DeltaType::WREST_QUAFFLE:
+                if(command.getActiveEntity().has_value()){
+                    try{
+                        auto player = std::dynamic_pointer_cast<gameModel::Chaser>(environment->getPlayerById(command.getActiveEntity().value()));
+                        auto targetPlayer = environment->getPlayer(environment->quaffle->position);
+                        if(!player || !targetPlayer.has_value()){
+                            return false;
+                        }
+
+                        gameController::WrestQuaffle wQuaffle(environment, player, environment->quaffle->position);
+                        if(wQuaffle.check() == gameController::ActionCheckResult::Impossible){
+                            return false;
+                        }
+
+                        auto oldX = environment->quaffle->position.x;
+                        auto oldY = environment->quaffle->position.y;
+                        auto res = wQuaffle.execute();
+                        addFouls(res.second, player);
+                        if(res.first.size() > 1){
+                            fatalErrorListener(std::string{"Unexpected action result"});
+                            return false;
+                        }
+
+                        lastDeltas.emplace(DeltaType::WREST_QUAFFLE, !res.first.empty(), oldX, oldY, environment->quaffle->position.x,
+                                environment->quaffle->position.y, player->id, targetPlayer.value()->id, std::nullopt, std::nullopt, std::nullopt,
+                                std::nullopt, std::nullopt);
+                        return true;
+                    } catch(std::runtime_error &e){
+                        fatalErrorListener(std::string{e.what()});
+                        return false;
+                    }
                 } else {
                     return false;
                 }
