@@ -435,7 +435,7 @@ namespace communication {
     }
 
     void Lobby::sendSingle(const messages::Payload &payload, int id) {
-        /*if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
+        if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
             auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
             int offset = 0;
             switch (snapshot.getPhase()) {
@@ -453,8 +453,7 @@ namespace communication {
             animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
         } else {
             animationQueue.add(payload, {id});
-        }*/
-        communicator.send(messages::Message{payload}, id);
+        }
     }
 
     void Lobby::sendSingle(const messages::ReplayPayload &payload, int id) {

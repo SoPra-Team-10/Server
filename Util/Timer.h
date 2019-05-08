@@ -10,8 +10,9 @@
 #include <future>
 #include <atomic>
 #include <cmath>
+#include <iostream>
 
-#define RESOLUTION 10
+#define RESOLUTION 100
 
 namespace util {
     class Timer {
@@ -59,13 +60,16 @@ namespace util {
         paused = false;
         steps = static_cast<int>(std::ceil(delay * (1000.0 / RESOLUTION)));
         threadHandler = std::async(std::launch::async, [=](){
-            std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
-            if (stopRequired) {
-                return;
-            } else if (!paused) {
-                if (--steps <= 0) {
-                    function();
+            while (!stopRequired) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
+                std::cout << steps << std::endl;
+                if (stopRequired) {
                     return;
+                } else if (!paused) {
+                    if (--steps <= 0) {
+                        function();
+                        return;
+                    }
                 }
             }
         });
