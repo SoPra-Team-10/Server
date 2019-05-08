@@ -20,10 +20,12 @@ namespace gameHandling{
     }
 
     void Game::pause() {
+        timer.pause();
         std::cout<<"pause() is called"<<std::endl;
     }
 
     void Game::resume() {
+        timer.resume();
         std::cout<<"resume() is called"<<std::endl;
     }
 
