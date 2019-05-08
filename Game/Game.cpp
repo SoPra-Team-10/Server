@@ -260,12 +260,12 @@ namespace gameHandling{
                     auto oldY = environment->snitch->position.y;
                     if(sPush.execute() == gameController::ActionCheckResult::Foul){
                         lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::SnitchPush, side),
+                                         conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
                                          {}, {}, {}, {}, BanReason::SNITCH_SNATCH});
                     }
 
                     lastDeltas.push({DeltaType::SNITCH_SNATCH, {}, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
-                                     conversions::interfernceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
+                                     conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
                                      {}, {}, {}, {}, {}});
                     return true;
                 } catch (std::runtime_error &e){
@@ -291,7 +291,7 @@ namespace gameHandling{
 
                     if(impulse.execute() == gameController::ActionCheckResult::Foul){
                         lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::Impulse, side),
+                                         conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
                                          {}, {}, {}, {}, BanReason::TROLL_ROAR});
                     }
 
@@ -303,7 +303,7 @@ namespace gameHandling{
                     }
 
                     lastDeltas.push({DeltaType::TROLL_ROAR, {}, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
-                                     conversions::interfernceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
+                                     conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
                                      {}, {}, {}, {}, {}});
                     return true;
                 } catch (std::runtime_error &e){
@@ -325,13 +325,13 @@ namespace gameHandling{
 
                         if(teleport.execute() == gameController::ActionCheckResult::Foul){
                          lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::Teleport, side),
+                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
                                          {}, {}, {}, {}, BanReason::ELF_TELEPORTATION});
                         }
 
                         //@TODO was tun, wenn target den quaffle hält?
                         lastDeltas.push({DeltaType::ELF_TELEPORTATION, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interfernceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
+                                         conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
                                          {}, {}, {}, {}, {}});
                         return true;
                     } catch (std::runtime_error &e){
@@ -358,7 +358,8 @@ namespace gameHandling{
 
                         if(rAttack.execute() == gameController::ActionCheckResult::Foul){
                           lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
-                                         conversions::interfernceToId(gameModel::InterferenceType::RangedAttack, side),
+                                           conversions::interferenceToId(gameModel::InterferenceType::RangedAttack,
+                                                                         side),
                                          {}, {}, {}, {}, BanReason::GOBLIN_SHOCK});
                         }
 
@@ -369,7 +370,7 @@ namespace gameHandling{
                         }
 
                         lastDeltas.push({DeltaType::GOBLIN_SHOCK, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interfernceToId(gameModel::InterferenceType::RangedAttack, side),
+                                         conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
                                          targetPlayer->id, {}, {}, {}, {}, {}});
 
                         return true;
