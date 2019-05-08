@@ -85,7 +85,7 @@ namespace gameHandling{
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
         PhaseManager phaseManager;
-        std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas;
+        std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 

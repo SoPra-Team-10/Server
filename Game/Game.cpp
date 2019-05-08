@@ -10,16 +10,12 @@
 #include <SopraGameLogic/GameModel.h>
 
 namespace gameHandling{
-    Game::Game(communication::messages::broadcast::MatchConfig matchConfig,
-               const communication::messages::request::TeamConfig& teamConfig1,
-               const communication::messages::request::TeamConfig& teamConfig2,
-               communication::messages::request::TeamFormation teamFormation1,
-               communication::messages::request::TeamFormation teamFormation2) :
-            environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            phaseManager(environment->team1, environment->team2), lastDeltas(){
-        lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE,
-                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                    std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
+    Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
+            const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
+               communication::messages::request::TeamFormation teamFormation2) : environment(std::make_shared<gameModel::Environment>
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2){
+        lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -557,11 +553,10 @@ namespace gameHandling{
                 snitchY = environment->snitch->position.y;
             }
 
-            ret.emplace(lastDeltas.front(), roundState, std::nullopt, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
+            ret.emplace(lastDeltas.front(), roundState, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
                 teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
-                environment->quaffle->position.y, environment->bludgers[0]->position.x,
-                environment->bludgers[0]->position.y, environment->bludgers[1]->position.x,
-                environment->bludgers[1]->position.y);
+                environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
+                environment->bludgers[1]->position.x, environment->bludgers[1]->position.y);
             lastDeltas.pop();
         }
 
