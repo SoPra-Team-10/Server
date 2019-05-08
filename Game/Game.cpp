@@ -414,7 +414,10 @@ namespace gameHandling{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         auto oldX = player->position.x;
                         auto oldY = player->position.y;
+                        auto oldXQuaf = environment->quaffle->position.x;
+                        auto oldYQuaf = environment->quaffle->position.y;
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        auto targetPlayer = environment->getPlayer(target);
                         gameController::Move move(environment, player, target);
                         if(move.check() == gameController::ActionCheckResult::Impossible){
                             return false;
@@ -454,8 +457,15 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::FoolAway:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
+                                    if(!targetPlayer.has_value()){
+                                        fatalErrorListener(std::string{"Inconsistent game state at Ramming foul"});
+                                        return false;
+                                    }
+
+                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf, environment->quaffle->position.x,
+                                            environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
+                                            std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                                    break;
                                 default:
                                     fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
                                     return false;
@@ -466,6 +476,12 @@ namespace gameHandling{
                             lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCought, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                              player->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
                                              std::nullopt, std::nullopt);
+                        }
+
+                        if(snitchCought){
+                            lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                               environment->team2->score, std::nullopt, std::nullopt);
                         }
 
                         lastDeltas.emplace(DeltaType::MOVE, std::nullopt, oldX, oldY, player->position.x, player->position.y,
