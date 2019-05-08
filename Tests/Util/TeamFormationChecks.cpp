@@ -6,6 +6,6 @@
 #include "SopraGameLogic/GameModel.h"
 #include "Util/ConfigCheck.h"
 
-/*TEST(teamFOrmationCHheck, valid_team_formation){
+TEST(teamFOrmationCHheck, valid_team_formation){
     EXPECT_TRUE(configCheck::checkTeamFormation(communication::messages::request::TeamFormation{0,4,1,4,2,4,3,4,4,4,5,4,6,4}, gameHandling::TeamSide::LEFT));
-}*/
+}

@@ -9,7 +9,7 @@
 namespace confconfigCheck {
     bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
                                          const gameHandling::TeamSide &side) {
-        gameModel::Team team = {{}, formation, true};
+        gameModel::Team team = {{"", "", "", "", "", 1,1,1,4,{},{},{},{},{},{},{}}, formation, true};
 
         auto allPlayers = team.getAllPlayers();
         if(side == gameHandling::TeamSide::LEFT) {
