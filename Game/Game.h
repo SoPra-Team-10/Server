@@ -14,6 +14,7 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
+#include <Util/Logging.hpp>
 #include "GameTypes.h"
 #include "Util/Timer.h"
 #include "PhaseManager.h"
@@ -26,7 +27,8 @@ namespace gameHandling{
              const communication::messages::request::TeamConfig& teamConfig1,
              const communication::messages::request::TeamConfig& teamConfig2,
              communication::messages::request::TeamFormation teamFormation1,
-             communication::messages::request::TeamFormation teamFormation2);
+             communication::messages::request::TeamFormation teamFormation2,
+             util::Logging &log);
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
@@ -80,6 +82,7 @@ namespace gameHandling{
         int roundNumber = 0;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas;
+        util::Logging &log;
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
