@@ -61,6 +61,7 @@ namespace gameHandling{
 
                     auto next = phaseManager.nextPlayer(environment);
                     currentSide = conversions::idToSide(next.getEntityId());
+                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
                     return expectedRequestType = next;
                 } else{
                     currentPhase = PhaseType::FAN_PHASE;
@@ -71,6 +72,7 @@ namespace gameHandling{
                 if(phaseManager.hasNextInterference()){
                     auto next = phaseManager.nextInterference(environment);
                     currentSide = conversions::idToSide(next.getEntityId());
+                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
                     return expectedRequestType = next;
                 } else {
                     currentPhase = PhaseType::BALL_PHASE;
@@ -841,7 +843,7 @@ namespace gameHandling{
         }
     }
 
-    void Game::changeSide() {
-        currentSide = currentSide == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
+    void Game::onTimeout() {
+        timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 }

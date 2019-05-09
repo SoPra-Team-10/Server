@@ -97,7 +97,7 @@ namespace gameHandling{
 
         void changePhaseDelta();
         void endRound();
-        void changeSide();
+        void onTimeout();
     };
 }
 
