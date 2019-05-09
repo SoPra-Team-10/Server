@@ -3,6 +3,8 @@
 //
 
 #include "PhaseManager.h"
+#include "conversions.h"
+
 namespace gameHandling{
     PhaseManager::PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight) :
             teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT){
@@ -94,7 +96,7 @@ namespace gameHandling{
         static TurnType turnState = TurnType::MOVE;
         static bool extraMove = false;
 
-        //Mothod does not handel knocked out state
+        //Method does not handel knocked out state
         if(player->knockedOut){
             throw std::runtime_error("Player is knocked out! No action possible!");
         }
@@ -152,7 +154,15 @@ namespace gameHandling{
         }
     }
 
-    void PhaseManager::chooseTeam(TeamSide &side) {
+    auto PhaseManager::getTeam(TeamSide side) const -> const MemberSelector & {
+        if(side == TeamSide::LEFT){
+            return teamLeft;
+        } else {
+            return teamRight;
+        }
+    }
+
+    void PhaseManager::chooseTeam(TeamSide &side) const{
         if(gameController::rng(0, 1)){
             side = TeamSide::LEFT;
         } else {
@@ -191,19 +201,15 @@ namespace gameHandling{
         return {};
     }
 
-    bool PhaseManager::playerUsedLeft(communication::messages::types::EntityId id) const {
-        return teamLeft.playerUsed(id);
-    }
-
-    bool PhaseManager::playerUsedRight(communication::messages::types::EntityId id) const {
-        return teamRight.playerUsed(id);
-    }
-
     int PhaseManager::interferencesUsedLeft(communication::messages::types::FanType type) const {
         return teamLeft.usedInterferences(type);
     }
 
     int PhaseManager::interferencesUsedRight(communication::messages::types::FanType type) const {
         return teamRight.usedInterferences(type);
+    }
+
+    bool PhaseManager::playerUsed(communication::messages::types::EntityId id) const {
+        return getTeam(conversions::idToSide(id)).playerUsed(id) && currentPlayer->id != id;
     }
 }
