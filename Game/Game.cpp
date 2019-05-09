@@ -59,7 +59,9 @@ namespace gameHandling{
             case PhaseType::PLAYER_PHASE:{
                 if(phaseManager.hasNextPlayer()){
 
-                    return expectedRequestType = phaseManager.nextPlayer(environment);
+                    auto next = phaseManager.nextPlayer(environment);
+                    currentSide = conversions::idToSide(next.getEntityId());
+                    return expectedRequestType = next;
                 } else{
                     currentPhase = PhaseType::FAN_PHASE;
                     return getNextAction();
@@ -67,7 +69,9 @@ namespace gameHandling{
             }
             case PhaseType::FAN_PHASE:
                 if(phaseManager.hasNextInterference()){
-                    return expectedRequestType = phaseManager.nextInterference(environment);
+                    auto next = phaseManager.nextInterference(environment);
+                    currentSide = conversions::idToSide(next.getEntityId());
+                    return expectedRequestType = next;
                 } else {
                     currentPhase = PhaseType::BALL_PHASE;
                     roundOver = true;
@@ -89,7 +93,8 @@ namespace gameHandling{
             }
         };
 
-        if(currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE){
+        if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE) ||
+            currentSide != side){
             return false;
         }
 
@@ -101,6 +106,11 @@ namespace gameHandling{
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())  ||
                        !conversions::isBall(command.getPassiveEntity().value())){
+                        return false;
+                    }
+
+                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
+                        expectedRequestType.getTurnType() != TurnType::ACTION){
                         return false;
                     }
 
@@ -199,6 +209,11 @@ namespace gameHandling{
                         return false;
                     }
 
+                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
+                        expectedRequestType.getTurnType() != TurnType::ACTION){
+                        return false;
+                    }
+
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         //@TODO redundant??
@@ -279,6 +294,10 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::SNITCH_SNATCH:{
+                if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    return false;
+                }
+
                 try{
                     auto &team = getTeam(side);
                     gameController::SnitchPush sPush(environment, team);
@@ -304,6 +323,10 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::TROLL_ROAR:{
+                if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    return false;
+                }
+
                 try{
                     auto &team = getTeam(side);
                     gameController::Impulse impulse(environment, team);
@@ -342,6 +365,10 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::ELF_TELEPORTATION:{
+                if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    return false;
+                }
+
                 if(command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getPassiveEntity().value())){
                         return false;
@@ -377,6 +404,10 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::GOBLIN_SHOCK:
+                if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    return false;
+                }
+
                 if(command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getPassiveEntity().value())){
                         return false;
@@ -426,6 +457,11 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        return false;
+                    }
+
+                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
+                        expectedRequestType.getTurnType() != TurnType::MOVE){
                         return false;
                     }
 
@@ -527,6 +563,10 @@ namespace gameHandling{
                 return false;
             case communication::messages::types::DeltaType::SKIP:
                 if(command.getActiveEntity().has_value()){
+                    if(command.getActiveEntity() != expectedRequestType.getEntityId()){
+                        return false;
+                    }
+
                     lastDeltas.emplace(DeltaType::SKIP, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                      command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                      std::nullopt, std::nullopt);
@@ -538,6 +578,10 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        return false;
+                    }
+
+                    if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         return false;
                     }
 
@@ -567,6 +611,10 @@ namespace gameHandling{
                 }
             case communication::messages::types::DeltaType::WREST_QUAFFLE:
                 if(command.getActiveEntity().has_value()){
+                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId()){
+                        return false;
+                    }
+
                     try{
                         auto player = std::dynamic_pointer_cast<gameModel::Chaser>(environment->getPlayerById(command.getActiveEntity().value()));
                         auto targetPlayer = environment->getPlayer(environment->quaffle->position);
@@ -791,5 +839,9 @@ namespace gameHandling{
             lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
         }
+    }
+
+    void Game::changeSide() {
+        currentSide = currentSide == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
     }
 }

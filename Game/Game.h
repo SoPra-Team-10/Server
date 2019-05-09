@@ -88,6 +88,7 @@ namespace gameHandling{
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         bool roundOver = false;
         communication::messages::broadcast::Next expectedRequestType{};
+        TeamSide currentSide;
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
@@ -96,6 +97,7 @@ namespace gameHandling{
 
         void changePhaseDelta();
         void endRound();
+        void changeSide();
     };
 }
 
