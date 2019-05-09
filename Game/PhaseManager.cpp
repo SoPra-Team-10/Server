@@ -210,6 +210,6 @@ namespace gameHandling{
     }
 
     bool PhaseManager::playerUsed(communication::messages::types::EntityId id) const {
-        return getTeam(conversions::idToSide(id)).playerUsed(id);
+        return getTeam(conversions::idToSide(id)).playerUsed(id) && currentPlayer->id != id;
     }
 }

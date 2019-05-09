@@ -180,6 +180,9 @@ namespace gameHandling{
 
                         lastDeltas.emplace(DeltaType::BLUDGER_BEATING, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y,
                                 player->id, bludger->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+                        lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -262,6 +265,9 @@ namespace gameHandling{
                         lastDeltas.emplace(DeltaType ::QUAFFLE_THROW, success, oldX, oldY, environment->quaffle->position.x,
                                          environment->quaffle->position.y, player->id, destPlayerId,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+                        lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
                     } catch (std::runtime_error &e){
@@ -499,6 +505,11 @@ namespace gameHandling{
 
                         lastDeltas.emplace(DeltaType::MOVE, std::nullopt, oldX, oldY, player->position.x, player->position.y,
                                          player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+                        if(phaseManager.playerUsed(player->id)){
+                            lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                    player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                        }
 
                         return true;
                     } catch (std::runtime_error &e) {

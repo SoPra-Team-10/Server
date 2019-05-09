@@ -16,7 +16,7 @@ TEST(game_get_next_action, generic_name){
     game.environment->quaffle->position = game.environment->team2->chasers[2]->position; //RIGHT_CHASE3 able to shoot
     game.environment->bludgers[0]->position = game.environment->team1->beaters[1]->position; //LEFT_BEATER2 able to shoot
     game.environment->bludgers[1]->position = game.environment->team2->beaters[0]->position;
-    game.environment->team2->beaters[0]->knockedOut = true; //RIGHT_BEATER1 not able to shoot because knocked out
+    game.environment->team2->beaters[0]->knockedOut = true; //RIGHT_BEATER1 not able to do anything because knocked out
     game.environment->team2->seeker->isFined = true;
 
 
