@@ -162,7 +162,7 @@ namespace communication {
                     log.info("Starting game");
 
                     game.emplace(matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
-                            teamFormations.first.value(), teamFormations.second.value());
+                            teamFormations.first.value(), teamFormations.second.value(), log);
                     game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1,
                             std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
