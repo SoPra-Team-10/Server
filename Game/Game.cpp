@@ -593,15 +593,15 @@ namespace gameHandling{
     }
 
     auto Game::getRound() const -> int {
-        return 0;
+        return roundNumber;
     }
 
     auto Game::getLeftPoints() const -> int {
-        return 0;
+        return getTeam(TeamSide::LEFT)->score;
     }
 
     auto Game::getRightPoints() const -> int {
-        return 0;
+        return getTeam(TeamSide::RIGHT)->score;
     }
 
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
