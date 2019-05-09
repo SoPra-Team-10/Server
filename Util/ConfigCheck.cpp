@@ -15,14 +15,14 @@ namespace configCheck {
         if(side == gameHandling::TeamSide::LEFT) {
             for (auto &player : allPlayers) {
                 if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
-                    player->position.x > 7) {
+                    player->position.x > 7 || player->position == gameModel::Position{7,5} || player->position == gameModel::Position{7,6} || player->position == gameModel::Position{7,7}) {
                     return false;
                 }
             }
         }else{
             for (auto &player : allPlayers) {
                 if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
-                    player->position.x < 9) {
+                    player->position.x < 9 || player->position == gameModel::Position{9,5} || player->position == gameModel::Position{9,6} || player->position == gameModel::Position{9,7}) {
                     return false;
                 }
             }
