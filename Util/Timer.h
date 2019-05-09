@@ -9,8 +9,7 @@
 #include <thread>
 #include <future>
 #include <atomic>
-#include <cmath>
-#include <iostream>
+#include <variant>
 
 #define RESOLUTION 100
 
@@ -43,33 +42,35 @@ namespace util {
          * DTor: Necessary for cleanup and stopping of the thread
          */
         ~Timer();
+
+        using Timepoint = std::chrono::time_point<std::chrono::system_clock>;
+        using Duration = std::chrono::milliseconds;
     private:
-        std::atomic_bool paused{false};
         std::atomic_bool stopRequired{false};
-        int steps = 0;
+        std::condition_variable conditionVariable;
         std::future<void> threadHandler;
+        std::mutex mutex;
+        std::variant<Timepoint, Duration> time;
     };
 
     template<typename Function>
     void Timer::setTimeout(Function function, int delay) {
-        static_assert(RESOLUTION <= 1000, "Time resolution must not be greater than 1000");
-        if (steps > 0) {
-            throw std::runtime_error{"A timer can only manage a single event!"};
-        }
         stopRequired = false;
-        paused = false;
-        steps = static_cast<int>(std::ceil(delay * (1000.0 / RESOLUTION)));
+        time = std::chrono::system_clock::now() + std::chrono::milliseconds{delay};
+
         threadHandler = std::async(std::launch::async, [=](){
             while (!stopRequired) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(RESOLUTION));
-                std::cout << steps << std::endl;
-                if (stopRequired) {
-                    return;
-                } else if (!paused) {
-                    if (--steps <= 0) {
+                std::unique_lock<std::mutex> lock{mutex};
+                if (std::holds_alternative<Timepoint>(time)) { // Running
+                    auto now = std::chrono::system_clock::now();
+                    auto timepoint = std::get<Timepoint>(time);
+                    if (now >= timepoint) {
                         function();
                         return;
                     }
+                    conditionVariable.wait_until(lock, timepoint);
+                } else { // Pause
+                    conditionVariable.wait(lock);
                 }
             }
         });

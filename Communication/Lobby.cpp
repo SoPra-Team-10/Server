@@ -301,16 +301,21 @@ namespace communication {
     }
 
     void Lobby::onTeamFormationTimeout() {
+        log.warn("Team formation timeout");
         if (!teamFormations.first.has_value() && !teamFormations.second.has_value()) {
             auto formerPlayers = players;
             players.first.reset();
             players.second.reset();
             sendAll(messages::broadcast::MatchFinish{0, 0, 0, "",messages::types::VictoryReason::VIOLATION_OF_PROTOCOL});
+            sendError("teamFormation", "Timeout", formerPlayers.first.value());
+            sendError("teamFormation", "Timeout", formerPlayers.second.value());
             kickUser(formerPlayers.first.value());
             kickUser(formerPlayers.second.value());
         } else if (!teamFormations.first.has_value()) {
+            sendError("teamFormation", "Timeout", players.first.value());
             kickUser(players.first.value());
         } else if (!teamFormations.second.has_value()) {
+            sendError("teamFormation", "Timeout", players.second.value());
             kickUser(players.second.value());
         }
     }
