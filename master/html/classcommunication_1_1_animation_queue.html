@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Server: gameHandling::PlayerPhase Class Reference</title>
+<title>Server: communication::AnimationQueue Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,95 +80,123 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>gameHandling</b></li><li class="navelem"><a class="el" href="classgame_handling_1_1_player_phase.html">PlayerPhase</a></li>  </ul>
+<li class="navelem"><b>communication</b></li><li class="navelem"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
-<div class="title">gameHandling::PlayerPhase Class Reference</div>  </div>
+<div class="title">communication::AnimationQueue Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_animation_queue_8h_source.html">AnimationQueue.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a98e6ccd092c3566f2ef375c4b277cc23"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98e6ccd092c3566f2ef375c4b277cc23"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PlayerPhase</b> (const std::shared_ptr&lt; gameModel::Team &gt; &amp;teamLeft, const std::shared_ptr&lt; gameModel::Team &gt; &amp;teamRight)</td></tr>
-<tr class="separator:a98e6ccd092c3566f2ef375c4b277cc23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2adaf90fc07a4df754af5cb1be057377"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_player_phase.html#a2adaf90fc07a4df754af5cb1be057377">getNext</a> (const std::shared_ptr&lt; const gameModel::Environment &gt; &amp;env) -&gt; communication::messages::broadcast::Next</td></tr>
-<tr class="separator:a2adaf90fc07a4df754af5cb1be057377"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26d1cfe45ea24f08e153d89ae7d8e41b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_player_phase.html#a26d1cfe45ea24f08e153d89ae7d8e41b">hasNext</a> () const </td></tr>
-<tr class="separator:a26d1cfe45ea24f08e153d89ae7d8e41b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b8ae46341200e687f579265bfce1eb1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_player_phase.html#a0b8ae46341200e687f579265bfce1eb1">reset</a> ()</td></tr>
-<tr class="separator:a0b8ae46341200e687f579265bfce1eb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af994a25a574098150e4f2cdcf421a409"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">AnimationQueue</a> (<a class="el" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator)</td></tr>
+<tr class="separator:af994a25a574098150e4f2cdcf421a409"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27733d89d466f28e664b1134210c58b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">add</a> (const messages::Payload &amp;payload, const std::vector&lt; int &gt; &amp;clients, std::chrono::milliseconds timeOffset=std::chrono::milliseconds{0})</td></tr>
+<tr class="separator:a27733d89d466f28e664b1134210c58b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadc89e3e9657566643bb3932673a45df"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">~AnimationQueue</a> ()</td></tr>
+<tr class="separator:aadc89e3e9657566643bb3932673a45df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a2adaf90fc07a4df754af5cb1be057377"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> is responsible for delaying messages to preserve the animation duration while also keeping the order of the message </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="af994a25a574098150e4f2cdcf421a409"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">auto gameHandling::PlayerPhase::getNext </td>
+          <td class="memname">communication::AnimationQueue::AnimationQueue </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; const gameModel::Environment &gt; &amp;&#160;</td>
-          <td class="paramname"><em>env</em></td><td>)</td>
-          <td> -&gt; communication::messages::broadcast::Next</td>
+          <td class="paramtype"><a class="el" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;&#160;</td>
+          <td class="paramname"><em>communicator</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Returns the next action required by a client </p>
+<p>CTor: Construct the <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> with a communicator to which to send </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">env</td><td></td></tr>
+    <tr><td class="paramname">communicator</td><td>reference to the communicator to which to send </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>when player phase is over </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a26d1cfe45ea24f08e153d89ae7d8e41b"></a>
+<a class="anchor" id="aadc89e3e9657566643bb3932673a45df"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool gameHandling::PlayerPhase::hasNext </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>true if at least one player of any Team is available and not knocked out </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a0b8ae46341200e687f579265bfce1eb1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void gameHandling::PlayerPhase::reset </td>
+          <td class="memname">communication::AnimationQueue::~AnimationQueue </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Resets the internal states so that players can be selected again </p>
+<p>DTor: Stops the thread </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a27733d89d466f28e664b1134210c58b8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void communication::AnimationQueue::add </td>
+          <td>(</td>
+          <td class="paramtype">const messages::Payload &amp;&#160;</td>
+          <td class="paramname"><em>payload</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
+          <td class="paramname"><em>clients</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::chrono::milliseconds&#160;</td>
+          <td class="paramname"><em>timeOffset</em> = <code>std::chrono::milliseconds{0}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add an payload to the queue to send </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">payload</td><td>the payload to send </td></tr>
+    <tr><td class="paramname">clients</td><td>list off all clients to which to send the message </td></tr>
+    <tr><td class="paramname">timeOffset</td><td>the time between: the current time if the queue is empty, at the end of the queue if the queue is non empty but all offsets are obeyed or some time after the queue to obey the offset (even if the queue is empty it is checked with the last sent message) </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/travis/build/SoPra-Team-10/Server/Game/<a class="el" href="_player_phase_8h_source.html">PlayerPhase.h</a></li>
-<li>/home/travis/build/SoPra-Team-10/Server/Game/PlayerPhase.cpp</li>
+<li>/home/travis/build/SoPra-Team-10/Server/Communication/<a class="el" href="_animation_queue_8h_source.html">AnimationQueue.h</a></li>
+<li>/home/travis/build/SoPra-Team-10/Server/Communication/AnimationQueue.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
