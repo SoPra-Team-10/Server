@@ -50,10 +50,9 @@ namespace gameHandling{
 
         bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
-        auto executeBallDelta(communication::messages::types::EntityId entityId)
-                -> communication::messages::request::DeltaRequest;
+        void executeBallDelta(communication::messages::types::EntityId entityId);
 
-        auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
+        auto getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot>;
 
         /**
          * Returns the current round
@@ -75,15 +74,17 @@ namespace gameHandling{
 
     private:
         util::Timer timer;
-        GameState roundState = GameState::BallPhase; ///< the basic game phases
+        communication::messages::types::PhaseType roundState = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
         PhaseManager phaseManager;
-
-        void endRound();
+        std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas;
 
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
+
+        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
+            -> communication::messages::broadcast::TeamSnapshot;
     };
 }
 

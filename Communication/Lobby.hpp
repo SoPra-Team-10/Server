@@ -111,6 +111,7 @@ namespace communication {
                 communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
         void onFatalError(std::string error);
+        void modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots);
 
         auto getSpectators() const -> std::vector<std::string>;
 
@@ -132,9 +133,9 @@ namespace communication {
 
         std::optional<gameHandling::Game> game;
 
-
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
         std::optional<communication::messages::broadcast::Next> lastNext;
+        std::optional<communication::messages::broadcast::Snapshot> lastSnapshot;
     };
 }
 #endif //SERVER_LOBBY_HPP

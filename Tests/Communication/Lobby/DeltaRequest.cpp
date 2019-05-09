@@ -23,7 +23,7 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationA) {
     Message deltaRequest{request::DeltaRequest{}};
 
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in deltaRequest:\tNot in game"}};
+    Message error{unicast::PrivateDebug{"Error in deltaRequest:Not in game"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -66,7 +66,7 @@ TEST(CommunicationLobby, DeltaRequestBeforeTeamFormationB) {
     Message deltaRequest{request::DeltaRequest{}};
 
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
-    Message error{unicast::PrivateDebug{"Error in deltaRequest:\tNot in game"}};
+    Message error{unicast::PrivateDebug{"Error in deltaRequest:Not in game"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
