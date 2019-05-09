@@ -114,7 +114,7 @@ namespace gameHandling{
                 return {TurnType::MOVE, false};
             } else {
                 //no extra turn, turn = move
-                if(gameController::playerCanShoot(player, env)){
+                if(gameController::playerCanPerformAction(player, env)){
                     //turn not finished, action in next turn
                     turnState = TurnType::ACTION;
                     return {TurnType::MOVE, false};
@@ -127,7 +127,7 @@ namespace gameHandling{
         } else if(turnState == TurnType::MOVE){
             //extra move turn
             extraMove = false;
-            if(gameController::playerCanShoot(player, env)){
+            if(gameController::playerCanPerformAction(player, env)){
                 //player can make action -> turn not finished
                 turnState = TurnType::ACTION;
                 return {TurnType::MOVE, false};
