@@ -14,13 +14,12 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
+#include <Util/Logging.hpp>
 #include "GameTypes.h"
 #include "Util/Timer.h"
-#include "MemberSelector.h"
+#include "PhaseManager.h"
 
 namespace gameHandling{
-
-
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
@@ -28,10 +27,12 @@ namespace gameHandling{
              const communication::messages::request::TeamConfig& teamConfig1,
              const communication::messages::request::TeamConfig& teamConfig2,
              communication::messages::request::TeamFormation teamFormation1,
-             communication::messages::request::TeamFormation teamFormation2);
+             communication::messages::request::TeamFormation teamFormation2,
+             util::Logging &log);
 
-        const util::Listener<TeamSide> timeoutListener;
+        const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
+        const util::Listener<std::string> fatalErrorListener;
 
         /**
          * Pauses the games timers
@@ -47,14 +48,13 @@ namespace gameHandling{
          * Gets the next actor to make a move. If the actor is a player, the timeout timer is started
          * @return
          */
-        auto getNextActor() -> communication::messages::broadcast::Next;
+        auto getNextAction() -> communication::messages::broadcast::Next;
 
-        bool executeDelta(communication::messages::request::DeltaRequest);
+        bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
-        auto executeBallDelta(communication::messages::types::EntityId entityId)
-                -> communication::messages::request::DeltaRequest;
+        void executeBallDelta(communication::messages::types::EntityId entityId);
 
-        auto getSnapshot() const -> communication::messages::broadcast::Snapshot;
+        auto getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot>;
 
         /**
          * Returns the current round
@@ -76,13 +76,18 @@ namespace gameHandling{
 
     private:
         util::Timer timer;
-        GameState roundState = GameState::BallPhase; ///< the basic game phases
+        communication::messages::types::PhaseType roundState = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         int roundNumber = 0;
-        TeamSide activeTeam = TeamSide::LEFT;
-        MemberSelector leftSelector, rightSelector;
+        PhaseManager phaseManager;
+        std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas;
+        util::Logging &log;
 
+        auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
+
+        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
+            -> communication::messages::broadcast::TeamSnapshot;
     };
 }
 

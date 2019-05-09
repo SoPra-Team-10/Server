@@ -10,12 +10,15 @@
 
 #include <utility>
 #include <set>
+#include <chrono>
+#include <queue>
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
 #include <SopraMessages/ReplayWithSnapshot.h>
 #include <Util/Logging.hpp>
 #include <Game/Game.h>
 #include <SopraMessages/ReplayMessage.h>
+#include "AnimationQueue.h"
 
 namespace communication {
     class Communicator;
@@ -72,7 +75,7 @@ namespace communication {
          * @param id the id of the player
          * @return true if the lobby is empty after the player left and thus if the lobby should be closed
          */
-        bool onLeave(int id);
+        auto onLeave(int id) -> std::pair<bool, std::string>;
 
         /**
          * Get the number of users in the lobby
@@ -91,6 +94,7 @@ namespace communication {
          * @return the name of the lobby
          */
         auto getName() const -> std::string;
+
     private:
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);
@@ -103,26 +107,35 @@ namespace communication {
         void onPayload(const T &, int id);
 
         void onTeamFormationTimeout();
-        void onTimeout(gameHandling::TeamSide teamSide);
+        void onTimeout(communication::messages::types::EntityId entityId,
+                communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
+        void onFatalError(std::string error);
+        void modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots);
 
-        Communicator &communicator;
+        auto getSpectators() const -> std::vector<std::string>;
+
+        util::Logging &log;
+        AnimationQueue animationQueue;
+
         LobbyState state;
+        Communicator &communicator;
+        const messages::broadcast::MatchConfig matchConfig;
+        std::map<int, Client> clients;
         std::string name;
 
+        std::pair<std::optional<communication::messages::request::TeamConfig>,
+                std::optional<communication::messages::request::TeamConfig>> teamConfigs;
+        std::pair<std::optional<int>, std::optional<int>> players;
         util::Timer teamFormationTimer;
+        std::pair<std::optional<communication::messages::request::TeamFormation>,
+                std::optional<communication::messages::request::TeamFormation>> teamFormations;
+
+        std::optional<gameHandling::Game> game;
 
         std::pair<messages::broadcast::Replay, messages::mods::unicast::ReplayWithSnapshot> replay;
-        std::map<int, Client> clients;
-        std::pair<std::optional<int>, std::optional<int>> players;
-        std::pair<std::optional<communication::messages::request::TeamConfig>,
-            std::optional<communication::messages::request::TeamConfig>> teamConfigs;
-        std::pair<std::optional<communication::messages::request::TeamFormation>,
-        std::optional<communication::messages::request::TeamFormation>> teamFormations;
-        std::optional<gameHandling::Game> game;
         std::optional<communication::messages::broadcast::Next> lastNext;
-        const messages::broadcast::MatchConfig matchConfig;
-        util::Logging &log;
+        std::optional<communication::messages::broadcast::Snapshot> lastSnapshot;
     };
 }
 #endif //SERVER_LOBBY_HPP

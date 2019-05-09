@@ -22,21 +22,33 @@ namespace communication {
     void MessageHandler::send(const messages::Message &message, int client) {
         if (activeConnections.find(client) != activeConnections.end()) {
             nlohmann::json json = message;
-            activeConnections.at(client)->send(json.dump(4));
+            try {
+                activeConnections.at(client)->send(json.dump(4));
+            } catch (std::runtime_error &e) {
+                log.error("Trying to send message to user that already left!");
+            }
         }
     }
 
     void MessageHandler::send(const messages::ReplayMessage &message, int client) {
         if (activeConnections.find(client) != activeConnections.end()) {
             nlohmann::json json = message;
-            activeConnections.at(client)->send(json.dump(4));
+            try {
+                activeConnections.at(client)->send(json.dump(4));
+            } catch (std::runtime_error &e) {
+                log.error("Trying to send message to user that already left!");
+            }
         }
     }
 
     void MessageHandler::send(const messages::mods::other::LobbyMod &message, int client) {
         if (activeConnections.find(client) != activeConnections.end()) {
             nlohmann::json json = message;
-            activeConnections.at(client)->send(json.dump(4));
+            try {
+                activeConnections.at(client)->send(json.dump(4));
+            } catch (std::runtime_error &e) {
+                log.error("Trying to send message to user that already left!");
+            }
         }
     }
 

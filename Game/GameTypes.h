@@ -4,7 +4,10 @@
 
 #ifndef SERVER_GAMETYPES_H
 #define SERVER_GAMETYPES_H
-namespace gameHandling{
+
+#include <SopraMessages/types.hpp>
+
+namespace gameHandling {
     enum class GameState {
         BallPhase,
         PlayerPhase,
@@ -14,6 +17,8 @@ namespace gameHandling{
     enum class TeamSide : char {
         LEFT, RIGHT
     };
+
+    auto getSideFromEntity(communication::messages::types::EntityId entityId) -> TeamSide;
 }
 
 #endif //SERVER_GAMETYPES_H

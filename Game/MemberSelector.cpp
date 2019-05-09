@@ -4,10 +4,11 @@
 
 #include "MemberSelector.h"
 #include <SopraGameLogic/GameController.h>
+#include "conversions.h"
 namespace gameHandling{
-    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), fanblock(team->fanblock), side(side){
+    MemberSelector::MemberSelector(const std::shared_ptr<gameModel::Team> &team, TeamSide side) : team(team), side(side){
         resetPlayers();
-        resteInterferences();
+        resetInterferences();
     }
 
     auto MemberSelector::getNextPlayer() -> std::shared_ptr<gameModel::Player> {
@@ -32,23 +33,7 @@ namespace gameHandling{
             interferencesLeft.erase(pos);
         }
 
-        return interferenceToID(ret);
-    }
-
-    auto MemberSelector::interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId {
-        using Id = communication::messages::types::EntityId;
-        switch(type){
-            case gameModel::InterferenceType::RangedAttack:
-                return side == TeamSide::LEFT ? Id::LEFT_GOBLIN : Id::RIGHT_GOBLIN;
-            case gameModel::InterferenceType::Teleport:
-                return side == TeamSide::LEFT ? Id::LEFT_ELF : Id::RIGHT_ELF;
-            case gameModel::InterferenceType::Impulse:
-                return side == TeamSide::LEFT ? Id::LEFT_TROLL : Id::RIGHT_TROLL;
-            case gameModel::InterferenceType::SnitchPush:
-                return side == TeamSide::LEFT ? Id::LEFT_NIFFLER : Id::RIGHT_NIFFLER;
-        }
-
-        throw std::runtime_error("Fatal error! Enum out of bounds");
+        return conversions::interferenceToId(ret, side);
     }
 
     bool MemberSelector::hasPlayers() const {
@@ -66,11 +51,11 @@ namespace gameHandling{
         }
     }
 
-    void MemberSelector::resteInterferences() {
+    void MemberSelector::resetInterferences() {
         using Id = gameModel::InterferenceType;
         interferencesLeft = {{Id::Teleport, 0}, {Id::RangedAttack, 0}, {Id::Impulse, 0}, {Id::SnitchPush, 0}};
         for(auto it = interferencesLeft.begin(); it < interferencesLeft.end();){
-            int uses = fanblock.getUses(it->first);
+            int uses = team->fanblock.getUses(it->first);
             if(uses == 0){
                 it = interferencesLeft.erase(it);
             } else {
@@ -90,5 +75,34 @@ namespace gameHandling{
         }
 
         return found;
+    }
+
+    bool MemberSelector::playerUsed(communication::messages::types::EntityId id) const {
+        if(!team->getPlayerByID(id).has_value()){
+            throw std::runtime_error("Player not in Team");
+        }
+
+        for(const auto &player: playersLeft){
+            if(player->id == id){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    int MemberSelector::usedInterferences(communication::messages::types::FanType type) const {
+        int initial = team->fanblock.getUses(type) + team->fanblock.getBannedCount(type);
+        if(initial == 0){
+            return 0;
+        }
+
+        for(const auto& fan : interferencesLeft){
+            if(fan.first == gameModel::Fanblock::fanToInterference(type)){
+                return team->fanblock.getUses(type) - fan.second;
+            }
+        }
+
+        return team->fanblock.getUses(type);
     }
 }
