@@ -20,10 +20,12 @@ namespace gameHandling{
     }
 
     void Game::pause() {
+        timer.pause();
         std::cout<<"pause() is called"<<std::endl;
     }
 
     void Game::resume() {
+        timer.resume();
         std::cout<<"resume() is called"<<std::endl;
     }
 
@@ -86,6 +88,7 @@ namespace gameHandling{
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
         using namespace communication::messages::types;
+        timer.stop();
         changePhaseDelta();
         endRound();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
