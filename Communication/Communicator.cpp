@@ -84,11 +84,14 @@ namespace communication {
         }
     }
 
-    void Communicator::removeClient(int id, std::string name) {
+    void Communicator::removeClient(int id, const std::string& name) {
         auto cmIt = clientMapping.find(id);
         if (cmIt != clientMapping.end()) {
             clientMapping.erase(cmIt);
-            userNameMapping.erase(name);
+            auto usIt = userNameMapping.find(name);
+            if (usIt != userNameMapping.end()) {
+                userNameMapping.erase(usIt);
+            }
         }
     }
 

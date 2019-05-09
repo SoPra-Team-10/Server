@@ -41,7 +41,7 @@ namespace communication {
         /**
          * Remove a client from the lobby, this is used by a lobby to kick a user.
          */
-        void removeClient(int id, std::string name);
+        void removeClient(int id, const std::string& name);
     protected:
         void onConnection(int id);
         void receive(messages::Message message, int client);
