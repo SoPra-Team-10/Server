@@ -102,8 +102,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8541d8cff93200f3f651158b8478ea33"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a8541d8cff93200f3f651158b8478ea33"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_communicator.html#a8541d8cff93200f3f651158b8478ea33">send</a> (const messages::AbstractMessage&lt; T &gt; &amp;message, int id)</td></tr>
 <tr class="separator:a8541d8cff93200f3f651158b8478ea33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06175a5de7f8aa23a0991fa746e4ec55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_communicator.html#a06175a5de7f8aa23a0991fa746e4ec55">removeClient</a> (int id)</td></tr>
-<tr class="separator:a06175a5de7f8aa23a0991fa746e4ec55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27699c7db9fcfde35b6bc11b2c4e610b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_communicator.html#a27699c7db9fcfde35b6bc11b2c4e610b">removeClient</a> (int id, const std::string &amp;name)</td></tr>
+<tr class="separator:a27699c7db9fcfde35b6bc11b2c4e610b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -189,7 +189,7 @@ messages::broadcast::MatchConfig&#160;</td><td class="memItemRight" valign="bott
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a06175a5de7f8aa23a0991fa746e4ec55"></a>
+<a class="anchor" id="a27699c7db9fcfde35b6bc11b2c4e610b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -197,8 +197,18 @@ messages::broadcast::MatchConfig&#160;</td><td class="memItemRight" valign="bott
           <td class="memname">void communication::Communicator::removeClient </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
