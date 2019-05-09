@@ -5,6 +5,8 @@
 #include "setup.h"
 
 TEST(create_game_test, create){
-    auto game = setup::createGame();
+    std::stringstream ostream;
+    util::Logging log{ostream, 5};
+    auto game = setup::createGame(log);
     SUCCEED();
 }

@@ -14,20 +14,21 @@ namespace gameHandling{
                const communication::messages::request::TeamConfig& teamConfig1,
                const communication::messages::request::TeamConfig& teamConfig2,
                communication::messages::request::TeamFormation teamFormation1,
-               communication::messages::request::TeamFormation teamFormation2) :
+               communication::messages::request::TeamFormation teamFormation2,
+                util::Logging &log) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            phaseManager(environment->team1, environment->team2), lastDeltas(){
+            phaseManager(environment->team1, environment->team2), lastDeltas(), log{log} {
         lastDeltas.push({communication::messages::types::DeltaType::ROUND_CHANGE,
                     {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 0, {}});
-        std::cout<<"Constructor is called"<<std::endl;
+        log.debug("Constructor is called");
     }
 
     void Game::pause() {
-        std::cout<<"pause() is called"<<std::endl;
+        log.debug("Pause is called");
     }
 
     void Game::resume() {
-        std::cout<<"resume() is called"<<std::endl;
+        log.debug("Resume is called");
     }
 
     auto Game::getNextAction() -> communication::messages::broadcast::Next {

@@ -10,7 +10,9 @@ TEST(game_get_next_action, generic_name){
     using namespace communication::messages::types;
     using TT = communication::messages::types::TurnType;
     using Id = communication::messages::types::EntityId;
-    auto game = setup::createGame();
+    std::stringstream ostream;
+    util::Logging log{ostream, 5};
+    auto game = setup::createGame(log);
 
     game.environment->snitch->position = game.environment->team1->chasers[1]->position;
     game.environment->quaffle->position = game.environment->team2->chasers[2]->position; //RIGHT_CHASE3 able to shoot
