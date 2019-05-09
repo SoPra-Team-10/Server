@@ -9,20 +9,20 @@
 namespace configCheck {
     bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
                                          const gameHandling::TeamSide &side) {
-        gameModel::Team team = {{"", "", "", "", "", 1,1,1,4,{},{},{},{},{},{},{}}, formation, true};
+        gameModel::Team team = {{"", "", "", "", "", 1,1,1,4,{},{},{},{},{},{},{}}, formation,true };
 
         auto allPlayers = team.getAllPlayers();
         if(side == gameHandling::TeamSide::LEFT) {
             for (auto &player : allPlayers) {
                 if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
-                    player->position.x > 7 || player->position == gameModel::Position{7,5} || player->position == gameModel::Position{7,6} || player->position == gameModel::Position{7,7}) {
+                    player->position.x > 7 || gameModel::Environment::getCell(player->position) == gameModel::Cell::Centre) {
                     return false;
                 }
             }
         }else{
             for (auto &player : allPlayers) {
                 if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
-                    player->position.x < 9 || player->position == gameModel::Position{9,5} || player->position == gameModel::Position{9,6} || player->position == gameModel::Position{9,7}) {
+                    player->position.x < 9 || gameModel::Environment::getCell(player->position) == gameModel::Cell::Centre) {
                     return false;
                 }
             }
