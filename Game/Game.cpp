@@ -87,7 +87,7 @@ namespace gameHandling{
             }
         };
 
-        if(roundState != PhaseType::PLAYER_PHASE || roundState != PhaseType::FAN_PHASE){
+        if(roundState != PhaseType::PLAYER_PHASE && roundState != PhaseType::FAN_PHASE){
             return false;
         }
 
@@ -104,14 +104,18 @@ namespace gameHandling{
 
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        //@TODO Redundant??
                         if(!gameController::playerCanShoot(player, environment)){
                             return false;
                         }
 
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        auto targetPlayer = environment->getPlayer(target);
                         auto bludger = environment->getBallByID(command.getPassiveEntity().value());
                         auto oldX = bludger->position.x;
                         auto oldY = bludger->position.y;
+                        auto oldXQuaf = environment->quaffle->position.x;
+                        auto oldYQuaf = environment->quaffle->position.y;
                         gameController::Shot bShot(environment, player, bludger, target);
                         if(bShot.check() == gameController::ActionCheckResult::Impossible){
                             return false;
@@ -120,6 +124,12 @@ namespace gameHandling{
                         auto res = bShot.execute();
                         addFouls(res.second, player);
                         for(const auto &result : res.first){
+                            if(!targetPlayer.has_value()){
+                                fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
+                                return false;
+                            }
+
+                            //@TODO aufräumen
                             switch (result){
                                 case gameController::ActionResult::Intercepted:
                                     fatalErrorListener(std::string{"Unexpected action result"});
@@ -137,8 +147,8 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::Knockout:
-                                    lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, player->position.x, player->position.y,
-                                                     bludger->position.x, bludger->position.y, bludger->id, player->id,
+                                    lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, target.x, target.y,
+                                                     bludger->position.x, bludger->position.y, bludger->id, targetPlayer.value()->id,
                                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                                     break;
                                 case gameController::ActionResult::SnitchCatch:
@@ -148,9 +158,9 @@ namespace gameHandling{
                                     fatalErrorListener(std::string{"Unexpected action result"});
                                     return false;
                                 case gameController::ActionResult::FoolAway:
-                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, player->position.x, player->position.y,
+                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
                                                      environment->quaffle->position.x, environment->quaffle->position.y,
-                                                     environment->quaffle->id, player->id, std::nullopt, std::nullopt,
+                                                     environment->quaffle->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
                                                      std::nullopt, std::nullopt, std::nullopt);
                                     break;
                                 default:
@@ -160,9 +170,9 @@ namespace gameHandling{
                         }
 
                         //Failed Knockout
-                        if(res.first.empty() && bludger->position == player->position){
-                            lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, false, player->position.x, player->position.y,
-                                             std::nullopt, std::nullopt, bludger->id, player->id, std::nullopt, std::nullopt,
+                        if(res.first.empty() && targetPlayer.has_value() && bludger->position == targetPlayer.value()->position){
+                            lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, false, target.x, target.y,
+                                             std::nullopt, std::nullopt, bludger->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
                                              std::nullopt, std::nullopt, std::nullopt);
                         }
 
@@ -186,6 +196,7 @@ namespace gameHandling{
 
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        //@TODO redundant??
                         if(!gameController::playerCanShoot(player, environment)){
                             return false;
                         }
@@ -472,7 +483,7 @@ namespace gameHandling{
                             }
                         }
 
-                        if(environment->snitch->position == player->position){
+                        if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
                             lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCought, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                              player->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
                                              std::nullopt, std::nullopt);
