@@ -90,6 +90,7 @@ TEST(CommunicationLobby, TeamFormationSpectator) {
     std::stringstream sstream;
     util::Logging log{sstream, 10};
     communication::MessageHandlerMock messageHandler{8080, log};
+    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     Message joinRequestA{request::JoinRequest{"lobby", "a", ""}};
     Message joinRequestB{request::JoinRequest{"lobby", "b", ""}};
@@ -100,7 +101,7 @@ TEST(CommunicationLobby, TeamFormationSpectator) {
     Message loginGreetingC{broadcast::LoginGreeting{"c"}};
     Message teamConfigs{request::TeamConfig{}};
     Message matchStart{
-            broadcast::MatchStart{{}, {}, {}, "a", "b"}};
+            broadcast::MatchStart{matchConfig, {}, {}, "a", "b"}};
     Message teamFormation{request::TeamFormation{}};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
@@ -124,7 +125,7 @@ TEST(CommunicationLobby, TeamFormationSpectator) {
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(0);
     EXPECT_CALL(messageHandler, send(matchFinish,3)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, {}};
+    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));

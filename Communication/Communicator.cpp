@@ -84,16 +84,20 @@ namespace communication {
         }
     }
 
-    void Communicator::removeClient(int id) {
+    void Communicator::removeClient(int id, const std::string& name) {
         auto cmIt = clientMapping.find(id);
         if (cmIt != clientMapping.end()) {
             clientMapping.erase(cmIt);
+            auto usIt = userNameMapping.find(name);
+            if (usIt != userNameMapping.end()) {
+                userNameMapping.erase(usIt);
+            }
         }
     }
 
     void Communicator::sendLobbyModMessage(int id) {
         messages::mods::other::LobbyMod lobbyMod;
-        for (const auto lobby : lobbyMapping) {
+        for (const auto &lobby : lobbyMapping) {
             lobbyMod.addLobby({lobby.first, lobby.second->isMatchStarted(), lobby.second->getUserInLobby()});
         }
         messageHandler.send(lobbyMod, id);

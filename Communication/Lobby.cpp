@@ -244,6 +244,7 @@ namespace communication {
                     pauseRequest.getMessage(), this->clients.at(id).userName, true};
             this->sendAll(pauseResponse);
             log.info("Pause");
+            game->pause();
             state = LobbyState::PAUSE;
         } else {
             sendError(messages::request::PauseRequest::getName(),
@@ -260,6 +261,7 @@ namespace communication {
                     continueRequest.getMessage(), this->clients.at(id).userName, false};
             this->sendAll(pauseResponse);
             log.info("Continue");
+            game->resume();
             state = LobbyState::GAME;
         } else {
             sendError(messages::request::ContinueRequest::getName(),
@@ -299,16 +301,21 @@ namespace communication {
     }
 
     void Lobby::onTeamFormationTimeout() {
+        log.warn("Team formation timeout");
         if (!teamFormations.first.has_value() && !teamFormations.second.has_value()) {
             auto formerPlayers = players;
             players.first.reset();
             players.second.reset();
             sendAll(messages::broadcast::MatchFinish{0, 0, 0, "",messages::types::VictoryReason::VIOLATION_OF_PROTOCOL});
+            sendError("teamFormation", "Timeout", formerPlayers.first.value());
+            sendError("teamFormation", "Timeout", formerPlayers.second.value());
             kickUser(formerPlayers.first.value());
             kickUser(formerPlayers.second.value());
         } else if (!teamFormations.first.has_value()) {
+            sendError("teamFormation", "Timeout", players.first.value());
             kickUser(players.first.value());
         } else if (!teamFormations.second.has_value()) {
+            sendError("teamFormation", "Timeout", players.second.value());
             kickUser(players.second.value());
         }
     }
@@ -355,7 +362,7 @@ namespace communication {
         }
 
         messages::broadcast::MatchFinish matchFinish;
-        if (game) {
+        if (game.has_value()) {
             matchFinish = {game->getRound(),
                            game->getLeftPoints(),
                            game->getRightPoints(), winner, victoryReason};
@@ -374,7 +381,7 @@ namespace communication {
         std::ofstream ofstream{fname};
         if (ofstream.good()) {
             nlohmann::json j = this->replay.first;
-            ofstream << j.dump();
+            ofstream << j.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
@@ -385,7 +392,7 @@ namespace communication {
         std::ofstream ofstreamSnapshot{fnameSnapshot};
         if (ofstreamSnapshot.good()) {
             nlohmann::json jSnapshot = this->replay.second;
-            ofstreamSnapshot << jSnapshot.dump();
+            ofstreamSnapshot << jSnapshot.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
@@ -393,6 +400,7 @@ namespace communication {
 
     auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
         if (id == players.first || id == players.second) {
+            teamFormationTimer.stop();
             if (id == players.first) {
                 if (players.second.has_value()) {
                     onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
@@ -406,8 +414,8 @@ namespace communication {
             }
         }
         auto userName = clients.find(id)->second.userName;
+        communicator.removeClient(id, userName);
         clients.erase(clients.find(id));
-        communicator.removeClient(id);
         log.info("User left");
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
