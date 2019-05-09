@@ -400,6 +400,7 @@ namespace communication {
 
     auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
         if (id == players.first || id == players.second) {
+            teamFormationTimer.stop();
             if (id == players.first) {
                 if (players.second.has_value()) {
                     onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
