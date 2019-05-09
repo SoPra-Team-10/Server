@@ -14,6 +14,8 @@ namespace conversions{
     bool isFan(communication::messages::types::EntityId id);
     bool isBall(communication::messages::types::EntityId id);
     bool isPlayer(communication::messages::types::EntityId id);
+    auto idToSide(communication::messages::types::EntityId id) -> gameHandling::TeamSide;
+    auto idToFantype(communication::messages::types::EntityId id) -> communication::messages::types::FanType;
 }
 
 

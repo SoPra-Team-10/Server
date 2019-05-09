@@ -29,7 +29,7 @@ namespace gameHandling{
 
     auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
-        switch (roundState){
+        switch (currentPhase){
             case PhaseType::BALL_PHASE:
                 switch (ballTurn){
                     case EntityId ::SNITCH :
@@ -50,7 +50,7 @@ namespace gameHandling{
                         //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
-                        roundState = PhaseType::PLAYER_PHASE;
+                        currentPhase = PhaseType::PLAYER_PHASE;
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
@@ -58,18 +58,19 @@ namespace gameHandling{
 
             case PhaseType::PLAYER_PHASE:{
                 if(phaseManager.hasNextPlayer()){
-                    return phaseManager.nextPlayer(environment);
+
+                    return expectedRequestType = phaseManager.nextPlayer(environment);
                 } else{
-                    roundState = PhaseType::FAN_PHASE;
+                    currentPhase = PhaseType::FAN_PHASE;
                     return getNextAction();
                 }
             }
             case PhaseType::FAN_PHASE:
                 if(phaseManager.hasNextInterference()){
-                    return phaseManager.nextInterference(environment);
+                    return expectedRequestType = phaseManager.nextInterference(environment);
                 } else {
-                    roundState = PhaseType::BALL_PHASE;
-                    phaseManager.reset();
+                    currentPhase = PhaseType::BALL_PHASE;
+                    roundOver = true;
                     return getNextAction();
                 }
             default:
@@ -79,7 +80,8 @@ namespace gameHandling{
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
         using namespace communication::messages::types;
-
+        changePhaseDelta();
+        endRound();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -87,7 +89,7 @@ namespace gameHandling{
             }
         };
 
-        if(roundState != PhaseType::PLAYER_PHASE && roundState != PhaseType::FAN_PHASE){
+        if(currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE){
             return false;
         }
 
@@ -615,7 +617,7 @@ namespace gameHandling{
                 snitchY = environment->snitch->position.y;
             }
 
-            ret.emplace(lastDeltas.front(), roundState, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
+            ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
                 teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
                 environment->bludgers[1]->position.x, environment->bludgers[1]->position.y);
@@ -629,6 +631,7 @@ namespace gameHandling{
         using DType = communication::messages::types::DeltaType;
         std::shared_ptr<gameModel::Ball> ball;
         int oldX, oldY;
+        changePhaseDelta();
 
         if (entityId == communication::messages::types::EntityId::BLUDGER1 ||
             entityId == communication::messages::types::EntityId::BLUDGER2) {
@@ -648,11 +651,11 @@ namespace gameHandling{
                     oldX = res.value()->position.x;
                     oldY = res.value()->position.y;
                     lastDeltas.emplace(DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
-                                 bludger->id, res.value()->id, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                                 bludger->id, res.value()->id, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                 }
 
                 lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
-                             std::nullopt, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                             std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
             } catch (std::runtime_error &e){
                 fatalErrorListener(std::string{e.what()});
             }
@@ -668,7 +671,7 @@ namespace gameHandling{
 
             gameController::moveSnitch(snitch, environment);
             lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
-                         std::nullopt, roundState, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                         std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
         }
@@ -718,80 +721,64 @@ namespace gameHandling{
             fatalErrorListener(std::string{"Fanblock corrupt"});
         }
 
-        communication::messages::broadcast::TeamSnapshot ret;
-
         try{
-            if(side == TeamSide::LEFT){
-                ret = {team->score, fans,
+            return {
+                team->score, fans,
+                team->seeker->position.x, team->seeker->position.y,
+                team->seeker->isFined, phaseManager.playerUsed(team->seeker->id),
+                team->seeker->knockedOut,
 
-                       team->seeker->position.x, team->seeker->position.y,
-                       team->seeker->isFined, phaseManager.playerUsedLeft(team->seeker->id),
-                       team->seeker->knockedOut,
+                team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
+                team->keeper->position == environment->quaffle->position,
+                phaseManager.playerUsed(team->keeper->id), team->keeper->knockedOut,
 
-                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
-                       team->keeper->position == environment->quaffle->position,
-                       phaseManager.playerUsedLeft(team->keeper->id), team->keeper->knockedOut,
+                team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
+                team->chasers[0]->position == environment->quaffle->position,
+                phaseManager.playerUsed(team->chasers[0]->id), team->chasers[0]->knockedOut,
 
-                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
-                       team->chasers[0]->position == environment->quaffle->position,
-                       phaseManager.playerUsedLeft(team->chasers[0]->id), team->chasers[0]->knockedOut,
+                team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
+                team->chasers[1]->position == environment->quaffle->position,
+                phaseManager.playerUsed(team->chasers[1]->id), team->chasers[1]->knockedOut,
 
-                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
-                       team->chasers[1]->position == environment->quaffle->position,
-                       phaseManager.playerUsedLeft(team->chasers[1]->id), team->chasers[1]->knockedOut,
+                team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
+                team->chasers[2]->position == environment->quaffle->position,
+                phaseManager.playerUsed(team->chasers[2]->id), team->chasers[2]->knockedOut,
 
-                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
-                       team->chasers[2]->position == environment->quaffle->position,
-                       phaseManager.playerUsedLeft(team->chasers[2]->id), team->chasers[2]->knockedOut,
+                team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
+                (team->beaters[0]->position == environment->bludgers[0]->position ||
+                team->beaters[0]->position == environment->bludgers[1]->position),
+                phaseManager.playerUsed(team->beaters[0]->id), team->beaters[0]->knockedOut,
 
-                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
-                       (team->beaters[0]->position == environment->bludgers[0]->position ||
-                        team->beaters[0]->position == environment->bludgers[1]->position),
-                       phaseManager.playerUsedLeft(team->beaters[0]->id), team->beaters[0]->knockedOut,
-
-                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
-                       (team->beaters[1]->position == environment->bludgers[0]->position ||
-                        team->beaters[1]->position == environment->bludgers[1]->position),
-                       phaseManager.playerUsedLeft(team->beaters[1]->id), team->beaters[1]->knockedOut
-                };
-            } else {
-                ret = {team->score, fans,
-
-                       team->seeker->position.x, team->seeker->position.y,
-                       team->seeker->isFined, phaseManager.playerUsedRight(team->seeker->id),
-                       team->seeker->knockedOut,
-
-                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
-                       team->keeper->position == environment->quaffle->position,
-                       phaseManager.playerUsedRight(team->keeper->id), team->keeper->knockedOut,
-
-                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
-                       team->chasers[0]->position == environment->quaffle->position,
-                       phaseManager.playerUsedRight(team->chasers[0]->id), team->chasers[0]->knockedOut,
-
-                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
-                       team->chasers[1]->position == environment->quaffle->position,
-                       phaseManager.playerUsedRight(team->chasers[1]->id), team->chasers[1]->knockedOut,
-
-                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
-                       team->chasers[2]->position == environment->quaffle->position,
-                       phaseManager.playerUsedRight(team->chasers[2]->id), team->chasers[2]->knockedOut,
-
-                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
-                       (team->beaters[0]->position == environment->bludgers[0]->position ||
-                        team->beaters[0]->position == environment->bludgers[1]->position),
-                       phaseManager.playerUsedRight(team->beaters[0]->id), team->beaters[0]->knockedOut,
-
-                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
-                       (team->beaters[1]->position == environment->bludgers[0]->position ||
-                        team->beaters[1]->position == environment->bludgers[1]->position),
-                       phaseManager.playerUsedRight(team->beaters[1]->id), team->beaters[1]->knockedOut
-                };
-            }
+                team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
+                (team->beaters[1]->position == environment->bludgers[0]->position ||
+                team->beaters[1]->position == environment->bludgers[1]->position),
+                phaseManager.playerUsed(team->beaters[1]->id), team->beaters[1]->knockedOut
+            };
         } catch (std::runtime_error &e){
             fatalErrorListener(std::string{e.what()});
+            return {};
+        }
+    }
+
+    void Game::changePhaseDelta() {
+        using namespace communication::messages::types;
+        static PhaseType lastPhase = PhaseType::BALL_PHASE;
+        if(currentPhase != lastPhase){
+            lastPhase = currentPhase;
+            lastDeltas.emplace(DeltaType::PHASE_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                    std::nullopt, std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
         }
 
-        return ret;
+    }
+
+    void Game::endRound() {
+        using namespace communication::messages::types;
+        if(roundOver){
+            roundOver = false;
+            roundNumber++;
+            phaseManager.reset();
+            lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
+        }
     }
 }
