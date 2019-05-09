@@ -14,6 +14,7 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
+#include <Util/Logging.hpp>
 #include "GameTypes.h"
 #include "Util/Timer.h"
 #include "PhaseManager.h"
@@ -26,7 +27,8 @@ namespace gameHandling{
              const communication::messages::request::TeamConfig& teamConfig1,
              const communication::messages::request::TeamConfig& teamConfig2,
              communication::messages::request::TeamFormation teamFormation1,
-             communication::messages::request::TeamFormation teamFormation2);
+             communication::messages::request::TeamFormation teamFormation2,
+             util::Logging &log);
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
@@ -91,12 +93,15 @@ namespace gameHandling{
         communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
-        int roundNumber = 0;
+        unsigned int roundNumber = 0;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         bool roundOver = false; ///<Internal state to determine when a round is over
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
         TeamSide currentSide; ///<Current side to make a move
+        util::Logging &log;
+        gameController::ExcessLength overTimeState = gameController::ExcessLength::None;
+        unsigned int overTimeCounter = 0;
 
         /**
          * Gets the team associated with the given side

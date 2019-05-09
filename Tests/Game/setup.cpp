@@ -35,7 +35,7 @@ auto setup::createEnv(const gameModel::Config &config) -> std::shared_ptr<gameMo
 
 
 
-auto setup::createGame() -> gameHandling::Game {
+auto setup::createGame(util::Logging &log) -> gameHandling::Game {
     using namespace communication::messages;
     using namespace communication::messages::request;
     int maxRounds = 20;
@@ -76,5 +76,5 @@ auto setup::createGame() -> gameHandling::Game {
                              t2->beaters[1]->position.x, t2->beaters[1]->position.y);
 
     TeamConfig tc("", "", "", "", "", 2, 2, 2, 1, {}, {}, {}, {}, {}, {}, {});
-    return gameHandling::Game(matchConfig, tc, tc, formation1, formation2);
+    return gameHandling::Game(matchConfig, tc, tc, formation1, formation2, log);
 }

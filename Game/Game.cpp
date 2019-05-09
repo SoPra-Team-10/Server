@@ -12,21 +12,21 @@
 namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
-               communication::messages::request::TeamFormation teamFormation2) : environment(std::make_shared<gameModel::Environment>
-                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2){
+               communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2), lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
-        std::cout<<"Constructor is called"<<std::endl;
+        log.debug("Constructed game");
     }
 
     void Game::pause() {
         timer.pause();
-        std::cout<<"pause() is called"<<std::endl;
+        log.debug("Pause is called");
     }
 
     void Game::resume() {
         timer.resume();
-        std::cout<<"resume() is called"<<std::endl;
+        log.debug("Resume is called");
     }
 
     auto Game::getNextAction() -> communication::messages::broadcast::Next {
@@ -267,6 +267,10 @@ namespace gameHandling{
                         return false;
                     }
 
+                    if(overTimeState != gameController::ExcessLength::None){
+                        return true;
+                    }
+
                     auto oldX = environment->snitch->position.x;
                     auto oldY = environment->snitch->position.y;
                     if(sPush.execute() == gameController::ActionCheckResult::Foul){
@@ -458,6 +462,11 @@ namespace gameHandling{
                                 lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf, environment->quaffle->position.x,
                                                    environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                            } else if(result == gameController::ActionResult::SnitchCatch){
+                                snitchCought = true;
+                            } else {
+                                fatalErrorListener(std::string{"Unexpected action result"});
+                                return false;
                             }
                         }
 
@@ -662,9 +671,23 @@ namespace gameHandling{
                 fatalErrorListener(std::string{"We done fucked it up!"});
             }
 
-            gameController::moveSnitch(snitch, environment);
+            gameController::moveSnitch(snitch, environment, overTimeState);
             lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
                          std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+            if(overTimeState == gameController::ExcessLength::Stage3){
+                auto catcher = environment->getPlayer(environment->snitch->position);
+                if(!catcher.has_value()){
+                    fatalErrorListener(std::string{"Fatal error! Snitch did not collide with a seeker"});
+                }
+
+                lastDeltas.emplace(DType::SNITCH_CATCH, true, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                   catcher.value()->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
+                                   std::nullopt, std::nullopt);
+
+                lastDeltas.emplace(DType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                   std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                   environment->team2->score, std::nullopt, std::nullopt);
+            }
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
         }
@@ -772,6 +795,28 @@ namespace gameHandling{
             phaseManager.reset();
             lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
+            switch (overTimeState){
+                case gameController::ExcessLength::None:
+                    if(roundNumber > environment->config.maxRounds){
+                        overTimeState = gameController::ExcessLength::Stage1;
+                    }
+
+                    break;
+                case gameController::ExcessLength::Stage1:
+                    if(++overTimeCounter > 3){
+                        overTimeState = gameController::ExcessLength::Stage2;
+                        overTimeCounter = 0;
+                    }
+                    break;
+                case gameController::ExcessLength::Stage2:
+                    if(environment->snitch->position == gameModel::Position{8, 6} &&
+                        ++overTimeCounter > 3){
+                        overTimeState = gameController::ExcessLength::Stage3;
+                    }
+                    break;
+                case gameController::ExcessLength::Stage3:
+                    break;
+            }
         }
     }
 
