@@ -4,6 +4,7 @@
 
 #include "Game.h"
 #include "iostream"
+#include "conversions.h"
 #include <SopraGameLogic/GameController.h>
 #include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
@@ -15,7 +16,9 @@ namespace gameHandling{
                communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2) :
             environment(std::make_shared<gameModel::Environment> (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-            phaseManager(environment->team1, environment->team2){
+            phaseManager(environment->team1, environment->team2), lastDeltas(){
+        lastDeltas.push({communication::messages::types::DeltaType::ROUND_CHANGE,
+                    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 0, {}});
         std::cout<<"Constructor is called"<<std::endl;
     }
 
@@ -30,7 +33,7 @@ namespace gameHandling{
     auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
         switch (roundState){
-            case GameState::BallPhase:
+            case PhaseType::BALL_PHASE:
                 switch (ballTurn){
                     case EntityId ::SNITCH :
                         //Bludger1 turn next
@@ -50,26 +53,26 @@ namespace gameHandling{
                         //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
-                        roundState = GameState::PlayerPhase;
+                        roundState = PhaseType::PLAYER_PHASE;
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
 
-            case GameState::PlayerPhase:{
+            case PhaseType::PLAYER_PHASE:{
                 if(phaseManager.hasNextPlayer()){
                     return phaseManager.nextPlayer(environment);
                 } else{
-                    roundState = GameState::InterferencePhase;
+                    roundState = PhaseType::FAN_PHASE;
                     return getNextAction();
                 }
             }
-            case GameState::InterferencePhase:
+            case PhaseType::FAN_PHASE:
                 if(phaseManager.hasNextInterference()){
                     return phaseManager.nextInterference(environment);
                 } else {
-                    roundState = GameState::BallPhase;
-                    endRound();
+                    roundState = PhaseType::BALL_PHASE;
+                    phaseManager.reset();
                     return getNextAction();
                 }
             default:
@@ -78,7 +81,16 @@ namespace gameHandling{
     }
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
-        if(roundState != GameState::PlayerPhase || roundState != GameState::InterferencePhase){
+        using namespace communication::messages::types;
+
+        auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
+            for(const auto &foul : fouls){
+                lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {}, player->id, {}, {}, {}, {},
+                                 conversions::foulToBanReason(foul)});
+            }
+        };
+
+        if(roundState != PhaseType::PLAYER_PHASE || roundState != PhaseType::FAN_PHASE){
             return false;
         }
 
@@ -96,12 +108,61 @@ namespace gameHandling{
 
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
                         auto bludger = environment->getBallByID(command.getPassiveEntity().value());
+                        auto oldX = bludger->position.x;
+                        auto oldY = bludger->position.y;
                         gameController::Shot bShot(environment, player, bludger, target);
                         if(bShot.check() == gameController::ActionCheckResult::Impossible){
                             return false;
                         }
 
-                        bShot.execute();
+                        auto res = bShot.execute();
+                        addFouls(res.second, player);
+                        for(const auto &result : res.first){
+                            switch (result){
+                                case gameController::ActionResult::Intercepted:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::Miss:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::ScoreRight:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::ScoreLeft:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::ThrowSuccess:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::Knockout:
+                                    lastDeltas.push({DeltaType::BLUDGER_KNOCKOUT, true, player->position.x, player->position.y,
+                                                     bludger->position.x, bludger->position.y, bludger->id, player->id,
+                                                     {}, {}, {}, {}, {}});
+                                    break;
+                                case gameController::ActionResult::SnitchCatch:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::WrestQuaffel:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::FoolAway:
+                                    lastDeltas.push({DeltaType::FOOL_AWAY, {}, player->position.x, player->position.y,
+                                                     environment->quaffle->position.x, environment->quaffle->position.y,
+                                                     environment->quaffle->id, player->id, {}, {}, {}, {}, {}});
+                                    break;
+                                default:
+                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                            }
+                        }
+
+                        //Failed Knockout
+                        if(res.first.empty() && bludger->position == player->position){
+                            lastDeltas.push({DeltaType::BLUDGER_KNOCKOUT, false, player->position.x, player->position.y,
+                                             {}, {}, bludger->id, player->id, {}, {}, {}, {}, {}});
+                        }
+
+                        lastDeltas.push({DeltaType::BLUDGER_BEATING, {}, oldX, oldY, bludger->position.x, bludger->position.y, player->id, bludger->id,
+                                     {}, {}, {}, {}, {}});
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -112,9 +173,8 @@ namespace gameHandling{
                 }
             }
             case communication::messages::types::DeltaType::QUAFFLE_THROW:{
-                if(command.getPassiveEntity().has_value() && command.getActiveEntity().has_value() &&
-                   command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
-                   command.getXPosOld().has_value() && command.getYPosOld().has_value()){
+                if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
+                command.getYPosNew().has_value()){
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         if(!gameController::playerCanShoot(player, environment)){
@@ -122,12 +182,63 @@ namespace gameHandling{
                         }
 
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
+                        auto oldX = environment->quaffle->position.x;
+                        auto oldY = environment->quaffle->position.y;
                         gameController::Shot qThrow(environment, player, environment->quaffle, target);
                         if(qThrow.check() == gameController::ActionCheckResult::Impossible){
                             return false;
                         }
 
-                        qThrow.execute();
+                        auto res = qThrow.execute();
+                        auto destPlayer = environment->getPlayer(environment->quaffle->position);
+                        std::optional<EntityId > destPlayerId = {};
+                        if(destPlayer.has_value()){
+                            destPlayerId = destPlayer.value()->id;
+                        }
+
+                        addFouls(res.second, player);
+                        bool success = true;
+                        for(const auto &result : res.first){
+                            switch (result){
+                                case gameController::ActionResult::Intercepted:
+                                    //Not defined in "standard"
+                                    success = false;
+                                    break;
+                                case gameController::ActionResult::Miss:
+                                    //Not defined ins "standard"
+                                    success = false;
+                                    break;
+                                case gameController::ActionResult::ScoreRight:
+                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
+                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    break;
+                                case gameController::ActionResult::ScoreLeft:
+                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
+                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    break;
+                                case gameController::ActionResult::ThrowSuccess:
+                                    break;
+                                case gameController::ActionResult::Knockout:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::SnitchCatch:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::WrestQuaffel:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::FoolAway:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                default:
+                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                            }
+                        }
+
+                        lastDeltas.push({DeltaType ::QUAFFLE_THROW, success, oldX, oldY, environment->quaffle->position.x,
+                                         environment->quaffle->position.y, player->id, destPlayerId,
+                                         {}, {}, {}, {}, {}});
+
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -145,7 +256,17 @@ namespace gameHandling{
                         return false;
                     }
 
-                    sPush.execute();
+                    auto oldX = environment->snitch->position.x;
+                    auto oldY = environment->snitch->position.y;
+                    if(sPush.execute() == gameController::ActionCheckResult::Foul){
+                        lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
+                                         conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
+                                         {}, {}, {}, {}, BanReason::SNITCH_SNATCH});
+                    }
+
+                    lastDeltas.push({DeltaType::SNITCH_SNATCH, {}, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
+                                     conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
+                                     {}, {}, {}, {}, {}});
                     return true;
                 } catch (std::runtime_error &e){
                     fatalErrorListener(std::string(e.what()));
@@ -154,13 +275,36 @@ namespace gameHandling{
             }
             case communication::messages::types::DeltaType::TROLL_ROAR:{
                 try{
-                    auto &team= getTeam(side);
+                    auto &team = getTeam(side);
                     gameController::Impulse impulse(environment, team);
                     if(!impulse.isPossible()){
                         return false;
                     }
 
-                    impulse.execute();
+                    auto oldX = environment->quaffle->position.x;
+                    auto oldY = environment->quaffle->position.y;
+                    auto holdingPlayer = environment->getPlayer(environment->quaffle->position);
+                    std::optional<EntityId> holdingPlayerId = {};
+                    if(holdingPlayer.has_value()){
+                        holdingPlayerId = holdingPlayer.value()->id;
+                    }
+
+                    if(impulse.execute() == gameController::ActionCheckResult::Foul){
+                        lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
+                                         conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
+                                         {}, {}, {}, {}, BanReason::TROLL_ROAR});
+                    }
+
+                    auto playerWithQuaffle = environment->getPlayer({oldX, oldY});
+                    if(playerWithQuaffle.has_value()){
+                        lastDeltas.push({DeltaType::FOOL_AWAY, {}, oldX, oldY,
+                                         environment->quaffle->position.x, environment->quaffle->position.y,
+                                         environment->quaffle->id, playerWithQuaffle.value()->id, {}, {}, {}, {}, {}});
+                    }
+
+                    lastDeltas.push({DeltaType::TROLL_ROAR, {}, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
+                                     conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
+                                     {}, {}, {}, {}, {}});
                     return true;
                 } catch (std::runtime_error &e){
                     fatalErrorListener(std::string(e.what()));
@@ -172,12 +316,23 @@ namespace gameHandling{
                     try{
                         auto &team = getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
+                        auto oldX = targetPlayer->position.x;
+                        auto oldY = targetPlayer->position.y;
                         gameController::Teleport teleport(environment, team, targetPlayer);
                         if(!teleport.isPossible()){
                             return false;
                         }
 
-                        teleport.execute();
+                        if(teleport.execute() == gameController::ActionCheckResult::Foul){
+                         lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
+                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
+                                         {}, {}, {}, {}, BanReason::ELF_TELEPORTATION});
+                        }
+
+                        //@TODO was tun, wenn target den quaffle hält?
+                        lastDeltas.push({DeltaType::ELF_TELEPORTATION, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
+                                         conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
+                                         {}, {}, {}, {}, {}});
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -192,12 +347,32 @@ namespace gameHandling{
                     try{
                         auto &team = getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
+                        auto oldX = targetPlayer->position.x;
+                        auto oldY = targetPlayer->position.y;
+                        auto oldXQuaf = environment->quaffle->position.x;
+                        auto oldYQuaf = environment->quaffle->position.y;
                         gameController::RangedAttack rAttack(environment, team, targetPlayer);
                         if(!rAttack.isPossible()){
                             return false;
                         }
 
-                        rAttack.execute();
+                        if(rAttack.execute() == gameController::ActionCheckResult::Foul){
+                          lastDeltas.push({DeltaType::BAN, {}, {}, {}, {}, {}, {},
+                                           conversions::interferenceToId(gameModel::InterferenceType::RangedAttack,
+                                                                         side),
+                                         {}, {}, {}, {}, BanReason::GOBLIN_SHOCK});
+                        }
+
+                        if(gameModel::Position{oldX, oldY} == gameModel::Position{oldXQuaf, oldYQuaf}){
+                            lastDeltas.push({DeltaType::FOOL_AWAY, {}, oldXQuaf, oldYQuaf,
+                                         environment->quaffle->position.x, environment->quaffle->position.y,
+                                         environment->quaffle->id, targetPlayer->id, {}, {}, {}, {}, {}});
+                        }
+
+                        lastDeltas.push({DeltaType::GOBLIN_SHOCK, {}, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
+                                         conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
+                                         targetPlayer->id, {}, {}, {}, {}, {}});
+
                         return true;
                     } catch (std::runtime_error &e){
                         fatalErrorListener(std::string(e.what()));
@@ -215,13 +390,61 @@ namespace gameHandling{
                     command.getYPosNew().has_value()){
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        auto oldX = player->position.x;
+                        auto oldY = player->position.y;
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
                         gameController::Move move(environment, player, target);
                         if(move.check() == gameController::ActionCheckResult::Impossible){
                             return false;
                         }
 
-                        move.execute();
+                        auto res = move.execute();
+                        addFouls(res.second, player);
+                        bool snitchCought = false;
+                        for(const auto &result : res.first){
+                            switch (result){
+                                case gameController::ActionResult::Intercepted:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::Miss:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::ScoreRight:
+                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
+                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    break;
+                                case gameController::ActionResult::ScoreLeft:
+                                    lastDeltas.push({DeltaType::GOAL_POINTS_CHANGE, {}, {}, {}, {}, {}, {}, {}, {},
+                                                     environment->team1->score, environment->team2->score, {}, {}});
+                                    break;
+                                case gameController::ActionResult::ThrowSuccess:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::Knockout:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::SnitchCatch:
+                                    snitchCought = true;
+                                    break;
+                                case gameController::ActionResult::WrestQuaffel:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                case gameController::ActionResult::FoolAway:
+                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                    return false;
+                                default:
+                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                            }
+                        }
+
+                        if(environment->snitch->position == player->position){
+                            lastDeltas.push({DeltaType::SNITCH_CATCH, snitchCought, {}, {}, {}, {}, player->id, {}, {},
+                                             environment->team1->score, environment->team2->score, {}, {}});
+                        }
+
+                        lastDeltas.push({DeltaType::MOVE, {}, oldX, oldY, player->position.x, player->position.y,
+                                         player->id, {}, {}, {}, {}, {}, {}});
+
                         return true;
                     } catch (std::runtime_error &e) {
                         fatalErrorListener(std::string(e.what()));
@@ -258,60 +481,75 @@ namespace gameHandling{
         return environment->team2->score;
     }
 
-    auto Game::getSnapshot() const -> communication::messages::broadcast::Snapshot {
-        return communication::messages::broadcast::Snapshot();
+    auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
+        using namespace communication::messages::broadcast;
+        std::queue<Snapshot> ret;
+        while (!lastDeltas.empty()){
+            std::optional<int> snitchX = {};
+            std::optional<int> snitchY = {};
+            if(environment->snitch->exists){
+                snitchX = environment->snitch->position.x;
+                snitchY = environment->snitch->position.y;
+            }
+
+            ret.push({lastDeltas.front(), roundState, {}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
+                teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
+                environment->quaffle->position.y, environment->bludgers[0]->position.x,
+                environment->bludgers[0]->position.y, environment->bludgers[1]->position.x,
+                environment->bludgers[1]->position.y});
+            lastDeltas.pop();
+        }
+
+        return ret;
     }
 
-    auto Game::executeBallDelta(communication::messages::types::EntityId entityId)
-            -> communication::messages::request::DeltaRequest {
+    void Game::executeBallDelta(communication::messages::types::EntityId entityId){
+        using DType = communication::messages::types::DeltaType;
         std::shared_ptr<gameModel::Ball> ball;
         int oldX, oldY;
 
         if (entityId == communication::messages::types::EntityId::BLUDGER1 ||
             entityId == communication::messages::types::EntityId::BLUDGER2) {
-            std::shared_ptr<gameModel::Bludger> currBludger;
-            for (auto &bludger : environment->bludgers) {
-                if (bludger->id == entityId) {
-                    ball = currBludger = bludger;
-                    break;
+            try{
+                ball = environment->getBallByID(entityId);
+                std::shared_ptr<gameModel::Bludger> bludger = std::dynamic_pointer_cast<gameModel::Bludger>(ball);
+
+                if(!bludger){
+                    fatalErrorListener(std::string{"We done fucked it up!"});
                 }
+
+                oldX = bludger->position.x;
+                oldY = bludger->position.y;
+
+                auto res = gameController::moveBludger(bludger, environment);
+                if(res.has_value()){
+                    oldX = res.value()->position.x;
+                    oldY = res.value()->position.y;
+                    lastDeltas.push({DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
+                                 bludger->id, res.value()->id, roundState, {}, {}, {}, {}});
+                }
+
+                lastDeltas.push({DType::MOVE, {}, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
+                             {}, roundState, {}, {}, {}, {}});
+            } catch (std::runtime_error &e){
+                fatalErrorListener(std::string{e.what()});
             }
 
-            if (!currBludger) {
-                throw std::runtime_error{"Ball for entity id not found, we fucked up!"};
-            }
-            oldX = currBludger->position.x;
-            oldY = currBludger->position.y;
-
-            gameController::moveBludger(currBludger, environment);
         } else if (entityId == communication::messages::types::EntityId::SNITCH) {
             ball = environment->snitch;
             oldX = ball->position.x;
             oldY = ball->position.y;
-            //@TODO actually move the snitch
+            auto snitch = std::dynamic_pointer_cast<gameModel::Snitch>(ball);
+            if(!snitch){
+                fatalErrorListener(std::string{"We done fucked it up!"});
+            }
+
+            gameController::moveSnitch(snitch, environment);
+            lastDeltas.push({DType::MOVE, {}, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
+                         {}, roundState, {}, {}, {}, {}});
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
         }
-
-        return communication::messages::request::DeltaRequest{
-            communication::messages::types::DeltaType::MOVE,
-            true,
-            oldX,
-            oldY,
-            ball->position.x,
-            ball->position.y,
-            entityId,
-            std::nullopt,
-            communication::messages::types::PhaseType::BALL_PHASE,
-            getLeftPoints(),
-            getRightPoints(),
-            getRound(),
-            std::nullopt
-        };
-    }
-
-    void Game::endRound() {
-        phaseManager.reset();
     }
 
     auto Game::getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team> & {
@@ -320,5 +558,118 @@ namespace gameHandling{
         } else {
             return environment->team2;
         }
+    }
+
+    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
+        -> communication::messages::broadcast::TeamSnapshot {
+        using FType = communication::messages::types::FanType;
+        std::vector<communication::messages::broadcast::Fan> fans;
+        fans.reserve(7);
+
+        auto makeFans = [this, &fans, &team, &side](FType type){
+            for(int i = 0; i < team->fanblock.getBannedCount(type); i++){
+                fans.emplace_back(communication::messages::broadcast::Fan{type, true, false});
+            }
+
+            int used = side == TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
+                    phaseManager.interferencesUsedRight(type);
+            int left = team->fanblock.getUses(type) - used;
+            for(int i = 0; i < used; i++){
+                fans.emplace_back(communication::messages::broadcast::Fan{type, false, true});
+            }
+
+            for(int i = 0; i < left; i++){
+                fans.emplace_back(communication::messages::broadcast::Fan{type, false, false});
+            }
+        };
+
+        try{
+            makeFans(FType::NIFFLER);
+            makeFans(FType::TROLL);
+            makeFans(FType::ELF);
+            makeFans(FType::GOBLIN);
+        } catch (std::runtime_error &e){
+            fatalErrorListener(std::string{e.what()});
+        }
+
+        if(fans.size() != 7){
+            fatalErrorListener(std::string{"Fanblock corrupt"});
+        }
+
+        communication::messages::broadcast::TeamSnapshot ret;
+
+        try{
+            if(side == TeamSide::LEFT){
+                ret = {team->score, fans,
+
+                       team->seeker->position.x, team->seeker->position.y,
+                       team->seeker->isFined, phaseManager.playerUsedLeft(team->seeker->id),
+                       team->seeker->knockedOut,
+
+                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
+                       team->keeper->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->keeper->id), team->keeper->knockedOut,
+
+                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
+                       team->chasers[0]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[0]->id), team->chasers[0]->knockedOut,
+
+                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
+                       team->chasers[1]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[1]->id), team->chasers[1]->knockedOut,
+
+                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
+                       team->chasers[2]->position == environment->quaffle->position,
+                       phaseManager.playerUsedLeft(team->chasers[2]->id), team->chasers[2]->knockedOut,
+
+                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
+                       (team->beaters[0]->position == environment->bludgers[0]->position ||
+                        team->beaters[0]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedLeft(team->beaters[0]->id), team->beaters[0]->knockedOut,
+
+                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
+                       (team->beaters[1]->position == environment->bludgers[0]->position ||
+                        team->beaters[1]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedLeft(team->beaters[1]->id), team->beaters[1]->knockedOut
+                };
+            } else {
+                ret = {team->score, fans,
+
+                       team->seeker->position.x, team->seeker->position.y,
+                       team->seeker->isFined, phaseManager.playerUsedRight(team->seeker->id),
+                       team->seeker->knockedOut,
+
+                       team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
+                       team->keeper->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->keeper->id), team->keeper->knockedOut,
+
+                       team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
+                       team->chasers[0]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[0]->id), team->chasers[0]->knockedOut,
+
+                       team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
+                       team->chasers[1]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[1]->id), team->chasers[1]->knockedOut,
+
+                       team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
+                       team->chasers[2]->position == environment->quaffle->position,
+                       phaseManager.playerUsedRight(team->chasers[2]->id), team->chasers[2]->knockedOut,
+
+                       team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
+                       (team->beaters[0]->position == environment->bludgers[0]->position ||
+                        team->beaters[0]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedRight(team->beaters[0]->id), team->beaters[0]->knockedOut,
+
+                       team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
+                       (team->beaters[1]->position == environment->bludgers[0]->position ||
+                        team->beaters[1]->position == environment->bludgers[1]->position),
+                       phaseManager.playerUsedRight(team->beaters[1]->id), team->beaters[1]->knockedOut
+                };
+            }
+        } catch (std::runtime_error &e){
+            fatalErrorListener(std::string{e.what()});
+        }
+
+        return ret;
     }
 }

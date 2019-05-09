@@ -51,6 +51,12 @@ namespace gameHandling{
          */
         void reset();
 
+        bool playerUsedLeft(communication::messages::types::EntityId id) const;
+        bool playerUsedRight(communication::messages::types::EntityId id) const;
+
+        int interferencesUsedLeft(communication::messages::types::FanType type) const;
+        int interferencesUsedRight(communication::messages::types::FanType type) const;
+
     private:
         MemberSelector teamLeft, teamRight;
         TeamSide currentSidePlayers, currentSideInter;

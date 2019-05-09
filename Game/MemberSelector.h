@@ -9,6 +9,7 @@
 #include <SopraGameLogic/GameModel.h>
 #include <SopraGameLogic/GameController.h>
 #include <deque>
+#include <SopraGameLogic/Interference.h>
 #include "GameTypes.h"
 
 namespace gameHandling{
@@ -29,6 +30,8 @@ namespace gameHandling{
          */
         bool hasPlayers() const;
 
+        bool playerUsed(communication::messages::types::EntityId id) const;
+
         /**
          *
          * @return true if at least one Player not knocked out is available
@@ -48,6 +51,8 @@ namespace gameHandling{
          */
         bool hasInterference() const;
 
+        int usedInterferences(communication::messages::types::FanType type) const;
+
         /**
          * Restores the initial state of the player list just as after the construction
          * Resets the internal representation of the player list, so that it is possible to randomly choose players again.
@@ -62,12 +67,9 @@ namespace gameHandling{
 
     private:
         std::shared_ptr<const gameModel::Team> team;
-        const gameModel::Fanblock fanblock;
         const TeamSide side;
         std::deque<std::shared_ptr<gameModel::Player>> playersLeft;
         std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft;
-
-        auto interferenceToID(gameModel::InterferenceType type) const -> communication::messages::types::EntityId;
 
         template <typename T>
         auto selectRandom(std::deque<T> &list) const -> typename std::deque<T>::iterator;

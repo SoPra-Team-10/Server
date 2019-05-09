@@ -33,13 +33,13 @@ namespace communication {
         replay.second.addSpectator(client.userName);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
-        if (state == LobbyState::GAME) {
+        if (state == LobbyState::GAME && lastSnapshot.has_value() && lastNext.has_value()) {
             sendSingle(communication::messages::unicast::Reconnect{
                     messages::broadcast::MatchStart{
                         matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
                         clients.at(players.first.value()).userName,
                         clients.at(players.second.value()).userName},
-                        game->getSnapshot(), lastNext.value()
+                        lastSnapshot.value(), lastNext.value()
             }, id);
         }
     }
@@ -101,24 +101,33 @@ namespace communication {
             log.debug("Got first teamConfig");
             teamConfigs.first = teamConfig;
         } else if (!players.second.has_value()) {
-            players.second = id;
-            log.info("Got second teamConfig, startingMatch");
-            teamConfigs.second = teamConfig;
-            this->sendAll(messages::broadcast::MatchStart{
-                matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
-                clients.at(players.first.value()).userName,
-                clients.at(players.second.value()).userName});
-            this->state = LobbyState::WAITING_FORMATION;
-            replay.first.setLeftTeamConfig(teamConfigs.first.value());
-            replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.first.setRightTeamConfig(teamConfigs.second.value());
-            replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
-            replay.second.setLeftTeamConfig(teamConfigs.first.value());
-            replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
-            replay.second.setRightTeamConfig(teamConfigs.second.value());
-            replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
-            teamFormationTimer.setTimeout(
-                    std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
+            if (clients.find(players.first.value()) == clients.end()) {
+                log.warn("First client left after sending TeamConfig");
+                players.first.reset();
+                players.second.reset();
+                for (const auto &client : clients) {
+                    sendWarn("teamConfig", "Player 1 left, restarting game", client.first);
+                }
+            } else {
+                players.second = id;
+                log.info("Got second teamConfig, startingMatch");
+                teamConfigs.second = teamConfig;
+                this->sendAll(messages::broadcast::MatchStart{
+                        matchConfig, teamConfigs.first.value(), teamConfigs.second.value(),
+                        clients.at(players.first.value()).userName,
+                        clients.at(players.second.value()).userName});
+                this->state = LobbyState::WAITING_FORMATION;
+                replay.first.setLeftTeamConfig(teamConfigs.first.value());
+                replay.first.setLeftTeamUserName(clients.at(players.first.value()).userName);
+                replay.first.setRightTeamConfig(teamConfigs.second.value());
+                replay.first.setRightTeamUserName(clients.at(players.second.value()).userName);
+                replay.second.setLeftTeamConfig(teamConfigs.first.value());
+                replay.second.setLeftTeamUserName(clients.at(players.first.value()).userName);
+                replay.second.setRightTeamConfig(teamConfigs.second.value());
+                replay.second.setRightTeamUserName(clients.at(players.second.value()).userName);
+                teamFormationTimer.setTimeout(
+                        std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
+            }
         } else {
             this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
@@ -158,13 +167,23 @@ namespace communication {
                             std::placeholders::_2));
                     game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
                                                        std::placeholders::_2));
-                    //@TODO Fatal listener here
                     game->fatalErrorListener(std::bind(&Lobby::onFatalError, this, std::placeholders::_1));
-                    auto snapshot = game->getSnapshot();
-                    snapshot.setSpectators(getSpectators());
-                    this->sendAll(snapshot);
-                    replay.first.setFirstSnapshot(snapshot);
-                    replay.second.setFirstSnapshot(snapshot);
+                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                    auto next = game->getNextAction();
+                    lastNext = next;
+                    this->sendAll(next);
+                    replay.second.addLog(communication::messages::Message{next});
+                    while (next.getEntityId() == messages::types::EntityId::SNITCH
+                           || next.getEntityId() == messages::types::EntityId::BLUDGER1
+                           || next.getEntityId() == messages::types::EntityId::BLUDGER2
+                           || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+                        game->executeBallDelta(next.getEntityId());
+                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                        next = game->getNextAction();
+                        lastNext = next;
+                        sendAll(next);
+                        replay.second.addLog(communication::messages::Message{next});
+                    }
                 }
             } else {
                 this->kickUser(id);
@@ -183,28 +202,20 @@ namespace communication {
                 gameHandling::TeamSide teamSide =
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
                 if (game->executeDelta(deltaRequest, teamSide)) {
-                    auto snapshot = game->getSnapshot();
-                    snapshot.setSpectators(getSpectators());
-                    this->sendAll(snapshot);
+                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
                     auto next = game->getNextAction();
                     lastNext = next;
                     this->sendAll(next);
-                    replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
-                    replay.second.addLog(communication::messages::Message{snapshot});
                     replay.second.addLog(communication::messages::Message{next});
                     while (next.getEntityId() == messages::types::EntityId::SNITCH
                             || next.getEntityId() == messages::types::EntityId::BLUDGER1
                             || next.getEntityId() == messages::types::EntityId::BLUDGER2
                             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
                         game->executeBallDelta(next.getEntityId());
-                        snapshot = game->getSnapshot();
-                        snapshot.setSpectators(getSpectators());
-                        sendAll(snapshot);
+                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
                         next = game->getNextAction();
                         lastNext = next;
                         sendAll(next);
-                        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
-                        replay.second.addLog(communication::messages::Message{snapshot});
                         replay.second.addLog(communication::messages::Message{next});
                     }
                 } else {
@@ -233,6 +244,7 @@ namespace communication {
                     pauseRequest.getMessage(), this->clients.at(id).userName, true};
             this->sendAll(pauseResponse);
             log.info("Pause");
+            game->pause();
             state = LobbyState::PAUSE;
         } else {
             sendError(messages::request::PauseRequest::getName(),
@@ -249,6 +261,7 @@ namespace communication {
                     continueRequest.getMessage(), this->clients.at(id).userName, false};
             this->sendAll(pauseResponse);
             log.info("Continue");
+            game->resume();
             state = LobbyState::GAME;
         } else {
             sendError(messages::request::ContinueRequest::getName(),
@@ -288,16 +301,21 @@ namespace communication {
     }
 
     void Lobby::onTeamFormationTimeout() {
+        log.warn("Team formation timeout");
         if (!teamFormations.first.has_value() && !teamFormations.second.has_value()) {
             auto formerPlayers = players;
             players.first.reset();
             players.second.reset();
             sendAll(messages::broadcast::MatchFinish{0, 0, 0, "",messages::types::VictoryReason::VIOLATION_OF_PROTOCOL});
+            sendError("teamFormation", "Timeout", formerPlayers.first.value());
+            sendError("teamFormation", "Timeout", formerPlayers.second.value());
             kickUser(formerPlayers.first.value());
             kickUser(formerPlayers.second.value());
         } else if (!teamFormations.first.has_value()) {
+            sendError("teamFormation", "Timeout", players.first.value());
             kickUser(players.first.value());
         } else if (!teamFormations.second.has_value()) {
+            sendError("teamFormation", "Timeout", players.second.value());
             kickUser(players.second.value());
         }
     }
@@ -318,9 +336,7 @@ namespace communication {
         };
         game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
 
-        auto snapshot = game->getSnapshot();
-        snapshot.setSpectators(getSpectators());
-        this->sendAll(snapshot);
+        modifySnapshotsAddToLogAndSend(game->getSnapshot());
         auto next = game->getNextAction();
         lastNext = next;
         this->sendAll(next);
@@ -328,10 +344,8 @@ namespace communication {
             || next.getEntityId() == messages::types::EntityId::BLUDGER1
             || next.getEntityId() == messages::types::EntityId::BLUDGER2
             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-            this->sendAll(game->executeBallDelta(next.getEntityId()));
+            game->executeBallDelta(next.getEntityId());
         }
-        replay.first.addLog(communication::messages::Message{snapshot.getLastDeltaBroadcast()});
-        replay.second.addLog(communication::messages::Message{snapshot});
         replay.second.addLog(communication::messages::Message{next});
     }
 
@@ -342,10 +356,13 @@ namespace communication {
         } else {
             winnerId = players.second.value();
         }
-        std::string winner = clients.at(winnerId).userName;
+        std::string winner;
+        if (clients.find(winnerId) != clients.end()) {
+            winner = clients.at(winnerId).userName;
+        }
 
         messages::broadcast::MatchFinish matchFinish;
-        if (game) {
+        if (game.has_value()) {
             matchFinish = {game->getRound(),
                            game->getLeftPoints(),
                            game->getRightPoints(), winner, victoryReason};
@@ -364,18 +381,18 @@ namespace communication {
         std::ofstream ofstream{fname};
         if (ofstream.good()) {
             nlohmann::json j = this->replay.first;
-            ofstream << j.dump();
+            ofstream << j.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
 
         std::stringstream sstreamSnapshot;
-        sstream << this->name << "_replaySnapshot.json";
+        sstreamSnapshot << this->name << "_replaySnapshot.json";
         auto fnameSnapshot = sstreamSnapshot.str();
         std::ofstream ofstreamSnapshot{fnameSnapshot};
         if (ofstreamSnapshot.good()) {
             nlohmann::json jSnapshot = this->replay.second;
-            ofstreamSnapshot << jSnapshot.dump();
+            ofstreamSnapshot << jSnapshot.dump(4);
         } else {
             log.warn("Can not write replay to file!");
         }
@@ -383,19 +400,22 @@ namespace communication {
 
     auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
         if (id == players.first || id == players.second) {
+            teamFormationTimer.stop();
             if (id == players.first) {
                 if (players.second.has_value()) {
                     onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    players.second.reset();
                 }
             } else {
                 if (players.first.has_value()) {
                     onWin(gameHandling::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    players.first.reset();
                 }
             }
         }
         auto userName = clients.find(id)->second.userName;
+        communicator.removeClient(id, userName);
         clients.erase(clients.find(id));
-        communicator.removeClient(id);
         log.info("User left");
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
@@ -451,7 +471,7 @@ namespace communication {
             this->sendSingle(communication::messages::mods::unicast::PrivateError{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
-            sstream << "Error in " << payloadReason << ":\t" << msg;
+            sstream << "Error in " << payloadReason << ":" << msg;
             this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
         }
     }
@@ -461,8 +481,19 @@ namespace communication {
             this->sendSingle(communication::messages::mods::unicast::PrivateWarning{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
-            sstream << "Warning in " << payloadReason << ":\t" << msg;
+            sstream << "Warning in " << payloadReason << ":" << msg;
             this->sendSingle(communication::messages::unicast::PrivateDebug{sstream.str()}, id);
+        }
+    }
+
+    void Lobby::modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots) {
+        while (!snapshots.empty()) {
+            auto snapshot = snapshots.front();
+            snapshots.pop();
+            snapshot.setSpectators(getSpectators());
+            this->sendAll(snapshot);
+            replay.first.setFirstSnapshot(snapshot);
+            replay.second.setFirstSnapshot(snapshot);
         }
     }
 
@@ -488,6 +519,5 @@ namespace communication {
         }
         return ret;
     }
-
 
 }

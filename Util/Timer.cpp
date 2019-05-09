@@ -6,15 +6,28 @@
 
 namespace util {
     void Timer::pause() {
-        paused = true;
+        if (std::holds_alternative<Timepoint>(time)) { // Check if we are actually running
+            auto timepoint = std::get<Timepoint>(time);
+            auto now = std::chrono::system_clock::now();
+            auto duration = timepoint - now;
+            time = std::chrono::duration_cast<Duration>(duration);
+            conditionVariable.notify_all();
+        }
     }
 
     void Timer::resume() {
-        paused = false;
+        if (std::holds_alternative<Duration>(time)) { // Check if pause
+            auto duration = std::get<Duration>(time);
+            auto now = std::chrono::system_clock::now();
+            auto timepoint = now + duration;
+            time = timepoint;
+            conditionVariable.notify_all();
+        }
     }
 
     void Timer::stop() {
         stopRequired = true;
+        conditionVariable.notify_all();
     }
 
     Timer::~Timer() {

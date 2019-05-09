@@ -1,7 +1,7 @@
 {
     "maxRounds": 100,
     "timings": {
-        "teamFormationTimeout": 30000,
+        "teamFormationTimeout": 3000,
         "playerTurnTimeout": 500,
         "fanTurnTimeout": 500,
         "minPlayerPhaseAnimationDuration": 500,
