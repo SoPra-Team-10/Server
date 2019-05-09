@@ -56,8 +56,16 @@ namespace gameHandling{
          */
         bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
 
+        /**
+         * Executes a ball turn
+         * @param entityId the ball to make a move
+         */
         void executeBallDelta(communication::messages::types::EntityId entityId);
 
+        /**
+         * Creates a bunch of redundant data for the clients
+         * @return a queue of snapshots containing all DeltaBroadcasts since the last action
+         */
         auto getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot>;
 
         /**
@@ -86,17 +94,39 @@ namespace gameHandling{
         int roundNumber = 0;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
-        bool roundOver = false;
-        communication::messages::broadcast::Next expectedRequestType{};
-        TeamSide currentSide;
+        bool roundOver = false; ///<Internal state to determine when a round is over
+        communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
+        TeamSide currentSide; ///<Current side to make a move
 
+        /**
+         * Gets the team associated with the given side
+         * @param side
+         * @return
+         */
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
+        /**
+         * Constructs a TeamSnapshot object from a Team
+         * @param team
+         * @param side
+         * @return
+         */
         auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
             -> communication::messages::broadcast::TeamSnapshot;
 
+        /**
+         * pushes a PHASE_CHANGE DeltaBroadcast on the lastDeltas queue if the game phase has changed
+         */
         void changePhaseDelta();
+
+        /**
+         * Prepares the game state for the next round
+         */
         void endRound();
+
+        /**
+         * Calls the timeoutListener
+         */
         void onTimeout();
     };
 }
