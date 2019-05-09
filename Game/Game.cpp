@@ -88,8 +88,11 @@ namespace gameHandling{
 
     bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
         using namespace communication::messages::types;
+        //stop current timer since expected request arrived
         timer.stop();
+        //queue PhaseChangeDelta if necessary
         changePhaseDelta();
+        //prepare for new round if necessary
         endRound();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
@@ -98,6 +101,7 @@ namespace gameHandling{
             }
         };
 
+        //Request in wrong phase or request from wrong side
         if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE) ||
             currentSide != side){
             return false;
@@ -114,6 +118,7 @@ namespace gameHandling{
                         return false;
                     }
 
+                    //Requested different actor or requested move instead of action
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         return false;
@@ -121,11 +126,6 @@ namespace gameHandling{
 
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
-                        //@TODO Redundant??
-                        if(!gameController::playerCanShoot(player, environment)){
-                            return false;
-                        }
-
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
                         auto targetPlayer = environment->getPlayer(target);
                         auto bludger = environment->getBallByID(command.getPassiveEntity().value());
@@ -141,48 +141,30 @@ namespace gameHandling{
                         auto res = bShot.execute();
                         addFouls(res.second, player);
                         for(const auto &result : res.first){
-                            if(!targetPlayer.has_value()){
-                                fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
-                                return false;
-                            }
+                            if(result == gameController::ActionResult::Knockout){
+                                //Successful knockout
+                                if(!targetPlayer.has_value()){
+                                    fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
+                                    return false;
+                                }
 
-                            //@TODO aufräumen
-                            switch (result){
-                                case gameController::ActionResult::Intercepted:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
+                                lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, target.x, target.y,
+                                                   bludger->position.x, bludger->position.y, bludger->id, targetPlayer.value()->id,
+                                                   std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+                            } else if(result == gameController::ActionResult::FoolAway){
+                                //Knockout an quaffle lost
+                                if(!targetPlayer.has_value()){
+                                    fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
                                     return false;
-                                case gameController::ActionResult::Miss:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::ScoreRight:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::ScoreLeft:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::ThrowSuccess:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::Knockout:
-                                    lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, target.x, target.y,
-                                                     bludger->position.x, bludger->position.y, bludger->id, targetPlayer.value()->id,
-                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-                                    break;
-                                case gameController::ActionResult::SnitchCatch:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::WrestQuaffel:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::FoolAway:
-                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
-                                                     environment->quaffle->position.x, environment->quaffle->position.y,
-                                                     environment->quaffle->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
-                                                     std::nullopt, std::nullopt, std::nullopt);
-                                    break;
-                                default:
-                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
-                                    return false;
+                                }
+
+                                lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
+                                                   environment->quaffle->position.x, environment->quaffle->position.y,
+                                                   environment->quaffle->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
+                                                   std::nullopt, std::nullopt, std::nullopt);
+                            } else {
+                                fatalErrorListener(std::string{"Unexpected action result"});
+                                return false;
                             }
                         }
 
@@ -193,9 +175,11 @@ namespace gameHandling{
                                              std::nullopt, std::nullopt, std::nullopt);
                         }
 
+                        //Always send: bludger was shot
                         lastDeltas.emplace(DeltaType::BLUDGER_BEATING, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y,
                                 player->id, bludger->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
+                        //After shot -> turn over
                         lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                 player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
@@ -214,6 +198,7 @@ namespace gameHandling{
                         return false;
                     }
 
+                    //Requested different actor or requested move instead of action
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         return false;
@@ -221,11 +206,6 @@ namespace gameHandling{
 
                     try{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
-                        //@TODO redundant??
-                        if(!gameController::playerCanShoot(player, environment)){
-                            return false;
-                        }
-
                         gameModel::Position target(command.getXPosNew().value(), command.getYPosNew().value());
                         auto oldX = environment->quaffle->position.x;
                         auto oldY = environment->quaffle->position.y;
@@ -242,43 +222,20 @@ namespace gameHandling{
                         }
 
                         addFouls(res.second, player);
-                        bool success = true;
+                        bool success = false;
                         for(const auto &result : res.first){
-                            switch (result){
-                                case gameController::ActionResult::Intercepted:
-                                    //Not defined in "standard"
-                                    success = false;
-                                    break;
-                                case gameController::ActionResult::Miss:
-                                    //Not defined ins "standard"
-                                    success = false;
-                                    break;
-                                case gameController::ActionResult::ScoreRight:
-                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
-                                                     environment->team2->score, std::nullopt, std::nullopt);
-                                    break;
-                                case gameController::ActionResult::ScoreLeft:
-                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
-                                                     environment->team2->score, std::nullopt, std::nullopt);
-                                    break;
-                                case gameController::ActionResult::ThrowSuccess:
-                                    break;
-                                case gameController::ActionResult::Knockout:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::SnitchCatch:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::WrestQuaffel:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::FoolAway:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                default:
-                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
+                            if(result == gameController::ActionResult::ScoreLeft ||
+                                result == gameController::ActionResult::ScoreRight){
+                                //Notify: goal was scored
+                                lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                   std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                   environment->team2->score, std::nullopt, std::nullopt);
+                            } else if(result == gameController::ActionResult::ThrowSuccess){
+                                success = true;
+                            } else if(result != gameController::ActionResult::Intercepted &&
+                                result != gameController::ActionResult::Miss){
+                                fatalErrorListener(std::string{"Unexpected action result"});
+                                return false;
                             }
                         }
 
@@ -487,48 +444,20 @@ namespace gameHandling{
                         addFouls(res.second, player);
                         bool snitchCought = false;
                         for(const auto &result : res.first){
-                            switch (result){
-                                case gameController::ActionResult::Intercepted:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
+                            if(result == gameController::ActionResult::ScoreRight ||
+                                result == gameController::ActionResult::ScoreLeft){
+                                lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                                   std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                                   environment->team2->score, std::nullopt, std::nullopt);
+                            } else if(result == gameController::ActionResult::FoolAway){
+                                if(!targetPlayer.has_value()){
+                                    fatalErrorListener(std::string{"Inconsistent game state at Ramming foul"});
                                     return false;
-                                case gameController::ActionResult::Miss:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::ScoreRight:
-                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
-                                                     environment->team2->score, std::nullopt, std::nullopt);
-                                    break;
-                                case gameController::ActionResult::ScoreLeft:
-                                    lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                                     std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
-                                                     environment->team2->score, std::nullopt, std::nullopt);
-                                    break;
-                                case gameController::ActionResult::ThrowSuccess:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::Knockout:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::SnitchCatch:
-                                    snitchCought = true;
-                                    break;
-                                case gameController::ActionResult::WrestQuaffel:
-                                    fatalErrorListener(std::string{"Unexpected action result"});
-                                    return false;
-                                case gameController::ActionResult::FoolAway:
-                                    if(!targetPlayer.has_value()){
-                                        fatalErrorListener(std::string{"Inconsistent game state at Ramming foul"});
-                                        return false;
-                                    }
+                                }
 
-                                    lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf, environment->quaffle->position.x,
-                                            environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
-                                            std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-                                    break;
-                                default:
-                                    fatalErrorListener(std::string("Fatal error, enum out of range! Possible memory corruption!"));
-                                    return false;
+                                lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf, environment->quaffle->position.x,
+                                                   environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
+                                                   std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                             }
                         }
 
