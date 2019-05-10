@@ -20,6 +20,7 @@ auto conversions::foulToBanReason(gameModel::Foul foul) -> communication::messag
         case gameModel::Foul::BlockSnitch:
             return Reason::SNITCHNIP;
     }
+
     throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 
@@ -54,13 +55,10 @@ bool conversions::isFan(communication::messages::types::EntityId id) {
         default:
             return false;
     }
-
-    throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 
 bool conversions::isBall(communication::messages::types::EntityId id) {
     switch (id){
-
         case communication::messages::types::EntityId::SNITCH:
         case communication::messages::types::EntityId::BLUDGER1:
         case communication::messages::types::EntityId::BLUDGER2:
@@ -69,13 +67,10 @@ bool conversions::isBall(communication::messages::types::EntityId id) {
         default:
             return false;
     }
-
-    throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 
 bool conversions::isPlayer(communication::messages::types::EntityId id) {
     switch (id){
-
         case communication::messages::types::EntityId::LEFT_SEEKER:
         case communication::messages::types::EntityId::LEFT_KEEPER:
         case communication::messages::types::EntityId::LEFT_CHASER1:
@@ -94,8 +89,6 @@ bool conversions::isPlayer(communication::messages::types::EntityId id) {
         default:
             return false;
     }
-
-    throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 
 auto conversions::idToSide(communication::messages::types::EntityId id) -> gameHandling::TeamSide {
@@ -128,14 +121,11 @@ auto conversions::idToSide(communication::messages::types::EntityId id) -> gameH
         default:
             throw std::runtime_error("No player or Fan");
     }
-
-    throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 
 auto conversions::idToFantype(communication::messages::types::EntityId id) -> communication::messages::types::FanType {
     using namespace communication::messages::types;
     switch (id){
-
         case communication::messages::types::EntityId::LEFT_GOBLIN:
             return FanType::GOBLIN;
         case communication::messages::types::EntityId::LEFT_TROLL:
@@ -155,7 +145,5 @@ auto conversions::idToFantype(communication::messages::types::EntityId id) -> co
         default:
             throw std::runtime_error("No Fan");
     }
-
-    throw std::runtime_error("Fatal error! Enum out of bounds");
 }
 

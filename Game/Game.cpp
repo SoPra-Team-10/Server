@@ -738,6 +738,14 @@ namespace gameHandling{
         }
 
         try{
+            bool keeperHoldsQuaffle = team->keeper->position == environment->quaffle->position;
+            bool chaser1HoldsQuaffle = team->chasers[0]->position == environment->quaffle->position;
+            bool chaser2HoldsQuaffle = team->chasers[1]->position == environment->quaffle->position;
+            bool chaser3HoldsQuaffle = team->chasers[2]->position == environment->quaffle->position;
+            bool beater1holdsBludger = team->beaters[0]->position == environment->bludgers[0]->position ||
+                                       team->beaters[0]->position == environment->bludgers[1]->position;
+            bool beater2holdsBludger = team->beaters[1]->position == environment->bludgers[0]->position ||
+                                       team->beaters[1]->position == environment->bludgers[1]->position;
             return {
                 team->score, fans,
                 team->seeker->position.x, team->seeker->position.y,
@@ -745,30 +753,22 @@ namespace gameHandling{
                 team->seeker->knockedOut,
 
                 team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
-                team->keeper->position == environment->quaffle->position,
-                phaseManager.playerUsed(team->keeper->id), team->keeper->knockedOut,
+                keeperHoldsQuaffle, phaseManager.playerUsed(team->keeper->id), team->keeper->knockedOut,
 
                 team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
-                team->chasers[0]->position == environment->quaffle->position,
-                phaseManager.playerUsed(team->chasers[0]->id), team->chasers[0]->knockedOut,
+                chaser1HoldsQuaffle, phaseManager.playerUsed(team->chasers[0]->id), team->chasers[0]->knockedOut,
 
                 team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
-                team->chasers[1]->position == environment->quaffle->position,
-                phaseManager.playerUsed(team->chasers[1]->id), team->chasers[1]->knockedOut,
+                chaser2HoldsQuaffle, phaseManager.playerUsed(team->chasers[1]->id), team->chasers[1]->knockedOut,
 
                 team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
-                team->chasers[2]->position == environment->quaffle->position,
-                phaseManager.playerUsed(team->chasers[2]->id), team->chasers[2]->knockedOut,
+                chaser3HoldsQuaffle, phaseManager.playerUsed(team->chasers[2]->id), team->chasers[2]->knockedOut,
 
                 team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
-                (team->beaters[0]->position == environment->bludgers[0]->position ||
-                team->beaters[0]->position == environment->bludgers[1]->position),
-                phaseManager.playerUsed(team->beaters[0]->id), team->beaters[0]->knockedOut,
+                beater1holdsBludger, phaseManager.playerUsed(team->beaters[0]->id), team->beaters[0]->knockedOut,
 
                 team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
-                (team->beaters[1]->position == environment->bludgers[0]->position ||
-                team->beaters[1]->position == environment->bludgers[1]->position),
-                phaseManager.playerUsed(team->beaters[1]->id), team->beaters[1]->knockedOut
+                beater2holdsBludger, phaseManager.playerUsed(team->beaters[1]->id), team->beaters[1]->knockedOut
             };
         } catch (std::runtime_error &e){
             fatalErrorListener(std::string{e.what()});
