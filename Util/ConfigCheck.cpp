@@ -40,28 +40,28 @@ namespace configCheck {
     bool checkTeamConfig(const communication::messages::request::TeamConfig &config) {
         gameModel::Team team(config, {}, true);
 
-        int TINDERBLAST = 0;
-        int CLEANSWEEP11 = 0;
-        int COMET260 = 0;
-        int NIMBUS2001 = 0;
-        int FIREBOLT = 0;
+        int tinderblast = 0;
+        int cleansweep11 = 0;
+        int comet260 = 0;
+        int nimbus2001 = 0;
+        int firebolt = 0;
 
         auto players = team.getAllPlayers();
         for (const auto &player : players) {
             if (player->broom == communication::messages::types::Broom::TINDERBLAST) {
-                TINDERBLAST++;
+                tinderblast++;
             }
             else if (player->broom == communication::messages::types::Broom::CLEANSWEEP11) {
-                CLEANSWEEP11++;
+                cleansweep11++;
             }
             else if (player->broom == communication::messages::types::Broom::COMET260) {
-                COMET260++;
+                comet260++;
             }
             else if (player->broom == communication::messages::types::Broom::NIMBUS2001) {
-                NIMBUS2001++;
+                nimbus2001++;
             }
             else if (player->broom == communication::messages::types::Broom::FIREBOLT) {
-                FIREBOLT++;
+                firebolt++;
             }
             else {
                 return false;
@@ -83,10 +83,7 @@ namespace configCheck {
         }
 
         // broom usage check
-        if (TINDERBLAST < 1 || CLEANSWEEP11 < 1 || COMET260 < 1 || NIMBUS2001 < 1 || FIREBOLT < 1) {
-            return false;
-        }
+        return !(tinderblast < 1 || cleansweep11 < 1 || comet260 < 1 || nimbus2001 < 1 || firebolt < 1);
 
-        return true;
     }
 }
