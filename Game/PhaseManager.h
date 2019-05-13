@@ -51,8 +51,7 @@ namespace gameHandling{
          */
         void reset();
 
-        bool playerUsedLeft(communication::messages::types::EntityId id) const;
-        bool playerUsedRight(communication::messages::types::EntityId id) const;
+        bool playerUsed(communication::messages::types::EntityId id) const;
 
         int interferencesUsedLeft(communication::messages::types::FanType type) const;
         int interferencesUsedRight(communication::messages::types::FanType type) const;
@@ -74,11 +73,13 @@ namespace gameHandling{
          */
         auto getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player, const std::shared_ptr<const gameModel::Environment> &env) const ->
         std::pair<communication::messages::types::TurnType, bool>;
-        void chooseTeam(TeamSide &side);
+        void chooseTeam(TeamSide &side) const;
 
         auto getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>>;
 
         auto getTeam(TeamSide side) -> MemberSelector&;
+
+        auto getTeam(TeamSide side) const -> const MemberSelector&;
     };
 }
 

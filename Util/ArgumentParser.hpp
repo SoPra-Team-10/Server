@@ -19,7 +19,7 @@ namespace util {
     public:
         /**
          * CTor, parses the arguments and fills all fields. If --help is found printHelp() is called and the
-         * program gets terminated.
+         * program gets terminated. If no argument is passed the help is printed as well.
          * @throws std::runtime_error if any of the required flags doesn't exist or contains an invalid value
          * @param argc the number of arguments, as passed into main
          * @param argv an array of all arguments, as passed into main
