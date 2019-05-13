@@ -103,14 +103,11 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2bbd9b0adc627fd0e478cbdb9ea4eaec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208aa2e0f50a211db96fb90aa9134cff"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a208aa2e0f50a211db96fb90aa9134cff">getNextAction</a> () -&gt; communication::messages::broadcast::Next</td></tr>
 <tr class="separator:a208aa2e0f50a211db96fb90aa9134cff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a687278b2b24317df4a680e4e5a190ea9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a687278b2b24317df4a680e4e5a190ea9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>executeDelta</b> (communication::messages::request::DeltaRequest command, TeamSide teamSide)</td></tr>
+<tr class="memitem:a687278b2b24317df4a680e4e5a190ea9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a687278b2b24317df4a680e4e5a190ea9">executeDelta</a> (communication::messages::request::DeltaRequest command, TeamSide teamSide)</td></tr>
 <tr class="separator:a687278b2b24317df4a680e4e5a190ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a608e5ad465c8832c25669fced9b7ab45"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a608e5ad465c8832c25669fced9b7ab45"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>executeBallDelta</b> (communication::messages::types::EntityId entityId)</td></tr>
+<tr class="memitem:a608e5ad465c8832c25669fced9b7ab45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a608e5ad465c8832c25669fced9b7ab45">executeBallDelta</a> (communication::messages::types::EntityId entityId)</td></tr>
 <tr class="separator:a608e5ad465c8832c25669fced9b7ab45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d46111882b0b3b596fad03ca825f2ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d46111882b0b3b596fad03ca825f2ab"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>getSnapshot</b> () -&gt; std::queue&lt; communication::messages::broadcast::Snapshot &gt;</td></tr>
+<tr class="memitem:a6d46111882b0b3b596fad03ca825f2ab"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a6d46111882b0b3b596fad03ca825f2ab">getSnapshot</a> () -&gt; std::queue&lt; communication::messages::broadcast::Snapshot &gt;</td></tr>
 <tr class="separator:a6d46111882b0b3b596fad03ca825f2ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a620465c98b44219ae30cf4235e74c7e0"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0">getRound</a> () const -&gt; int</td></tr>
 <tr class="separator:a620465c98b44219ae30cf4235e74c7e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -139,6 +136,64 @@ const util::Listener&lt; std::string &gt;&#160;</td><td class="memItemRight" val
 <tr class="separator:abe716fb9d643095749337bd8c806653b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a608e5ad465c8832c25669fced9b7ab45"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void gameHandling::Game::executeBallDelta </td>
+          <td>(</td>
+          <td class="paramtype">communication::messages::types::EntityId&#160;</td>
+          <td class="paramname"><em>entityId</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Executes a ball turn </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">entityId</td><td>the ball to make a move </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a687278b2b24317df4a680e4e5a190ea9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool gameHandling::Game::executeDelta </td>
+          <td>(</td>
+          <td class="paramtype">communication::messages::request::DeltaRequest&#160;</td>
+          <td class="paramname"><em>command</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TeamSide&#160;</td>
+          <td class="paramname"><em>teamSide</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Executess the requested command if compliant with the game rules </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">command</td><td>Command to be executed </td></tr>
+    <tr><td class="paramname">teamSide</td><td>Side which executes the command </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if successful, false if rule violation </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ab69d8ef518447521f57266679ce1c10c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -204,6 +259,23 @@ const util::Listener&lt; std::string &gt;&#160;</td><td class="memItemRight" val
 </div><div class="memdoc">
 <p>Returns the current round </p>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6d46111882b0b3b596fad03ca825f2ab"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto gameHandling::Game::getSnapshot </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> -&gt; std::queue&lt;communication::messages::broadcast::Snapshot&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Creates a bunch of redundant data for the clients </p>
+<dl class="section return"><dt>Returns</dt><dd>a queue of snapshots containing all DeltaBroadcasts since the last action </dd></dl>
 
 </div>
 </div>

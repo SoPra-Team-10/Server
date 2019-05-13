@@ -128,48 +128,62 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#a208aa2e0f50a211db96fb90aa9134cff">getNextAction</a>() -&gt; communication::messages::broadcast::Next;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordtype">bool</span> executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordtype">void</span> executeBallDelta(communication::messages::types::EntityId entityId);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        <span class="keyword">auto</span> getSnapshot() -&gt; std::queue&lt;communication::messages::broadcast::Snapshot&gt;;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0">getRound</a>() <span class="keyword">const</span> -&gt; int;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#ab69d8ef518447521f57266679ce1c10c">getLeftPoints</a>() <span class="keyword">const</span> -&gt; int;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#afa39fa4ed3db168a0ad22f12cb37b1c6">getRightPoints</a>() <span class="keyword">const</span> -&gt; int;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <a class="code" href="classutil_1_1_timer.html">util::Timer</a> timer;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        communication::messages::types::PhaseType roundState = communication::messages::types::PhaseType::BALL_PHASE; </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        communication::messages::types::EntityId ballTurn =</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                communication::messages::types::EntityId::SNITCH; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        <span class="keywordtype">int</span> roundNumber = 0;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <a class="code" href="classgame_handling_1_1_phase_manager.html">PhaseManager</a> phaseManager;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        std::queue&lt;communication::messages::broadcast::DeltaBroadcast&gt; lastDeltas;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <a class="code" href="classutil_1_1_logging.html">util::Logging</a> &amp;log;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keyword">auto</span> getTeam(TeamSide side) <span class="keyword">const</span> -&gt; std::shared_ptr&lt;gameModel::Team&gt;&amp;;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keyword">auto</span> teamToTeamSnapshot(<span class="keyword">const</span> std::shared_ptr&lt;const gameModel::Team&gt; &amp;team, TeamSide side) <span class="keyword">const</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;            -&gt; communication::messages::broadcast::TeamSnapshot;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    };</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#endif //SERVER_GAME_H</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classgame_handling_1_1_game.html#a687278b2b24317df4a680e4e5a190ea9">executeDelta</a>(communication::messages::request::DeltaRequest command, TeamSide teamSide);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classgame_handling_1_1_game.html#a608e5ad465c8832c25669fced9b7ab45">executeBallDelta</a>(communication::messages::types::EntityId entityId);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#a6d46111882b0b3b596fad03ca825f2ab">getSnapshot</a>() -&gt; std::queue&lt;communication::messages::broadcast::Snapshot&gt;;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0">getRound</a>() <span class="keyword">const</span> -&gt; int;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#ab69d8ef518447521f57266679ce1c10c">getLeftPoints</a>() <span class="keyword">const</span> -&gt; int;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_game.html#afa39fa4ed3db168a0ad22f12cb37b1c6">getRightPoints</a>() <span class="keyword">const</span> -&gt; int;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <a class="code" href="classutil_1_1_timer.html">util::Timer</a> timer;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        communication::messages::types::EntityId ballTurn =</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                communication::messages::types::EntityId::SNITCH; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> roundNumber = 0;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <a class="code" href="classgame_handling_1_1_phase_manager.html">PhaseManager</a> phaseManager;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        std::queue&lt;communication::messages::broadcast::DeltaBroadcast&gt; lastDeltas {};</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        <span class="keywordtype">bool</span> roundOver = <span class="keyword">false</span>; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        communication::messages::broadcast::Next expectedRequestType{}; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        TeamSide currentSide; </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <a class="code" href="classutil_1_1_logging.html">util::Logging</a> &amp;log;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        gameController::ExcessLength overTimeState = gameController::ExcessLength::None;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> overTimeCounter = 0;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        <span class="keyword">auto</span> getTeam(TeamSide side) <span class="keyword">const</span> -&gt; std::shared_ptr&lt;gameModel::Team&gt;&amp;;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        <span class="keyword">auto</span> teamToTeamSnapshot(<span class="keyword">const</span> std::shared_ptr&lt;const gameModel::Team&gt; &amp;team, TeamSide side) <span class="keyword">const</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;            -&gt; communication::messages::broadcast::TeamSnapshot;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        <span class="keywordtype">void</span> changePhaseDelta();</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <span class="keywordtype">void</span> endRound();</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        <span class="keywordtype">void</span> onTimeout();</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    };</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;}</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="preprocessor">#endif //SERVER_GAME_H</span></div>
 <div class="ttc" id="classutil_1_1_logging_html"><div class="ttname"><a href="classutil_1_1_logging.html">util::Logging</a></div><div class="ttdef"><b>Definition:</b> Logging.hpp:18</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_a2bbd9b0adc627fd0e478cbdb9ea4eaec"><div class="ttname"><a href="classgame_handling_1_1_game.html#a2bbd9b0adc627fd0e478cbdb9ea4eaec">gameHandling::Game::resume</a></div><div class="ttdeci">void resume()</div><div class="ttdef"><b>Definition:</b> Game.cpp:30</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_a620465c98b44219ae30cf4235e74c7e0"><div class="ttname"><a href="classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0">gameHandling::Game::getRound</a></div><div class="ttdeci">auto getRound() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:473</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a2bbd9b0adc627fd0e478cbdb9ea4eaec"><div class="ttname"><a href="classgame_handling_1_1_game.html#a2bbd9b0adc627fd0e478cbdb9ea4eaec">gameHandling::Game::resume</a></div><div class="ttdeci">void resume()</div><div class="ttdef"><b>Definition:</b> Game.cpp:27</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a620465c98b44219ae30cf4235e74c7e0"><div class="ttname"><a href="classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0">gameHandling::Game::getRound</a></div><div class="ttdeci">auto getRound() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:604</div></div>
 <div class="ttc" id="classgame_handling_1_1_phase_manager_html"><div class="ttname"><a href="classgame_handling_1_1_phase_manager.html">gameHandling::PhaseManager</a></div><div class="ttdef"><b>Definition:</b> PhaseManager.h:17</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_a75924403cb56e738c63d7bd67466b3cf"><div class="ttname"><a href="classgame_handling_1_1_game.html#a75924403cb56e738c63d7bd67466b3cf">gameHandling::Game::pause</a></div><div class="ttdeci">void pause()</div><div class="ttdef"><b>Definition:</b> Game.cpp:26</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a75924403cb56e738c63d7bd67466b3cf"><div class="ttname"><a href="classgame_handling_1_1_game.html#a75924403cb56e738c63d7bd67466b3cf">gameHandling::Game::pause</a></div><div class="ttdeci">void pause()</div><div class="ttdef"><b>Definition:</b> Game.cpp:22</div></div>
 <div class="ttc" id="classutil_1_1_timer_html"><div class="ttname"><a href="classutil_1_1_timer.html">util::Timer</a></div><div class="ttdef"><b>Definition:</b> Timer.h:17</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_afa39fa4ed3db168a0ad22f12cb37b1c6"><div class="ttname"><a href="classgame_handling_1_1_game.html#afa39fa4ed3db168a0ad22f12cb37b1c6">gameHandling::Game::getRightPoints</a></div><div class="ttdeci">auto getRightPoints() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:481</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_ab69d8ef518447521f57266679ce1c10c"><div class="ttname"><a href="classgame_handling_1_1_game.html#ab69d8ef518447521f57266679ce1c10c">gameHandling::Game::getLeftPoints</a></div><div class="ttdeci">auto getLeftPoints() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:477</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_afa39fa4ed3db168a0ad22f12cb37b1c6"><div class="ttname"><a href="classgame_handling_1_1_game.html#afa39fa4ed3db168a0ad22f12cb37b1c6">gameHandling::Game::getRightPoints</a></div><div class="ttdeci">auto getRightPoints() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:612</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a608e5ad465c8832c25669fced9b7ab45"><div class="ttname"><a href="classgame_handling_1_1_game.html#a608e5ad465c8832c25669fced9b7ab45">gameHandling::Game::executeBallDelta</a></div><div class="ttdeci">void executeBallDelta(communication::messages::types::EntityId entityId)</div><div class="ttdef"><b>Definition:</b> Game.cpp:637</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a687278b2b24317df4a680e4e5a190ea9"><div class="ttname"><a href="classgame_handling_1_1_game.html#a687278b2b24317df4a680e4e5a190ea9">gameHandling::Game::executeDelta</a></div><div class="ttdeci">bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide)</div><div class="ttdef"><b>Definition:</b> Game.cpp:94</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_ab69d8ef518447521f57266679ce1c10c"><div class="ttname"><a href="classgame_handling_1_1_game.html#ab69d8ef518447521f57266679ce1c10c">gameHandling::Game::getLeftPoints</a></div><div class="ttdeci">auto getLeftPoints() const -&gt; int</div><div class="ttdef"><b>Definition:</b> Game.cpp:608</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a6d46111882b0b3b596fad03ca825f2ab"><div class="ttname"><a href="classgame_handling_1_1_game.html#a6d46111882b0b3b596fad03ca825f2ab">gameHandling::Game::getSnapshot</a></div><div class="ttdeci">auto getSnapshot() -&gt; std::queue&lt; communication::messages::broadcast::Snapshot &gt;</div><div class="ttdef"><b>Definition:</b> Game.cpp:616</div></div>
 <div class="ttc" id="_logging_8hpp_html"><div class="ttname"><a href="_logging_8hpp.html">Logging.hpp</a></div><div class="ttdoc">Declaration of the Logging class. </div></div>
 <div class="ttc" id="classgame_handling_1_1_game_html"><div class="ttname"><a href="classgame_handling_1_1_game.html">gameHandling::Game</a></div><div class="ttdef"><b>Definition:</b> Game.h:23</div></div>
-<div class="ttc" id="classgame_handling_1_1_game_html_a208aa2e0f50a211db96fb90aa9134cff"><div class="ttname"><a href="classgame_handling_1_1_game.html#a208aa2e0f50a211db96fb90aa9134cff">gameHandling::Game::getNextAction</a></div><div class="ttdeci">auto getNextAction() -&gt; communication::messages::broadcast::Next</div><div class="ttdef"><b>Definition:</b> Game.cpp:34</div></div>
+<div class="ttc" id="classgame_handling_1_1_game_html_a208aa2e0f50a211db96fb90aa9134cff"><div class="ttname"><a href="classgame_handling_1_1_game.html#a208aa2e0f50a211db96fb90aa9134cff">gameHandling::Game::getNextAction</a></div><div class="ttdeci">auto getNextAction() -&gt; communication::messages::broadcast::Next</div><div class="ttdef"><b>Definition:</b> Game.cpp:32</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
