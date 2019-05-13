@@ -152,12 +152,12 @@ namespace communication {
                 if (players.first == id) {
                     log.debug("Got teamFormation for left team");
                     if (teamFormations.first.has_value()) {
-                        kickUser(id);
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
+                        kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
                     } else if (configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::LEFT)) {
-                        kickUser(id);
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
+                        kickUser(id);
                         log.warn("Got invalid team formation");
                         players.first.reset();
                     } else {
