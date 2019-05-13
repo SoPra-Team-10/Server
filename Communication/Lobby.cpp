@@ -166,6 +166,7 @@ namespace communication {
                 } else if (players.second == id) {
                     log.debug("Got teamFormation for right team");
                     if (teamFormations.second.has_value()) {
+                        sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
                     } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {

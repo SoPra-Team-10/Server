@@ -23,6 +23,7 @@ TEST(CommunicationLobby, DoubleTeamFormationA) {
             broadcast::MatchStart{getMatchConfig(), getTeamConfig(true), getTeamConfig(false), "a", "b"}};
     Message teamFormation{getTeamFormation(true)};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"b",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
+    Message error{unicast::PrivateDebug{"Error in teamFormation:You sent two teamformations"}};
 
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
@@ -33,6 +34,8 @@ TEST(CommunicationLobby, DoubleTeamFormationA) {
 
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(error, 1)).Times(1);
 
     EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
@@ -63,6 +66,8 @@ TEST(CommunicationLobby, DoubleTeamFormationB) {
     Message teamFormation{getTeamFormation(false)};
     Message matchFinish{broadcast::MatchFinish{0,0,0,"a",types::VictoryReason::VIOLATION_OF_PROTOCOL}};
 
+    Message error{unicast::PrivateDebug{"Error in teamFormation:You sent two teamformations"}};
+
     EXPECT_CALL(messageHandler, send(joinResponse, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(loginGreetingA, 1)).Times(1);
 
@@ -72,6 +77,8 @@ TEST(CommunicationLobby, DoubleTeamFormationB) {
 
     EXPECT_CALL(messageHandler, send(matchStart, 1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchStart, 2)).Times(1);
+
+    EXPECT_CALL(messageHandler, send(error,2)).Times(1);
 
     EXPECT_CALL(messageHandler, send(matchFinish,1)).Times(1);
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(1);
