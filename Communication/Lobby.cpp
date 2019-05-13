@@ -166,6 +166,7 @@ namespace communication {
                 } else if (players.second == id) {
                     log.debug("Got teamFormation for right team");
                     if (teamFormations.second.has_value()) {
+                        sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
                     } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {
@@ -446,6 +447,7 @@ namespace communication {
         for (const auto &c : clients) {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
+        log.error(error);
         state = LobbyState::GAME;
         game.reset();
         teamConfigs.first.reset();
