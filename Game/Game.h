@@ -88,6 +88,11 @@ namespace gameHandling{
          */
         auto getRightPoints() const -> int;
 
+        /**
+         * Prepares the game state for the next round. Is called by the server after every call of executeDelta
+         */
+        void endRound();
+
     private:
         util::Timer timer;
         communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
@@ -96,7 +101,6 @@ namespace gameHandling{
         unsigned int roundNumber = 0;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
-        bool roundOver = false; ///<Internal state to determine when a round is over
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
         TeamSide currentSide; ///<Current side to make a move
         util::Logging &log;
@@ -109,6 +113,8 @@ namespace gameHandling{
          * @return
          */
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
+
+        auto getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide, communication::messages::types::VictoryReason>;
 
         /**
          * Constructs a TeamSnapshot object from a Team
@@ -124,10 +130,6 @@ namespace gameHandling{
          */
         void changePhaseDelta();
 
-        /**
-         * Prepares the game state for the next round
-         */
-        void endRound();
 
         /**
          * Calls the timeoutListener

@@ -53,34 +53,34 @@ namespace gameHandling{
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
                         currentPhase = PhaseType::PLAYER_PHASE;
+                        changePhaseDelta();
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
                 }
 
             case PhaseType::PLAYER_PHASE:{
-                if(phaseManager.hasNextPlayer()){
-
-                    auto next = phaseManager.nextPlayer(environment);
-                    currentSide = conversions::idToSide(next.getEntityId());
-                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
-                    return expectedRequestType = next;
-                } else{
+                auto next = phaseManager.nextPlayer(environment);
+                currentSide = conversions::idToSide(next.getEntityId());
+                timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                if(!phaseManager.hasNextPlayer()){
                     currentPhase = PhaseType::FAN_PHASE;
-                    return getNextAction();
+                    changePhaseDelta();
                 }
+
+                return expectedRequestType = next;
             }
-            case PhaseType::FAN_PHASE:
-                if(phaseManager.hasNextInterference()){
-                    auto next = phaseManager.nextInterference(environment);
-                    currentSide = conversions::idToSide(next.getEntityId());
-                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
-                    return expectedRequestType = next;
-                } else {
+            case PhaseType::FAN_PHASE: {
+                auto next = phaseManager.nextInterference(environment);
+                currentSide = conversions::idToSide(next.getEntityId());
+                timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
+                if (!phaseManager.hasNextInterference()) {
                     currentPhase = PhaseType::BALL_PHASE;
-                    roundOver = true;
-                    return getNextAction();
+                    changePhaseDelta();
                 }
+
+                return expectedRequestType = next;
+            }
             default:
                 throw std::runtime_error("Fatal error, inconsistent game state!");
         }
@@ -92,8 +92,6 @@ namespace gameHandling{
         timer.stop();
         //queue PhaseChangeDelta if necessary
         changePhaseDelta();
-        //prepare for new round if necessary
-        endRound();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -476,12 +474,6 @@ namespace gameHandling{
                                              std::nullopt, std::nullopt);
                         }
 
-                        if(snitchCought){
-                            lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
-                                               environment->team2->score, std::nullopt, std::nullopt);
-                        }
-
                         lastDeltas.emplace(DeltaType::MOVE, std::nullopt, oldX, oldY, player->position.x, player->position.y,
                                          player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
@@ -490,6 +482,13 @@ namespace gameHandling{
                                     player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         }
 
+                        if(snitchCought){
+                            lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
+                                               environment->team2->score, std::nullopt, std::nullopt);
+                            auto winningTeam = getVictoriousTeam(player);
+                            winListener(winningTeam.first, winningTeam.second);
+                        }
                         return true;
                     } catch (std::runtime_error &e) {
                         fatalErrorListener(std::string(e.what()));
@@ -671,10 +670,10 @@ namespace gameHandling{
                 fatalErrorListener(std::string{"We done fucked it up!"});
             }
 
-            gameController::moveSnitch(snitch, environment, overTimeState);
+            bool caught = gameController::moveSnitch(snitch, environment, overTimeState);
             lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, snitch->position.x, snitch->position.y, snitch->id,
                          std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-            if(overTimeState == gameController::ExcessLength::Stage3){
+            if(caught){
                 auto catcher = environment->getPlayer(environment->snitch->position);
                 if(!catcher.has_value()){
                     fatalErrorListener(std::string{"Fatal error! Snitch did not collide with a seeker"});
@@ -687,6 +686,8 @@ namespace gameHandling{
                 lastDeltas.emplace(DType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                    environment->team2->score, std::nullopt, std::nullopt);
+                auto winningTeam = getVictoriousTeam(catcher.value());
+                winListener(winningTeam.first, winningTeam.second);
             }
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
@@ -778,19 +779,15 @@ namespace gameHandling{
 
     void Game::changePhaseDelta() {
         using namespace communication::messages::types;
-        static PhaseType lastPhase = PhaseType::BALL_PHASE;
-        if(currentPhase != lastPhase){
-            lastPhase = currentPhase;
-            lastDeltas.emplace(DeltaType::PHASE_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                    std::nullopt, std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-        }
+        lastDeltas.emplace(DeltaType::PHASE_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                std::nullopt, std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
     }
 
     void Game::endRound() {
         using namespace communication::messages::types;
-        if(roundOver){
-            roundOver = false;
+        //All fans had their turn
+        if(!phaseManager.hasNextInterference()){
             roundNumber++;
             phaseManager.reset();
             lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -822,5 +819,21 @@ namespace gameHandling{
 
     void Game::onTimeout() {
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
+    }
+
+    auto Game::getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
+    communication::messages::types::VictoryReason> {
+        using namespace communication::messages::types;
+        if(environment->team1->score > environment->team2->score){
+            return {TeamSide::LEFT, VictoryReason::MOST_POINTS};
+        } else if(environment->team1->score < environment->team2->score){
+            return {TeamSide::RIGHT, VictoryReason::MOST_POINTS};
+        } else {
+            if(environment->team1->hasMember(winningPlayer)){
+                return {TeamSide::LEFT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+            } else {
+                return {TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+            }
+        }
     }
 }
