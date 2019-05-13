@@ -13,7 +13,8 @@ namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
-                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2), lastDeltas(), log(log){
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(
+            environment->team1, environment->team2, environment), lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
         log.debug("Constructed game");
@@ -65,25 +66,29 @@ namespace gameHandling{
                 }
 
             case PhaseType::PLAYER_PHASE:{
-                auto next = phaseManager.nextPlayer(environment);
+                auto next = phaseManager.nextPlayer();
                 currentSide = conversions::idToSide(next.getEntityId());
                 timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
                 if(!phaseManager.hasNextPlayer()){
                     currentPhase = PhaseType::FAN_PHASE;
                     changePhaseDelta();
+                    log.debug("Player phase over");
                 }
 
+                log.debug("Requested player turn");
                 return expectedRequestType = next;
             }
             case PhaseType::FAN_PHASE: {
-                auto next = phaseManager.nextInterference(environment);
+                auto next = phaseManager.nextInterference();
                 currentSide = conversions::idToSide(next.getEntityId());
                 timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
                 if (!phaseManager.hasNextInterference()) {
                     currentPhase = PhaseType::BALL_PHASE;
                     changePhaseDelta();
+                    log.debug("Fan phase over");
                 }
 
+                log.debug("Requested fan turn");
                 return expectedRequestType = next;
             }
             default:
@@ -107,23 +112,27 @@ namespace gameHandling{
         //Request in wrong phase or request from wrong side
         if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE) ||
             currentSide != side){
+            log.warn("Received request not allowed: Wrong Player or wrong phase");
             return false;
         }
 
         switch (command.getDeltaType()){
             case communication::messages::types::DeltaType::SNITCH_CATCH:
+                log.warn("Invalid operation requested");
                 return false;
             case communication::messages::types::DeltaType::BLUDGER_BEATING:{
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())  ||
                        !conversions::isBall(command.getPassiveEntity().value())){
+                        log.warn("Bludger beating request has insufficient information");
                         return false;
                     }
 
                     //Requested different actor or requested move instead of action
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
+                        log.debug("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
@@ -138,6 +147,7 @@ namespace gameHandling{
                         auto oldYQuaf = environment->quaffle->position.y;
                         gameController::Shot bShot(environment, player, bludger, target);
                         if(bShot.check() == gameController::ActionCheckResult::Impossible){
+                            log.warn("Bludger shot impossible");
                             return false;
                         }
 
@@ -151,6 +161,7 @@ namespace gameHandling{
                                     return false;
                                 }
 
+                                log.debug("Sucessful knockout by bludger");
                                 lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, true, target.x, target.y,
                                                    bludger->position.x, bludger->position.y, bludger->id, targetPlayer.value()->id,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -161,6 +172,7 @@ namespace gameHandling{
                                     return false;
                                 }
 
+                                log.debug("Quaffle was lost due to bludger knockout");
                                 lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
                                                    environment->quaffle->position.x, environment->quaffle->position.y,
                                                    environment->quaffle->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
@@ -173,6 +185,7 @@ namespace gameHandling{
 
                         //Failed Knockout
                         if(res.first.empty() && targetPlayer.has_value() && bludger->position == targetPlayer.value()->position){
+                            log.debug("Failed knockout by bludger");
                             lastDeltas.emplace(DeltaType::BLUDGER_KNOCKOUT, false, target.x, target.y,
                                              std::nullopt, std::nullopt, bludger->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
                                              std::nullopt, std::nullopt, std::nullopt);
@@ -198,12 +211,14 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                 command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        log.warn("Quaffle throw request has insufficient information");
                         return false;
                     }
 
                     //Requested different actor or requested move instead of action
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
+                        log.debug("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
@@ -214,6 +229,7 @@ namespace gameHandling{
                         auto oldY = environment->quaffle->position.y;
                         gameController::Shot qThrow(environment, player, environment->quaffle, target);
                         if(qThrow.check() == gameController::ActionCheckResult::Impossible){
+                            log.warn("Quaffle throw impossible");
                             return false;
                         }
 
@@ -230,6 +246,7 @@ namespace gameHandling{
                             if(result == gameController::ActionResult::ScoreLeft ||
                                 result == gameController::ActionResult::ScoreRight){
                                 //Notify: goal was scored
+                                log.debug("Goal was scored");
                                 lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                                    environment->team2->score, std::nullopt, std::nullopt);

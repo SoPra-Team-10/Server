@@ -14,9 +14,24 @@
 #include "MemberSelector.h"
 
 namespace gameHandling{
+
+    enum class PlayerTurnState{
+        Move,
+        ExtraMove,
+        PossibleAction
+    };
+
+    enum class TeamState{
+        OneEmpty,
+        BothEmpty,
+        BothAvailable
+    };
+
     class PhaseManager {
     public:
-        PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight);
+        PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft,
+                     const std::shared_ptr<gameModel::Team> &teamRight,
+                     std::shared_ptr<const gameModel::Environment> env);
 
         /**
          * Returns the next action required by a client
@@ -24,9 +39,9 @@ namespace gameHandling{
          * @throws std::runtime_error when player phase is over
          * @return
          */
-        auto nextPlayer(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next;
+        auto nextPlayer() -> communication::messages::broadcast::Next;
 
-        auto nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next;
+        auto nextInterference() -> communication::messages::broadcast::Next;
 
         /**
          *
@@ -58,21 +73,16 @@ namespace gameHandling{
 
     private:
         MemberSelector teamLeft, teamRight;
+        const std::shared_ptr<const gameModel::Environment> env;
         TeamSide currentSidePlayers, currentSideInter;
         bool oneTeamEmptyPlayers = false;
         bool oneTeamEmptyInters = false;
 
         bool currentTurnFinished = true;
-        std::shared_ptr<const gameModel::Player> currentPlayer;
+        std::shared_ptr<gameModel::Player> currentPlayer;
+        PlayerTurnState playerTurnState = PlayerTurnState::Move;
+        TeamState teamState = TeamState::BothAvailable;
 
-        /**
-         * Determines the next action a player may take
-         * @param player player to calculate the action for
-         * @param env environment to operate on
-         * @return
-         */
-        auto getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player, const std::shared_ptr<const gameModel::Environment> &env) const ->
-        std::pair<communication::messages::types::TurnType, bool>;
         void chooseTeam(TeamSide &side) const;
 
         auto getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>>;
@@ -80,6 +90,8 @@ namespace gameHandling{
         auto getTeam(TeamSide side) -> MemberSelector&;
 
         auto getTeam(TeamSide side) const -> const MemberSelector&;
+
+        void switchSide(TeamSide &side);
     };
 }
 
