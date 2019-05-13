@@ -155,7 +155,7 @@ namespace communication {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
-                    } else if (configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::LEFT)) {
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::LEFT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         kickUser(id);
                         log.warn("Got invalid team formation");
@@ -168,7 +168,7 @@ namespace communication {
                     if (teamFormations.second.has_value()) {
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
-                    } else if (configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {
                         kickUser(id);
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         log.warn("Got invalid team formation");
