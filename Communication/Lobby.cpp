@@ -446,6 +446,7 @@ namespace communication {
         for (const auto &c : clients) {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
+        log.error(error);
         state = LobbyState::GAME;
         game.reset();
         teamConfigs.first.reset();
