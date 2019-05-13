@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <Game/ConfigCheck.h>
 #include "Lobby.hpp"
 #include "Communicator.hpp"
 
@@ -97,11 +98,21 @@ namespace communication {
     template<>
     void Lobby::onPayload(const messages::request::TeamConfig &teamConfig, int id) {
         if (!players.first.has_value()) {
-            players.first = id;
-            log.debug("Got first teamConfig");
-            teamConfigs.first = teamConfig;
+            if (!configCheck::checkTeamConfig(teamConfig)) {
+                sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
+                kickUser(id);
+                log.warn("Got invalid team config");
+            } else {
+                players.first = id;
+                log.debug("Got first teamConfig");
+                teamConfigs.first = teamConfig;
+            }
         } else if (!players.second.has_value()) {
-            if (clients.find(players.first.value()) == clients.end()) {
+            if (!configCheck::checkTeamConfig(teamConfig)) {
+                sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
+                kickUser(id);
+                log.warn("Got invalid team config");
+            } else if (clients.find(players.first.value()) == clients.end()) {
                 log.warn("First client left after sending TeamConfig");
                 players.first.reset();
                 players.second.reset();
@@ -141,8 +152,14 @@ namespace communication {
                 if (players.first == id) {
                     log.debug("Got teamFormation for left team");
                     if (teamFormations.first.has_value()) {
+                        sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::LEFT)) {
+                        sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
+                        kickUser(id);
+                        log.warn("Got invalid team formation");
+                        players.first.reset();
                     } else {
                         teamFormations.first = teamFormation;
                     }
@@ -151,6 +168,11 @@ namespace communication {
                     if (teamFormations.second.has_value()) {
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {
+                        kickUser(id);
+                        sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
+                        log.warn("Got invalid team formation");
+                        players.second.reset();
                     } else {
                         teamFormations.second = teamFormation;
                     }

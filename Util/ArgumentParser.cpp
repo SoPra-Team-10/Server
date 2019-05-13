@@ -11,6 +11,11 @@
 
 namespace util {
     ArgumentParser::ArgumentParser(int argc, char **argv) : match{}, port{0}, verbosity{0} {
+        if (argc <= 1) {
+            printHelp();
+            std::exit(1);
+        }
+
         option options[] = {
                 {"match", required_argument, nullptr, 'm'},
                 {"help", no_argument, nullptr, 'h'},

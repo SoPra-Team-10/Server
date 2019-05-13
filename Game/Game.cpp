@@ -40,19 +40,24 @@ namespace gameHandling{
 
                         //Snitch has to make move if it exists
                         if(environment->snitch->exists){
+                            log.debug("Snitch requested to make a move");
                             return {EntityId::SNITCH, TurnType::MOVE, 0};
                         } else {
+                            log.debug("Snitch does not exists. Fetching next turn");
                             return getNextAction();
                         }
                     case EntityId::BLUDGER1 :
                         //Bludger2 turn next
                         ballTurn = EntityId::BLUDGER2;
+                        log.debug("Bludger1 requested to make a move");
                         return {EntityId::BLUDGER1, TurnType::MOVE, 0};
                     case EntityId ::BLUDGER2 :
                         //Snitch turn next time entering ball phase
                         ballTurn = EntityId::SNITCH;
                         //Ball phase end, Player phase next
                         currentPhase = PhaseType::PLAYER_PHASE;
+                        log.debug("Bludger2 requested to make a move");
+                        log.debug("Ball phase over");
                         changePhaseDelta();
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:

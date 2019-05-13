@@ -13,7 +13,8 @@ namespace configCheck {
 
     bool checkTeamConfig(const communication::messages::request::TeamConfig &config);
 
-    bool checkTeamFormation(const communication::messages::request::TeamFormation &formation, const gameHandling::TeamSide &side);
+    bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
+            const gameHandling::TeamSide &side);
 
 }
 
