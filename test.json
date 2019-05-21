@@ -1,12 +1,14 @@
 {
     "maxRounds": 100,
     "timings": {
-        "teamFormationTimeout": 600000,
+        "teamFormationTimeout": 60000,
         "playerTurnTimeout": 60000,
         "fanTurnTimeout": 60000,
-        "minPlayerPhaseAnimationDuration": 500,
-        "minFanPhaseAnimationDuration": 500,
-        "minBallPhaseAnimationDuration": 500
+        "unbanTurnTimeout": 60000,
+        "minPlayerPhaseAnimationDuration": 100,
+        "minFanPhaseAnimationDuration": 100,
+        "minBallPhaseAnimationDuration": 100,
+        "minUnbanPhaseAnimationDuration": 100
     },
     "probabilities": {
         "throwSuccess": 0.5,

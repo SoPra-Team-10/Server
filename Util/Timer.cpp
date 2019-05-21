@@ -35,5 +35,8 @@ namespace util {
             this->stop();
             this->threadHandler.wait();
         }
+        if (functionThreadHandler.valid()) {
+            functionThreadHandler.wait();
+        }
     }
 }

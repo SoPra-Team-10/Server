@@ -49,6 +49,7 @@ namespace util {
         std::atomic_bool stopRequired{false};
         std::condition_variable conditionVariable;
         std::future<void> threadHandler;
+        std::future<void> functionThreadHandler;
         std::mutex mutex;
         std::variant<Timepoint, Duration> time;
     };
@@ -65,7 +66,7 @@ namespace util {
                     auto now = std::chrono::system_clock::now();
                     auto timepoint = std::get<Timepoint>(time);
                     if (now >= timepoint) {
-                        function();
+                        functionThreadHandler = std::async(std::launch::async, function);
                         return;
                     }
                     conditionVariable.wait_until(lock, timepoint);

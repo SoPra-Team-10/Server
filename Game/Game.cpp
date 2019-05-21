@@ -706,7 +706,8 @@ namespace gameHandling{
             ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
                 teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
-                environment->bludgers[1]->position.x, environment->bludgers[1]->position.y);
+                environment->bludgers[1]->position.x, environment->bludgers[1]->position.y,
+                std::vector<std::pair<int,int>>{}, false); // @TODO change last two params
             lastDeltas.pop();
         }
 

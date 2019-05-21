@@ -123,6 +123,7 @@ namespace communication {
         const messages::broadcast::MatchConfig matchConfig;
         std::map<int, Client> clients;
         std::string name;
+        std::list<std::pair<std::string, std::string>> lastTenMessages;
 
         std::pair<std::optional<communication::messages::request::TeamConfig>,
                 std::optional<communication::messages::request::TeamConfig>> teamConfigs;

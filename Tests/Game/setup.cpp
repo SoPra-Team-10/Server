@@ -41,22 +41,23 @@ auto setup::createGame(util::Logging &log) -> gameHandling::Game {
     int maxRounds = 20;
     int playerTurnTimeout = 30;
     int fanTurnTimeout = 30;
+    int unbanTurnTimeout = 30;
     int playerPhaseTime = 300;
     int fanPhaseTime = 300;
     int ballPhaseTime = 300;
+    int unbanPhaseTime = 300;
     int teamFormationTimeout = 10;
 
     float throwSuccess = 0.8;
     float knockOut = 0.8;
-    float foolAway = 0.5;
     float catchSnitch = 0.4;
     float catchQuaffle = 0.4;
     float wrestQuaffle = 0.6;
     float extraTurn = 1;
     float foulDetection = 1;
     float fanFoulDetection = 1;
-    broadcast::MatchConfig matchConfig(maxRounds, teamFormationTimeout, playerTurnTimeout, fanTurnTimeout,
-            playerPhaseTime, fanPhaseTime, ballPhaseTime, throwSuccess, knockOut, foolAway,
+    broadcast::MatchConfig matchConfig(maxRounds, teamFormationTimeout, playerTurnTimeout, fanTurnTimeout, unbanTurnTimeout,
+            playerPhaseTime, fanPhaseTime, ballPhaseTime, unbanPhaseTime, throwSuccess, knockOut,
             catchSnitch, catchQuaffle, wrestQuaffle, extraTurn, extraTurn, extraTurn, extraTurn,
             extraTurn, foulDetection, foulDetection, foulDetection, foulDetection, fanFoulDetection,
             fanFoulDetection, fanFoulDetection, fanFoulDetection, foulDetection);
