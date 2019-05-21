@@ -106,7 +106,6 @@ TEST(CommunicationLobby, TeamFormationSpectator) {
     Message teamConfigRight{getTeamConfig(false)};
     Message matchStart{
             broadcast::MatchStart{getMatchConfig(), getTeamConfig(true), getTeamConfig(false), "a", "b"}};
-    broadcast::MatchConfig matchConfig{1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     Message joinRequestC{request::JoinRequest{"lobby", "c", ""}};
     Message loginGreetingC{broadcast::LoginGreeting{"c"}};
@@ -133,7 +132,7 @@ TEST(CommunicationLobby, TeamFormationSpectator) {
     EXPECT_CALL(messageHandler, send(matchFinish,2)).Times(0);
     EXPECT_CALL(messageHandler, send(matchFinish,3)).Times(1);
 
-    communication::CommunicatorTest communicator{messageHandler, log, matchConfig};
+    communication::CommunicatorTest communicator{messageHandler, log, getMatchConfig()};
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestA, 1));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestB, 2));
     ASSERT_NO_THROW(communicator.receiveTest(joinRequestC, 3));
