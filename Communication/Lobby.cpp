@@ -478,6 +478,9 @@ namespace communication {
                 case messages::types::PhaseType::PLAYER_PHASE:
                     offset = matchConfig.getPlayerPhaseTime();
                     break;
+                case messages::types::PhaseType::UNBAN_PHASE:
+                    offset = matchConfig.getUnbanPhaseTime();
+                    break;
                 default:break;
             }
             animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
