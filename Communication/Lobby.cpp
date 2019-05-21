@@ -503,7 +503,8 @@ namespace communication {
     }
 
     void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
-        if (clients.at(id).mods.count(messages::types::Mods::ERROR) > 0) {
+        auto cit = clients.find(id);
+        if (cit != clients.end() && cit->second.mods.count(messages::types::Mods::ERROR) > 0) {
             this->sendSingle(communication::messages::mods::unicast::PrivateError{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
@@ -513,7 +514,8 @@ namespace communication {
     }
 
     void Lobby::sendWarn(const std::string &payloadReason, const std::string &msg, int id) {
-        if (clients.at(id).mods.count(messages::types::Mods::WARNING) > 0) {
+        auto cit = clients.find(id);
+        if (cit != clients.end() && cit->second.mods.count(messages::types::Mods::ERROR) > 0) {
             this->sendSingle(communication::messages::mods::unicast::PrivateWarning{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
