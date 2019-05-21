@@ -42,6 +42,11 @@ namespace communication {
                         clients.at(players.second.value()).userName},
                         lastSnapshot.value(), lastNext.value()
             }, id);
+
+            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
+                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
+            }
         }
     }
 
@@ -296,6 +301,10 @@ namespace communication {
 
     template <>
     void Lobby::onPayload(const messages::mods::request::SendChat &sendChat, int id) {
+        lastTenMessages.emplace_back(clients.at(id).userName, sendChat.getInformation());
+        if (lastTenMessages.size() > 10) {
+            lastTenMessages.pop_front();
+        }
         this->sendAll(messages::mods::broadcast::GlobalChat{clients.at(id).userName, sendChat.getInformation()});
     }
 
@@ -478,6 +487,9 @@ namespace communication {
                 case messages::types::PhaseType::PLAYER_PHASE:
                     offset = matchConfig.getPlayerPhaseTime();
                     break;
+                case messages::types::PhaseType::UNBAN_PHASE:
+                    offset = matchConfig.getUnbanPhaseTime();
+                    break;
                 default:break;
             }
             animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
@@ -491,7 +503,8 @@ namespace communication {
     }
 
     void Lobby::sendError(const std::string &payloadReason, const std::string &msg, int id) {
-        if (clients.at(id).mods.count(messages::types::Mods::ERROR) > 0) {
+        auto cit = clients.find(id);
+        if (cit != clients.end() && cit->second.mods.count(messages::types::Mods::ERROR) > 0) {
             this->sendSingle(communication::messages::mods::unicast::PrivateError{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
@@ -501,7 +514,8 @@ namespace communication {
     }
 
     void Lobby::sendWarn(const std::string &payloadReason, const std::string &msg, int id) {
-        if (clients.at(id).mods.count(messages::types::Mods::WARNING) > 0) {
+        auto cit = clients.find(id);
+        if (cit != clients.end() && cit->second.mods.count(messages::types::Mods::ERROR) > 0) {
             this->sendSingle(communication::messages::mods::unicast::PrivateWarning{payloadReason, msg}, id);
         } else {
             std::stringstream sstream;
