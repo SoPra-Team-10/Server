@@ -31,9 +31,6 @@ namespace util {
         if (threadHandler.valid()) {
             threadHandler.get();
         }
-        if (functionThreadHandler.valid()) {
-            functionThreadHandler.get();
-        }
     }
 
     Timer::~Timer() {
