@@ -36,20 +36,13 @@ namespace gameHandling{
         /**
          * Returns the next action required by a client
          * @param env
-         * @throws std::runtime_error when player phase is over
-         * @return
+         * @return Next action to be taken, or nothing if player phase is over
          */
-        auto nextPlayer() -> communication::messages::broadcast::Next;
+        auto nextPlayer() -> std::optional<communication::messages::broadcast::Next>;
 
-        auto nextInterference() -> communication::messages::broadcast::Next;
+        auto nextInterference() -> std::optional<communication::messages::broadcast::Next>;
 
-        /**
-         *
-         * @return true if at least one player of any Team is available and not knocked out
-         */
-        bool hasNextPlayer() const;
-
-        bool hasNextInterference() const;
+        bool hasInterference() const;
 
         /**
          * Resets the internal states so that players can be selected again
@@ -66,26 +59,25 @@ namespace gameHandling{
          */
         void reset();
 
-        bool playerUsed(communication::messages::types::EntityId id) const;
-
         int interferencesUsedLeft(communication::messages::types::FanType type) const;
         int interferencesUsedRight(communication::messages::types::FanType type) const;
+
+        TeamSide getPlayerSide() const;
+
+        TeamSide getInterferencesSide() const;
+
+        bool playerUsed(const std::shared_ptr<const gameModel::Player> &player) const;
 
     private:
         MemberSelector teamLeft, teamRight;
         const std::shared_ptr<const gameModel::Environment> env;
         TeamSide currentSidePlayers, currentSideInter;
-        bool oneTeamEmptyPlayers = false;
-        bool oneTeamEmptyInters = false;
-
-        bool currentTurnFinished = true;
         std::shared_ptr<gameModel::Player> currentPlayer;
         PlayerTurnState playerTurnState = PlayerTurnState::Move;
-        TeamState teamState = TeamState::BothAvailable;
+        TeamState teamStatePlayers = TeamState::BothAvailable;
+        TeamState teamStateInterferences = TeamState::BothAvailable;
 
-        void chooseTeam(TeamSide &side) const;
-
-        auto getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>>;
+        void chooseSide(TeamSide &side) const;
 
         auto getTeam(TeamSide side) -> MemberSelector&;
 

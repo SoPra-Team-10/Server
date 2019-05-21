@@ -13,8 +13,8 @@ namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
-                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(
-            environment->team1, environment->team2, environment), lastDeltas(), log(log){
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2, environment),
+                       lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
         log.debug("Constructed game");
@@ -67,30 +67,32 @@ namespace gameHandling{
 
             case PhaseType::PLAYER_PHASE:{
                 auto next = phaseManager.nextPlayer();
-                currentSide = conversions::idToSide(next.getEntityId());
-                timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
-                if(!phaseManager.hasNextPlayer()){
+                if(next.has_value()){
+                    currentSide = conversions::idToSide(next.value().getEntityId());
+                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                    log.debug("Requested player turn");
+                    return expectedRequestType = next.value();
+                } else {
                     currentPhase = PhaseType::FAN_PHASE;
                     changePhaseDelta();
-                    log.debug("Player phase over");
+                    return getNextAction();
                 }
-
-                log.debug("Requested player turn");
-                return expectedRequestType = next;
             }
+
             case PhaseType::FAN_PHASE: {
                 auto next = phaseManager.nextInterference();
-                currentSide = conversions::idToSide(next.getEntityId());
-                timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
-                if (!phaseManager.hasNextInterference()) {
+                if(next.has_value()){
+                    currentSide = conversions::idToSide(next.value().getEntityId());
+                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
+                    log.debug("Requested fan turn");
+                    return expectedRequestType = next.value();
+                } else {
                     currentPhase = PhaseType::BALL_PHASE;
                     changePhaseDelta();
-                    log.debug("Fan phase over");
+                    return getNextAction();
                 }
-
-                log.debug("Requested fan turn");
-                return expectedRequestType = next;
             }
+
             default:
                 throw std::runtime_error("Fatal error, inconsistent game state!");
         }
@@ -100,8 +102,6 @@ namespace gameHandling{
         using namespace communication::messages::types;
         //stop current timer since expected request arrived
         timer.stop();
-        //queue PhaseChangeDelta if necessary
-        changePhaseDelta();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -118,21 +118,21 @@ namespace gameHandling{
 
         switch (command.getDeltaType()){
             case communication::messages::types::DeltaType::SNITCH_CATCH:
-                log.warn("Invalid operation requested");
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::BLUDGER_BEATING:{
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())  ||
                        !conversions::isBall(command.getPassiveEntity().value())){
-                        log.warn("Bludger beating request has insufficient information");
+                        log.warn("Invalid entities for blusger shot");
                         return false;
                     }
 
                     //Requested different actor or requested move instead of action
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
-                        log.debug("Received request not allowed: Wrong entity or no action allowed");
+                        log.warn("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
@@ -192,6 +192,7 @@ namespace gameHandling{
                         }
 
                         //Always send: bludger was shot
+                        log.debug("Bludger shot");
                         lastDeltas.emplace(DeltaType::BLUDGER_BEATING, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y,
                                 player->id, bludger->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
@@ -204,6 +205,7 @@ namespace gameHandling{
                         return false;
                     }
                 } else {
+                    log.warn("Bludger shot has insufficient information");
                     return false;
                 }
             }
@@ -211,7 +213,7 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                 command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
-                        log.warn("Quaffle throw request has insufficient information");
+                        log.warn("Invalid entity for quaffle throw");
                         return false;
                     }
 
@@ -259,6 +261,12 @@ namespace gameHandling{
                             }
                         }
 
+                        if(success){
+                            log.debug("Successful throw");
+                        } else {
+                            log.debug("Failed throw");
+                        }
+
                         lastDeltas.emplace(DeltaType ::QUAFFLE_THROW, success, oldX, oldY, environment->quaffle->position.x,
                                          environment->quaffle->position.y, player->id, destPlayerId,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -272,11 +280,13 @@ namespace gameHandling{
                         return false;
                     }
                 } else{
+                    log.warn("Quffle throw has insufficient information");
                     return false;
                 }
             }
             case communication::messages::types::DeltaType::SNITCH_SNATCH:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    log.warn("Interference request but not in fan phase");
                     return false;
                 }
 
@@ -284,21 +294,25 @@ namespace gameHandling{
                     auto &team = getTeam(side);
                     gameController::SnitchPush sPush(environment, team);
                     if(!sPush.isPossible()){
+                        log.warn("Snitch push is impossible");
                         return false;
                     }
 
                     if(overTimeState != gameController::ExcessLength::None){
+                        log.debug("Overtime, snitch push has no effect");
                         return true;
                     }
 
                     auto oldX = environment->snitch->position.x;
                     auto oldY = environment->snitch->position.y;
                     if(sPush.execute() == gameController::ActionCheckResult::Foul){
+                        log.debug("Snitch push was detected as foul");
                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                          std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::SNITCH_SNATCH);
                     }
 
+                    log.debug("Snitch push");
                     lastDeltas.emplace(DeltaType::SNITCH_SNATCH, std::nullopt, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
                                      conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -310,6 +324,7 @@ namespace gameHandling{
             }
             case communication::messages::types::DeltaType::TROLL_ROAR:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    log.warn("Interference request but not in fan phase");
                     return false;
                 }
 
@@ -317,6 +332,7 @@ namespace gameHandling{
                     auto &team = getTeam(side);
                     gameController::Impulse impulse(environment, team);
                     if(!impulse.isPossible()){
+                        log.warn("Impulse is impossible");
                         return false;
                     }
 
@@ -329,6 +345,7 @@ namespace gameHandling{
                     }
 
                     if(impulse.execute() == gameController::ActionCheckResult::Foul){
+                        log.debug("Impusle was detected as foul");
                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                          std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt,  BanReason::TROLL_ROAR);
@@ -336,11 +353,13 @@ namespace gameHandling{
 
                     auto playerWithQuaffle = environment->getPlayer({oldX, oldY});
                     if(playerWithQuaffle.has_value()){
+                        log.debug("Quaffle was lost due to impusle");
                         lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldX, oldY, environment->quaffle->position.x,
                                          environment->quaffle->position.y, environment->quaffle->id, playerWithQuaffle.value()->id,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     }
 
+                    log.debug("Impulse");
                     lastDeltas.emplace(DeltaType::TROLL_ROAR, std::nullopt, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
                                      conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -352,11 +371,13 @@ namespace gameHandling{
             }
             case communication::messages::types::DeltaType::ELF_TELEPORTATION:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    log.warn("Interference request but not in fan phase");
                     return false;
                 }
 
                 if(command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getPassiveEntity().value())){
+                        log.warn("Teleport target is no player");
                         return false;
                     }
 
@@ -367,16 +388,19 @@ namespace gameHandling{
                         auto oldY = targetPlayer->position.y;
                         gameController::Teleport teleport(environment, team, targetPlayer);
                         if(!teleport.isPossible()){
+                            log.warn("Teleport is impossible");
                             return false;
                         }
 
                         if(teleport.execute() == gameController::ActionCheckResult::Foul){
-                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                            log.debug("Teleport was detected as foul");
+                            lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                           conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::ELF_TELEPORTATION);
                         }
 
                         //@TODO was tun, wenn target den quaffle hält?
+                        log.debug("Teleport");
                         lastDeltas.emplace(DeltaType::ELF_TELEPORTATION, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -386,11 +410,13 @@ namespace gameHandling{
                         return false;
                     }
                 } else {
+                    log.warn("Teleport request has insufficient information");
                     return false;
                 }
             }
             case communication::messages::types::DeltaType::GOBLIN_SHOCK:
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
+                    log.warn("Interference request but not in fan phase");
                     return false;
                 }
 
@@ -408,21 +434,25 @@ namespace gameHandling{
                         auto oldYQuaf = environment->quaffle->position.y;
                         gameController::RangedAttack rAttack(environment, team, targetPlayer);
                         if(!rAttack.isPossible()){
+                            log.warn("Ranged attack is impossible");
                             return false;
                         }
 
                         if(rAttack.execute() == gameController::ActionCheckResult::Foul){
+                            log.debug("Ranged attack was detected as foul");
                           lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                            conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::GOBLIN_SHOCK);
                         }
 
                         if(gameModel::Position{oldX, oldY} == gameModel::Position{oldXQuaf, oldYQuaf}){
+                            log.debug("Quaffle was lost due to ranged attack");
                             lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf,
                                          environment->quaffle->position.x, environment->quaffle->position.y,
                                          environment->quaffle->id, targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         }
 
+                        log.debug("Ranged attack");
                         lastDeltas.emplace(DeltaType::GOBLIN_SHOCK, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
                                          conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
                                          targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -433,21 +463,26 @@ namespace gameHandling{
                         return false;
                     }
                 } else {
+                    log.warn("Ranged attack request has insufficient information");
                     return false;
                 }
             case communication::messages::types::DeltaType::BAN:
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::MOVE:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        log.warn("Moving entity is no player");
                         return false;
                     }
 
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::MOVE){
+                        log.warn("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
@@ -461,6 +496,7 @@ namespace gameHandling{
                         auto targetPlayer = environment->getPlayer(target);
                         gameController::Move move(environment, player, target);
                         if(move.check() == gameController::ActionCheckResult::Impossible){
+                            log.warn("Move is impossible");
                             return false;
                         }
 
@@ -470,6 +506,7 @@ namespace gameHandling{
                         for(const auto &result : res.first){
                             if(result == gameController::ActionResult::ScoreRight ||
                                 result == gameController::ActionResult::ScoreLeft){
+                                log.debug("Goal was scored");
                                 lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                                    environment->team2->score, std::nullopt, std::nullopt);
@@ -479,6 +516,7 @@ namespace gameHandling{
                                     return false;
                                 }
 
+                                log.debug("Quaffle was lost due to ramming");
                                 lastDeltas.emplace(DeltaType::FOOL_AWAY, std::nullopt, oldXQuaf, oldYQuaf, environment->quaffle->position.x,
                                                    environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -491,75 +529,94 @@ namespace gameHandling{
                         }
 
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
+                            if(!snitchCought){
+                                log.debug("Failed to catch snitch");
+                            }
+
                             lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCought, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                              player->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
                                              std::nullopt, std::nullopt);
                         }
 
+                        log.debug("Move");
                         lastDeltas.emplace(DeltaType::MOVE, std::nullopt, oldX, oldY, player->position.x, player->position.y,
                                          player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
-                        if(phaseManager.playerUsed(player->id)){
+                        if(phaseManager.playerUsed(player)){
                             lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                     player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         }
 
                         if(snitchCought){
+                            log.debug("Snitch was caught");
                             lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                                environment->team2->score, std::nullopt, std::nullopt);
                             auto winningTeam = getVictoriousTeam(player);
                             winListener(winningTeam.first, winningTeam.second);
                         }
+
                         return true;
                     } catch (std::runtime_error &e) {
                         fatalErrorListener(std::string(e.what()));
                         return false;
                     }
                 } else {
+                    log.warn("Move request has insufficient information");
                     return false;
                 }
             case communication::messages::types::DeltaType::PHASE_CHANGE:
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::ROUND_CHANGE:
+                log.warn("Illegal delta request type");
                 return false;
             case communication::messages::types::DeltaType::SKIP:
                 if(command.getActiveEntity().has_value()){
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
+                        log.warn("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
+                    log.debug("Turn skipped");
                     lastDeltas.emplace(DeltaType::SKIP, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                      command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                      std::nullopt, std::nullopt);
                     return true;
                 } else {
+                    log.warn("Skip request has insufficient information");
                     return false;
                 }
             case communication::messages::types::DeltaType::UNBAN:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
+                        log.warn("Unban entity is no player");
                         return false;
                     }
 
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
+                        log.warn("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
                     try {
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         if(!player->isFined){
+                            log.warn("Player is not banned");
                             return false;
                         }
 
                         gameModel::Position target{command.getXPosNew().value(), command.getYPosNew().value()};
                         if(!environment->cellIsFree(target)){
+                            log.warn("Invalid target for unban! Cell is occupied");
                             return false;
                         }
 
+                        log.debug("Unban");
                         player->position = target;
                         player->isFined = false;
                         lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt, target.x, target.y, player->id,
@@ -571,11 +628,14 @@ namespace gameHandling{
                     }
 
                 } else {
+                    log.warn("Unban request has insufficient information");
                     return false;
                 }
             case communication::messages::types::DeltaType::WREST_QUAFFLE:
                 if(command.getActiveEntity().has_value()){
-                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId()){
+                    if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
+                        expectedRequestType.getTurnType() != TurnType::ACTION){
+                        log.warn("Received request not allowed: Wrong entity or no action allowed");
                         return false;
                     }
 
@@ -583,11 +643,13 @@ namespace gameHandling{
                         auto player = std::dynamic_pointer_cast<gameModel::Chaser>(environment->getPlayerById(command.getActiveEntity().value()));
                         auto targetPlayer = environment->getPlayer(environment->quaffle->position);
                         if(!player || !targetPlayer.has_value()){
+                            log.warn("Wresting player is no Chaser or no player on target");
                             return false;
                         }
 
                         gameController::WrestQuaffle wQuaffle(environment, player, environment->quaffle->position);
                         if(wQuaffle.check() == gameController::ActionCheckResult::Impossible){
+                            log.warn("Wrest is impossible");
                             return false;
                         }
 
@@ -609,6 +671,7 @@ namespace gameHandling{
                         return false;
                     }
                 } else {
+                    log.warn("Wrest request has insufficient information");
                     return false;
                 }
             default:
@@ -772,26 +835,26 @@ namespace gameHandling{
             return {
                 team->score, fans,
                 team->seeker->position.x, team->seeker->position.y,
-                team->seeker->isFined, phaseManager.playerUsed(team->seeker->id),
+                team->seeker->isFined, phaseManager.playerUsed(team->seeker),
                 team->seeker->knockedOut,
 
                 team->keeper->position.x, team->keeper->position.y, team->keeper->isFined,
-                keeperHoldsQuaffle, phaseManager.playerUsed(team->keeper->id), team->keeper->knockedOut,
+                keeperHoldsQuaffle, phaseManager.playerUsed(team->keeper), team->keeper->knockedOut,
 
                 team->chasers[0]->position.x, team->chasers[0]->position.y, team->chasers[0]->isFined,
-                chaser1HoldsQuaffle, phaseManager.playerUsed(team->chasers[0]->id), team->chasers[0]->knockedOut,
+                chaser1HoldsQuaffle, phaseManager.playerUsed(team->chasers[0]), team->chasers[0]->knockedOut,
 
                 team->chasers[1]->position.x, team->chasers[1]->position.y, team->chasers[1]->isFined,
-                chaser2HoldsQuaffle, phaseManager.playerUsed(team->chasers[1]->id), team->chasers[1]->knockedOut,
+                chaser2HoldsQuaffle, phaseManager.playerUsed(team->chasers[1]), team->chasers[1]->knockedOut,
 
                 team->chasers[2]->position.x, team->chasers[2]->position.y, team->chasers[2]->isFined,
-                chaser3HoldsQuaffle, phaseManager.playerUsed(team->chasers[2]->id), team->chasers[2]->knockedOut,
+                chaser3HoldsQuaffle, phaseManager.playerUsed(team->chasers[2]), team->chasers[2]->knockedOut,
 
                 team->beaters[0]->position.x, team->beaters[0]->position.y, team->beaters[0]->isFined,
-                beater1holdsBludger, phaseManager.playerUsed(team->beaters[0]->id), team->beaters[0]->knockedOut,
+                beater1holdsBludger, phaseManager.playerUsed(team->beaters[0]), team->beaters[0]->knockedOut,
 
                 team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
-                beater2holdsBludger, phaseManager.playerUsed(team->beaters[1]->id), team->beaters[1]->knockedOut
+                beater2holdsBludger, phaseManager.playerUsed(team->beaters[1]), team->beaters[1]->knockedOut
             };
         } catch (std::runtime_error &e){
             fatalErrorListener(std::string{e.what()});
@@ -809,7 +872,7 @@ namespace gameHandling{
     void Game::endRound() {
         using namespace communication::messages::types;
         //All fans had their turn
-        if(!phaseManager.hasNextInterference()){
+        if(!phaseManager.hasInterference()){
             roundNumber++;
             phaseManager.reset();
             lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -840,6 +903,7 @@ namespace gameHandling{
     }
 
     void Game::onTimeout() {
+        log.debug("Timeout");
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 

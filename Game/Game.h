@@ -130,7 +130,6 @@ namespace gameHandling{
          */
         void changePhaseDelta();
 
-
         /**
          * Calls the timeoutListener
          */
