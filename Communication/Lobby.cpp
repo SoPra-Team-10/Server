@@ -42,6 +42,11 @@ namespace communication {
                         clients.at(players.second.value()).userName},
                         lastSnapshot.value(), lastNext.value()
             }, id);
+
+            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
+                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
+            }
         }
     }
 
@@ -296,6 +301,10 @@ namespace communication {
 
     template <>
     void Lobby::onPayload(const messages::mods::request::SendChat &sendChat, int id) {
+        lastTenMessages.emplace_back(clients.at(id).userName, sendChat.getInformation());
+        if (lastTenMessages.size() > 10) {
+            lastTenMessages.pop_front();
+        }
         this->sendAll(messages::mods::broadcast::GlobalChat{clients.at(id).userName, sendChat.getInformation()});
     }
 
