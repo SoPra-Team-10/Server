@@ -65,18 +65,6 @@ namespace gameHandling{
         }
     }
 
-    bool MemberSelector::hasConciousPlayer() const {
-        bool found = false;
-        for(const auto &player : playersLeft){
-            if(!player->knockedOut){
-                found = true;
-                break;
-            }
-        }
-
-        return found;
-    }
-
     bool MemberSelector::playerUsed(communication::messages::types::EntityId id) const {
         if(!team->getPlayerByID(id).has_value()){
             throw std::runtime_error("Player not in Team");

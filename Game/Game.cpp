@@ -32,6 +32,7 @@ namespace gameHandling{
 
     auto Game::getNextAction() -> communication::messages::broadcast::Next {
         using namespace communication::messages::types;
+        timer.stop();
         switch (currentPhase){
             case PhaseType::BALL_PHASE:
                 switch (ballTurn){
@@ -104,6 +105,7 @@ namespace gameHandling{
         timer.stop();
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
+                log.debug("Foul was detected, player banned");
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                         player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
             }
@@ -718,7 +720,6 @@ namespace gameHandling{
         using DType = communication::messages::types::DeltaType;
         std::shared_ptr<gameModel::Ball> ball;
         int oldX, oldY;
-        changePhaseDelta();
 
         if (entityId == communication::messages::types::EntityId::BLUDGER1 ||
             entityId == communication::messages::types::EntityId::BLUDGER2) {
@@ -737,6 +738,12 @@ namespace gameHandling{
                 if(res.has_value()){
                     oldX = res.value()->position.x;
                     oldY = res.value()->position.y;
+                    if(res.value()->knockedOut){
+                        log.debug("Bludger knocked out player during its turn");
+                    } else {
+                        log.debug("Bludger failed to knock out player during its turn");
+                    }
+
                     lastDeltas.emplace(DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
                                  bludger->id, res.value()->id, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                 }
@@ -864,6 +871,7 @@ namespace gameHandling{
     }
 
     void Game::changePhaseDelta() {
+        log.debug("Phase over");
         using namespace communication::messages::types;
         lastDeltas.emplace(DeltaType::PHASE_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
@@ -874,6 +882,8 @@ namespace gameHandling{
         using namespace communication::messages::types;
         //All fans had their turn
         if(!phaseManager.hasInterference()){
+            log.debug("Round over");
+            currentPhase = PhaseType::BALL_PHASE;
             roundNumber++;
             phaseManager.reset();
             lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,

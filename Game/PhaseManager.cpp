@@ -1,4 +1,5 @@
 #include <utility>
+#include <iostream>
 
 //
 // Created by timluchterhand on 06.05.19.
@@ -26,8 +27,8 @@ namespace gameHandling{
                     case TeamState::BothAvailable:{
                         auto &team = getTeam(currentSidePlayers);
                         currentPlayer = team.getNextPlayer();
-                        if(currentPlayer->knockedOut){
-                            currentPlayer->knockedOut = false;
+                        if(currentPlayer.value()->knockedOut){
+                            currentPlayer.value()->knockedOut = false;
                             knockedTurn = true;
                         }
 
@@ -42,8 +43,8 @@ namespace gameHandling{
                     case TeamState::OneEmpty:{
                         auto &team = getTeam(currentSidePlayers);
                         currentPlayer = team.getNextPlayer();
-                        if(currentPlayer->knockedOut){
-                            currentPlayer->knockedOut = false;
+                        if(currentPlayer.value()->knockedOut){
+                            currentPlayer.value()->knockedOut = false;
                             knockedTurn = true;
                         }
 
@@ -62,20 +63,22 @@ namespace gameHandling{
                     return nextPlayer();
                 }
 
-                if(gameController::actionTriggered(env->config.getExtraTurnProb(currentPlayer->broom))){
+                if(gameController::actionTriggered(env->config.getExtraTurnProb(currentPlayer.value()->broom))){
                     playerTurnState = PlayerTurnState::ExtraMove;
                 } else {
                     playerTurnState = PlayerTurnState::PossibleAction;
                 }
 
-                return broadcast::Next{currentPlayer->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
             case PlayerTurnState::ExtraMove:
                 playerTurnState = PlayerTurnState::PossibleAction;
-                return broadcast::Next{currentPlayer->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
             case PlayerTurnState::PossibleAction:
                 playerTurnState = PlayerTurnState::Move;
-                if(gameController::playerCanPerformAction(currentPlayer, env)){
-                    return broadcast::Next{currentPlayer->id, types::TurnType::ACTION, env->config.timeouts.playerTurn};
+                if(gameController::playerCanPerformAction(currentPlayer.value(), env)){
+                    auto id = currentPlayer.value()->id;
+                    currentPlayer.reset();
+                    return broadcast::Next{id, types::TurnType::ACTION, env->config.timeouts.playerTurn};
                 } else {
                     return nextPlayer();
                 }
@@ -171,14 +174,6 @@ namespace gameHandling{
 
     void PhaseManager::switchSide(TeamSide &side) {
         side = side == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
-    }
-
-    TeamSide PhaseManager::getPlayerSide() const{
-        return currentSidePlayers;
-    }
-
-    TeamSide PhaseManager::getInterferencesSide() const{
-        return currentSideInter;
     }
 
     bool PhaseManager::playerUsed(const std::shared_ptr<const gameModel::Player> &player) const {

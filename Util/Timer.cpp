@@ -28,15 +28,18 @@ namespace util {
     void Timer::stop() {
         stopRequired = true;
         conditionVariable.notify_all();
+        if(threadHandler.valid()){
+            threadHandler.get();
+        }
     }
 
     Timer::~Timer() {
         if (threadHandler.valid()) {
             this->stop();
-            this->threadHandler.wait();
         }
+
         if (functionThreadHandler.valid()) {
-            functionThreadHandler.wait();
+            functionThreadHandler.get();
         }
     }
 }

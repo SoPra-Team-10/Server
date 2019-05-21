@@ -39,14 +39,14 @@ auto setup::createGame(util::Logging &log) -> gameHandling::Game {
     using namespace communication::messages;
     using namespace communication::messages::request;
     int maxRounds = 20;
-    int playerTurnTimeout = 30;
-    int fanTurnTimeout = 30;
-    int unbanTurnTimeout = 30;
-    int playerPhaseTime = 300;
-    int fanPhaseTime = 300;
-    int ballPhaseTime = 300;
-    int unbanPhaseTime = 300;
-    int teamFormationTimeout = 10;
+    int playerTurnTimeout = 3000;
+    int fanTurnTimeout = 1000;
+    int unbanTurnTimeout = 3000;
+    int playerPhaseTime = 30000;
+    int fanPhaseTime = 3000;
+    int ballPhaseTime = 3000;
+    int unbanPhaseTime = 3000;
+    int teamFormationTimeout = 1000;
 
     float throwSuccess = 0.8;
     float knockOut = 0.8;

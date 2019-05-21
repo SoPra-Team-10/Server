@@ -58,6 +58,9 @@ namespace util {
     void Timer::setTimeout(Function function, int delay) {
         stopRequired = false;
         time = std::chrono::system_clock::now() + std::chrono::milliseconds{delay};
+        if(threadHandler.valid()){
+            throw std::runtime_error("Timer already running");
+        }
 
         threadHandler = std::async(std::launch::async, [=](){
             while (!stopRequired) {
