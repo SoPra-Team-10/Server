@@ -9,7 +9,7 @@
 
 auto getMatchConfig() -> communication::messages::broadcast::MatchConfig {
     return communication::messages::broadcast::MatchConfig
-        {1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        {1000,1000,1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 }
 
 auto getTeamConfig(bool left) -> communication::messages::request::TeamConfig {
