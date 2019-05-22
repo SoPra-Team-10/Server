@@ -108,6 +108,7 @@ namespace gameHandling{
                 } else {
                     log.debug("Requested unban");
                     auto actorId = (*bannedPlayers.begin())->id;
+                    currentSide = conversions::idToSide(actorId);
                     bannedPlayers.erase(bannedPlayers.begin());
                     return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
                 }
@@ -124,14 +125,15 @@ namespace gameHandling{
         auto addFouls = [this](std::vector<gameModel::Foul> fouls, const std::shared_ptr<gameModel::Player> &player){
             for(const auto &foul : fouls){
                 log.debug("Foul was detected, player banned");
+                bannedPlayers.emplace_back(player);
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                         player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
             }
         };
 
         //Request in wrong phase or request from wrong side
-        if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE) ||
-            currentSide != side){
+        if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE &&
+            currentPhase != PhaseType::UNBAN_PHASE) || currentSide != side){
             log.warn("Received request not allowed: Wrong Player or wrong phase");
             return false;
         }
