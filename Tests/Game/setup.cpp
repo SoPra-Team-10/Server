@@ -60,7 +60,7 @@ auto setup::createGame(util::Logging &log) -> gameHandling::Game {
             playerPhaseTime, fanPhaseTime, ballPhaseTime, unbanPhaseTime, throwSuccess, knockOut,
             catchSnitch, catchQuaffle, wrestQuaffle, extraTurn, extraTurn, extraTurn, extraTurn,
             extraTurn, foulDetection, foulDetection, foulDetection, foulDetection, fanFoulDetection,
-            fanFoulDetection, fanFoulDetection, fanFoulDetection, foulDetection);
+            fanFoulDetection, fanFoulDetection, fanFoulDetection, foulDetection,fanFoulDetection);
 
     auto t1 = createEnv({matchConfig})->team1;
     auto t2 = createEnv({matchConfig})->team2;
@@ -76,6 +76,6 @@ auto setup::createGame(util::Logging &log) -> gameHandling::Game {
                              t2->chasers[2]->position.y, t2->beaters[0]->position.x, t2->beaters[0]->position.y,
                              t2->beaters[1]->position.x, t2->beaters[1]->position.y);
 
-    TeamConfig tc("", "", "", "", "", 2, 2, 2, 1, {}, {}, {}, {}, {}, {}, {});
+    TeamConfig tc("", "", "", "", "", 2, 2, 1, 1, 1, {}, {}, {}, {}, {}, {}, {});
     return gameHandling::Game(matchConfig, tc, tc, formation1, formation2, log);
 }
