@@ -1,6 +1,3 @@
-#include <utility>
-#include <iostream>
-
 //
 // Created by timluchterhand on 06.05.19.
 //
@@ -20,6 +17,11 @@ namespace gameHandling{
     auto PhaseManager::nextPlayer() -> std::optional<communication::messages::broadcast::Next> {
         using namespace communication::messages;
         bool knockedTurn = false;
+        if(currentPlayer.has_value() && currentPlayer.value()->isFined){
+            playerTurnState = PlayerTurnState::Move;
+            currentPlayer.reset();
+            return nextPlayer();
+        }
 
         switch (playerTurnState){
             case PlayerTurnState::Move:

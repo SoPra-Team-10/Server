@@ -59,7 +59,6 @@ namespace gameHandling{
                         //Ball phase end, Player phase next
                         currentPhase = PhaseType::PLAYER_PHASE;
                         log.debug("Bludger2 requested to make a move");
-                        log.debug("Ball phase over");
                         changePhaseDelta();
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
@@ -664,6 +663,7 @@ namespace gameHandling{
                             return false;
                         }
 
+                        log.debug("Quaffle was wrested");
                         lastDeltas.emplace(DeltaType::WREST_QUAFFLE, !res.first.empty(), oldX, oldY, environment->quaffle->position.x,
                                 environment->quaffle->position.y, player->id, targetPlayer.value()->id, std::nullopt, std::nullopt, std::nullopt,
                                 std::nullopt, std::nullopt);
