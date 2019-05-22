@@ -147,7 +147,7 @@ namespace gameHandling{
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())  ||
                        !conversions::isBall(command.getPassiveEntity().value())){
-                        log.warn("Invalid entities for blusger shot");
+                        log.warn("Invalid entities for bludger shot");
                         return false;
                     }
 
@@ -303,7 +303,7 @@ namespace gameHandling{
                         return false;
                     }
                 } else{
-                    log.warn("Quffle throw has insufficient information");
+                    log.warn("Quaffle throw has insufficient information");
                     return false;
                 }
             }
@@ -368,7 +368,7 @@ namespace gameHandling{
                     }
 
                     if(impulse.execute() == gameController::ActionCheckResult::Foul){
-                        log.debug("Impusle was detected as foul");
+                        log.debug("Impulse was detected as foul");
                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                          std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt,  BanReason::TROLL_ROAR);
@@ -525,7 +525,7 @@ namespace gameHandling{
 
                         auto res = move.execute();
                         addFouls(res.second, player);
-                        bool snitchCought = false;
+                        bool snitchCaught = false;
                         for(const auto &result : res.first){
                             if(result == gameController::ActionResult::ScoreRight ||
                                 result == gameController::ActionResult::ScoreLeft){
@@ -545,7 +545,7 @@ namespace gameHandling{
                                                    environment->quaffle->position.y, environment->quaffle->id, targetPlayer.value()->id, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                             } else if(result == gameController::ActionResult::SnitchCatch){
-                                snitchCought = true;
+                                snitchCaught = true;
                             } else {
                                 fatalErrorListener(std::string{"Unexpected action result"});
                                 return false;
@@ -553,11 +553,11 @@ namespace gameHandling{
                         }
 
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
-                            if(!snitchCought){
+                            if(!snitchCaught){
                                 log.debug("Failed to catch snitch");
                             }
 
-                            lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCought, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                            lastDeltas.emplace(DeltaType::SNITCH_CATCH, snitchCaught, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                              player->id, std::nullopt, std::nullopt, environment->team1->score, environment->team2->score,
                                              std::nullopt, std::nullopt);
                         }
@@ -571,7 +571,7 @@ namespace gameHandling{
                                     player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         }
 
-                        if(snitchCought){
+                        if(snitchCaught){
                             log.debug("Snitch was caught");
                             lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
