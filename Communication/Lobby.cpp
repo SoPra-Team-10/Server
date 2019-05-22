@@ -453,6 +453,7 @@ namespace communication {
     }
 
     void Lobby::onFatalError(std::string error) {
+        log.error("Fatal error!");
         for (const auto &c : clients) {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
