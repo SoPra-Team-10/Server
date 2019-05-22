@@ -230,7 +230,6 @@ namespace communication {
                 gameHandling::TeamSide teamSide =
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
                 if (game->executeDelta(deltaRequest, teamSide)) {
-                    game.value().endRound();
                     modifySnapshotsAddToLogAndSend(game->getSnapshot());
                     auto next = game->getNextAction();
                     lastNext = next;
@@ -241,7 +240,6 @@ namespace communication {
                             || next.getEntityId() == messages::types::EntityId::BLUDGER2
                             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
                         game->executeBallDelta(next.getEntityId());
-                        game.value().endRound();
                         modifySnapshotsAddToLogAndSend(game->getSnapshot());
                         next = game->getNextAction();
                         lastNext = next;

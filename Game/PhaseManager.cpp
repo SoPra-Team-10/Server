@@ -16,7 +16,7 @@ namespace gameHandling{
 
     auto PhaseManager::nextPlayer() -> std::optional<communication::messages::broadcast::Next> {
         using namespace communication::messages;
-        bool knockedTurn = false;
+        bool noTurnAllowed = false;
         if(currentPlayer.has_value() && currentPlayer.value()->isFined){
             playerTurnState = PlayerTurnState::Move;
             currentPlayer.reset();
@@ -29,25 +29,30 @@ namespace gameHandling{
                     case TeamState::BothAvailable:{
                         auto &team = getTeam(currentSidePlayers);
                         currentPlayer = team.getNextPlayer();
-                        if(currentPlayer.value()->knockedOut){
+                        if(currentPlayer.value()->knockedOut || currentPlayer.value()->isFined){
                             currentPlayer.value()->knockedOut = false;
-                            knockedTurn = true;
+                            noTurnAllowed = true;
                         }
 
                         if(!team.hasPlayers()){
                             teamStatePlayers = TeamState::OneEmpty;
+                            switchSide(currentSidePlayers);
+                            break;
                         }
 
-                        switchSide(currentSidePlayers);
+                        if(!currentPlayer.value()->isFined){
+                            switchSide(currentSidePlayers);
+                        }
+
                         break;
                     }
 
                     case TeamState::OneEmpty:{
                         auto &team = getTeam(currentSidePlayers);
                         currentPlayer = team.getNextPlayer();
-                        if(currentPlayer.value()->knockedOut){
+                        if(currentPlayer.value()->knockedOut || currentPlayer.value()->isFined){
                             currentPlayer.value()->knockedOut = false;
-                            knockedTurn = true;
+                            noTurnAllowed = true;
                         }
 
                         if(!team.hasPlayers()){
@@ -61,7 +66,7 @@ namespace gameHandling{
                         return {};
                 }
 
-                if(knockedTurn){
+                if(noTurnAllowed){
                     return nextPlayer();
                 }
 
@@ -132,8 +137,18 @@ namespace gameHandling{
     void PhaseManager::resetInterferences() {
         teamRight.resetInterferences();
         teamLeft.resetInterferences();
-        chooseSide(currentSideInter);
-        teamStateInterferences = TeamState::BothAvailable;
+        if(teamRight.hasInterference() && teamLeft.hasInterference()){
+            chooseSide(currentSideInter);
+            teamStateInterferences = TeamState::BothAvailable;
+        } else if(teamLeft.hasInterference()){
+            currentSideInter = TeamSide::LEFT;
+            teamStateInterferences = TeamState::OneEmpty;
+        } else if(teamRight.hasInterference()){
+            currentSideInter = TeamSide::RIGHT;
+            teamStateInterferences = TeamState::OneEmpty;
+        }else {
+            teamStateInterferences = TeamState::BothEmpty;
+        }
     }
 
     void PhaseManager::reset() {

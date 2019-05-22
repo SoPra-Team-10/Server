@@ -89,6 +89,7 @@ namespace gameHandling{
                 } else {
                     currentPhase = PhaseType::BALL_PHASE;
                     changePhaseDelta();
+                    endRound();
                     return getNextAction();
                 }
             }
@@ -881,7 +882,7 @@ namespace gameHandling{
     void Game::endRound() {
         using namespace communication::messages::types;
         //All fans had their turn
-        if(!phaseManager.hasInterference()){
+        if(true || !phaseManager.hasInterference()){
             log.debug("Round over");
             currentPhase = PhaseType::BALL_PHASE;
             roundNumber++;

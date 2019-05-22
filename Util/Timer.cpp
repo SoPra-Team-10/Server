@@ -35,8 +35,5 @@ namespace util {
 
     Timer::~Timer() {
         this->stop();
-        if (functionThreadHandler.valid()) {
-            functionThreadHandler.get();
-        }
     }
 }
