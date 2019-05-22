@@ -106,6 +106,8 @@ namespace gameHandling{
         util::Logging &log;
         gameController::ExcessLength overTimeState = gameController::ExcessLength::None;
         unsigned int overTimeCounter = 0;
+        bool goalScored = false;
+        std::deque<std::shared_ptr<gameModel::Player>> bannedPlayers = {};
 
         /**
          * Gets the team associated with the given side

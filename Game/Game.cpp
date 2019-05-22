@@ -87,12 +87,30 @@ namespace gameHandling{
                     log.debug("Requested fan turn");
                     return expectedRequestType = next.value();
                 } else {
+                    changePhaseDelta();
+                    if(goalScored && !bannedPlayers.empty()){
+                        currentPhase = PhaseType::UNBAN_PHASE;
+                    } else {
+                        currentPhase = PhaseType::BALL_PHASE;
+                        endRound();
+                    }
+
+                    return getNextAction();
+                }
+            }
+
+            case PhaseType::UNBAN_PHASE:
+                if(bannedPlayers.empty()){
                     currentPhase = PhaseType::BALL_PHASE;
                     changePhaseDelta();
                     endRound();
                     return getNextAction();
+                } else {
+                    log.debug("Requested unban");
+                    auto actorId = (*bannedPlayers.begin())->id;
+                    bannedPlayers.erase(bannedPlayers.begin());
+                    return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
                 }
-            }
 
             default:
                 throw std::runtime_error("Fatal error, inconsistent game state!");
@@ -249,6 +267,7 @@ namespace gameHandling{
                         for(const auto &result : res.first){
                             if(result == gameController::ActionResult::ScoreLeft ||
                                 result == gameController::ActionResult::ScoreRight){
+                                goalScored = true;
                                 //Notify: goal was scored
                                 log.debug("Goal was scored");
                                 lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -508,6 +527,7 @@ namespace gameHandling{
                         for(const auto &result : res.first){
                             if(result == gameController::ActionResult::ScoreRight ||
                                 result == gameController::ActionResult::ScoreLeft){
+                                goalScored = true;
                                 log.debug("Goal was scored");
                                 lastDeltas.emplace(DeltaType::GOAL_POINTS_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
@@ -881,36 +901,34 @@ namespace gameHandling{
 
     void Game::endRound() {
         using namespace communication::messages::types;
-        //All fans had their turn
-        if(true || !phaseManager.hasInterference()){
-            log.debug("Round over");
-            currentPhase = PhaseType::BALL_PHASE;
-            roundNumber++;
-            phaseManager.reset();
-            lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
-            switch (overTimeState){
-                case gameController::ExcessLength::None:
-                    if(roundNumber > environment->config.maxRounds){
-                        overTimeState = gameController::ExcessLength::Stage1;
-                    }
+        log.debug("Round over");
+        goalScored = false;
+        currentPhase = PhaseType::BALL_PHASE;
+        roundNumber++;
+        phaseManager.reset();
+        lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                           std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
+        switch (overTimeState){
+            case gameController::ExcessLength::None:
+                if(roundNumber > environment->config.maxRounds){
+                    overTimeState = gameController::ExcessLength::Stage1;
+                }
 
-                    break;
-                case gameController::ExcessLength::Stage1:
-                    if(++overTimeCounter > 3){
-                        overTimeState = gameController::ExcessLength::Stage2;
-                        overTimeCounter = 0;
-                    }
-                    break;
-                case gameController::ExcessLength::Stage2:
-                    if(environment->snitch->position == gameModel::Position{8, 6} &&
-                        ++overTimeCounter > 3){
-                        overTimeState = gameController::ExcessLength::Stage3;
-                    }
-                    break;
-                case gameController::ExcessLength::Stage3:
-                    break;
-            }
+                break;
+            case gameController::ExcessLength::Stage1:
+                if(++overTimeCounter > 3){
+                    overTimeState = gameController::ExcessLength::Stage2;
+                    overTimeCounter = 0;
+                }
+                break;
+            case gameController::ExcessLength::Stage2:
+                if(environment->snitch->position == gameModel::Position{8, 6} &&
+                    ++overTimeCounter > 3){
+                    overTimeState = gameController::ExcessLength::Stage3;
+                }
+                break;
+            case gameController::ExcessLength::Stage3:
+                break;
         }
     }
 
