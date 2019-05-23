@@ -1,12 +1,12 @@
-#include <memory>
-
 /**
- * @file Game.cpp
+ * @file Lobby.cpp
  * @author paul
  * @date 28.04.19
- * @brief Definition of the game class
+ * @brief Definition of the lobby class
  */
 
+
+#include <memory>
 #include <filesystem>
 #include <fstream>
 #include <Game/ConfigCheck.h>
