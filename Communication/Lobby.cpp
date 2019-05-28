@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <fstream>
 #include <Game/ConfigCheck.h>
+#include <Game/conversions.h>
 #include "Lobby.hpp"
 #include "Communicator.hpp"
 
@@ -366,7 +367,7 @@ namespace communication {
             std::nullopt,
             std::nullopt
         };
-        game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
+        game->executeDelta(deltaRequest, conversions::idToSide(entityId));
 
         modifySnapshotsAddToLogAndSend(game->getSnapshot());
         auto next = game->getNextAction();
