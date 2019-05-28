@@ -846,6 +846,7 @@ namespace gameHandling{
             makeFans(FType::TROLL);
             makeFans(FType::ELF);
             makeFans(FType::GOBLIN);
+            makeFans(FType::WOMBAT);
         } catch (std::runtime_error &e){
             fatalErrorListener(std::string{e.what()});
         }

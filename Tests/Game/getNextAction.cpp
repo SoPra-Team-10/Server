@@ -36,7 +36,7 @@ TEST(game_get_next_action, generic_name){
         playerIds.emplace_back(player->id);
     }
 
-    for(int i = 0; i < 28; i++){
+    for(int i = 0; i < 26; i++){
         auto nxt = game.getNextAction();
         std::cout << "ID " << toString(nxt.getEntityId()) << " | Type " << toString(nxt.getTurnType()) << " | Timeout " << nxt.getTimout() << std::endl;
         EXPECT_THAT(nxt.getTurnType(), testing::AnyOf(TurnType::MOVE, TurnType::ACTION, TurnType::REMOVE_BAN));
@@ -55,7 +55,8 @@ TEST(game_get_next_action, generic_name){
         EXPECT_EQ(nxt.getTurnType(), TurnType::FAN);
     }
 
-    EXPECT_EQ(playerIds.size(), 1);
+    EXPECT_EQ(playerIds.size(), 2);
     EXPECT_EQ(playerIds[0], Id::RIGHT_BEATER1);
+    EXPECT_EQ(playerIds[1], Id::RIGHT_SEEKER);
     EXPECT_FALSE(game.environment->getPlayerById(Id::RIGHT_BEATER1)->knockedOut);
 }

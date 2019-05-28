@@ -9,7 +9,7 @@
 namespace configCheck {
     bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
                                          const gameHandling::TeamSide &side) {
-        gameModel::Team team = {{"", "", "", "", "", 1,4,1,1,0,{},{},{},{},{},{},{}}, formation,true };
+        gameModel::Team team = {{"", "", "", "", "", 1,4,1,1,0,{},{},{},{},{},{},{}}, formation, true};
 
         auto allPlayers = team.getAllPlayers();
         if(side == gameHandling::TeamSide::LEFT) {
@@ -72,13 +72,15 @@ namespace configCheck {
         if (team.fanblock.getUses(gameModel::InterferenceType::Impulse) +
             team.fanblock.getUses(gameModel::InterferenceType::SnitchPush) +
             team.fanblock.getUses(gameModel::InterferenceType::RangedAttack) +
-            team.fanblock.getUses(gameModel::InterferenceType::Teleport) != 7) {
+            team.fanblock.getUses(gameModel::InterferenceType::Teleport) +
+            team.fanblock.getUses(gameModel::InterferenceType::BlockCell) != 7) {
             return false;
         }
         if (team.fanblock.getUses(gameModel::InterferenceType::Impulse) < 1 ||
             team.fanblock.getUses(gameModel::InterferenceType::SnitchPush) < 1 ||
             team.fanblock.getUses(gameModel::InterferenceType::RangedAttack) < 1 ||
-            team.fanblock.getUses(gameModel::InterferenceType::Teleport) < 1) {
+            team.fanblock.getUses(gameModel::InterferenceType::Teleport) < 1 ||
+            team.fanblock.getUses(gameModel::InterferenceType::BlockCell) < 1) {
             return false;
         }
 
