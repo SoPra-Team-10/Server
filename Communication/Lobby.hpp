@@ -1,8 +1,8 @@
 /**
- * @file Game.hpp
+ * @file Lobby.hpp
  * @author paul
  * @date 28.04.19
- * @brief Declaration of the Game class
+ * @brief Declaration of the Lobby class
  */
 
 #ifndef SERVER_LOBBY_HPP

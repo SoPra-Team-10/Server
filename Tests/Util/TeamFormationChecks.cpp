@@ -25,7 +25,7 @@ TEST(teamFormationCheck, invalid_team_formation2){
 TEST(checkTeamConfig, valid_team_config0) {
     EXPECT_TRUE(configCheck::checkTeamConfig(communication::messages::request::TeamConfig{
         "","","","","",
-        1,2,2,2,
+        1,1,1,2,2,
         {"seeker", communication::messages::types::Broom::FIREBOLT, communication::messages::types::Sex::F},
         {"keeper", communication::messages::types::Broom::CLEANSWEEP11, communication::messages::types::Sex::F},
         {"chaser1", communication::messages::types::Broom::COMET260, communication::messages::types::Sex::F},
@@ -39,7 +39,7 @@ TEST(checkTeamConfig, valid_team_config0) {
 TEST(checkTeamConfig, invalid_team_config0) {
     EXPECT_FALSE(configCheck::checkTeamConfig(communication::messages::request::TeamConfig{
             "","","","","",
-            1,2,2,2,
+            1,1,1,2,2,
             {"seeker", communication::messages::types::Broom::FIREBOLT, communication::messages::types::Sex::F},
             {"keeper", communication::messages::types::Broom::CLEANSWEEP11, communication::messages::types::Sex::F},
             {"chaser1", communication::messages::types::Broom::COMET260, communication::messages::types::Sex::F},

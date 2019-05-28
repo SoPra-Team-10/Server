@@ -35,7 +35,8 @@
             "elfTeleportation": 0.5,
             "goblinShock": 0.5,
             "trollRoar": 0.5,
-            "snitchSnatch": 0.5
+            "snitchSnatch": 0.5,
+            "wombatPoo": 0.5
         }
     }
 }

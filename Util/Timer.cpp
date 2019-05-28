@@ -1,6 +1,9 @@
-//
-// Created by bjorn on 04.05.19.
-//
+/**
+ * @file Timer.cpp
+ * @author paul, tim, björn
+ * @date 01.05.19
+ * @brief Implementation of the Timer class
+ */
 
 #include "Timer.h"
 
@@ -28,15 +31,12 @@ namespace util {
     void Timer::stop() {
         stopRequired = true;
         conditionVariable.notify_all();
+        if (threadHandler.valid()) {
+            threadHandler.get();
+        }
     }
 
     Timer::~Timer() {
-        if (threadHandler.valid()) {
-            this->stop();
-            this->threadHandler.wait();
-        }
-        if (functionThreadHandler.valid()) {
-            functionThreadHandler.wait();
-        }
+        this->stop();
     }
 }

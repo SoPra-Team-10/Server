@@ -36,6 +36,8 @@ auto conversions::interferenceToId(gameModel::InterferenceType type,
             return side == gameHandling::TeamSide::LEFT ? Id::LEFT_TROLL : Id::RIGHT_TROLL;
         case gameModel::InterferenceType::SnitchPush:
             return side == gameHandling::TeamSide::LEFT ? Id::LEFT_NIFFLER : Id::RIGHT_NIFFLER;
+        case gameModel::InterferenceType::BlockCell:
+            return side == gameHandling::TeamSide::LEFT ? Id::LEFT_WOMBAT : Id::RIGHT_WOMBAT;
     }
 
     throw std::runtime_error("Fatal error! Enum out of bounds");
@@ -51,6 +53,8 @@ bool conversions::isFan(communication::messages::types::EntityId id) {
         case communication::messages::types::EntityId::RIGHT_TROLL:
         case communication::messages::types::EntityId::RIGHT_ELF:
         case communication::messages::types::EntityId::RIGHT_NIFFLER:
+        case communication::messages::types::EntityId::LEFT_WOMBAT:
+        case communication::messages::types::EntityId::RIGHT_WOMBAT:
             return true;
         default:
             return false;
@@ -105,11 +109,13 @@ auto conversions::idToSide(communication::messages::types::EntityId id) -> gameH
         case communication::messages::types::EntityId::LEFT_TROLL:
         case communication::messages::types::EntityId::LEFT_ELF:
         case communication::messages::types::EntityId::LEFT_NIFFLER:
+        case communication::messages::types::EntityId::LEFT_WOMBAT:
             return TeamSide::LEFT;
         case communication::messages::types::EntityId::RIGHT_GOBLIN:
         case communication::messages::types::EntityId::RIGHT_TROLL:
         case communication::messages::types::EntityId::RIGHT_ELF:
         case communication::messages::types::EntityId::RIGHT_NIFFLER:
+        case communication::messages::types::EntityId::RIGHT_WOMBAT:
         case communication::messages::types::EntityId::RIGHT_SEEKER:
         case communication::messages::types::EntityId::RIGHT_KEEPER:
         case communication::messages::types::EntityId::RIGHT_CHASER1:
@@ -134,6 +140,8 @@ auto conversions::idToFantype(communication::messages::types::EntityId id) -> co
             return FanType::ELF;
         case communication::messages::types::EntityId::LEFT_NIFFLER:
             return FanType::NIFFLER;
+        case communication::messages::types::EntityId::LEFT_WOMBAT:
+            return FanType::WOMBAT;
         case communication::messages::types::EntityId::RIGHT_GOBLIN:
             return FanType::GOBLIN;
         case communication::messages::types::EntityId::RIGHT_TROLL:
@@ -142,6 +150,8 @@ auto conversions::idToFantype(communication::messages::types::EntityId id) -> co
             return FanType::ELF;
         case communication::messages::types::EntityId::RIGHT_NIFFLER:
             return FanType::NIFFLER;
+        case communication::messages::types::EntityId::RIGHT_WOMBAT:
+            return FanType::WOMBAT;
         default:
             throw std::runtime_error("No Fan");
     }

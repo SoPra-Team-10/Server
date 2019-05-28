@@ -1,6 +1,9 @@
-//
-// Created by paulnykiel on 07.05.19.
-//
+/**
+ * @file AnimationQueue.cpp
+ * @author paul
+ * @date 07.05.19
+ * @brief Implementation of the AnimationQueue class
+ */
 
 #include "AnimationQueue.h"
 

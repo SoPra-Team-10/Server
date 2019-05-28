@@ -9,7 +9,7 @@
 
 auto getMatchConfig() -> communication::messages::broadcast::MatchConfig {
     return communication::messages::broadcast::MatchConfig
-        {1000,1000,1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 }
 
 auto getTeamConfig(bool left) -> communication::messages::request::TeamConfig {
@@ -24,7 +24,8 @@ auto getTeamConfig(bool left) -> communication::messages::request::TeamConfig {
         1,
         1,
         1,
-        4,
+        3,
+        1,
         {"abc", Broom::CLEANSWEEP11, Sex::F},
         {"abc", Broom::COMET260, Sex::F},
         {"abc", Broom::FIREBOLT, Sex::F},
