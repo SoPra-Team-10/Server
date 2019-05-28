@@ -513,7 +513,7 @@ namespace gameHandling{
 
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
 
