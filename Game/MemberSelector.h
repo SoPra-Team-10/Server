@@ -30,13 +30,12 @@ namespace gameHandling{
          */
         bool hasPlayers() const;
 
-        bool playerUsed(communication::messages::types::EntityId id) const;
-
         /**
          *
-         * @return true if at least one Player not knocked out is available
+         * @param id
+         * @return true if the specified PlayerID has already been selected
          */
-        bool hasConciousPlayer() const;
+        bool playerUsed(communication::messages::types::EntityId id) const;
 
         /**
          *
@@ -51,6 +50,11 @@ namespace gameHandling{
          */
         bool hasInterference() const;
 
+        /**
+         *
+         * @param type
+         * @return the number of times the selected fan has been used
+         */
         int usedInterferences(communication::messages::types::FanType type) const;
 
         /**
@@ -66,11 +70,17 @@ namespace gameHandling{
         void resetInterferences();
 
     private:
-        std::shared_ptr<const gameModel::Team> team;
-        const TeamSide side;
-        std::deque<std::shared_ptr<gameModel::Player>> playersLeft;
-        std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft;
+        std::shared_ptr<const gameModel::Team> team; ///<The immutable Team used to reset the internal state of the MemberSelector
+        const TeamSide side; ///<The Side the Team belongs to
+        std::deque<std::shared_ptr<gameModel::Player>> playersLeft; ///<List with all currently available Players
+        std::deque<std::pair<gameModel::InterferenceType, int>> interferencesLeft; ///<List with all currently available Interferences and their respective uses
 
+        /**
+         *
+         * @tparam T Type of deque
+         * @param list
+         * @return iterator to a randomly choosen element of the deque
+         */
         template <typename T>
         auto selectRandom(std::deque<T> &list) const -> typename std::deque<T>::iterator;
     };

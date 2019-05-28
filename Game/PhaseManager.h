@@ -14,27 +14,42 @@
 #include "MemberSelector.h"
 
 namespace gameHandling{
+
+    enum class PlayerTurnState{
+        Move,
+        ExtraMove,
+        PossibleAction
+    };
+
+    enum class TeamState{
+        OneEmpty,
+        BothEmpty,
+        BothAvailable
+    };
+
     class PhaseManager {
     public:
-        PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight);
+        PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft,
+                     const std::shared_ptr<gameModel::Team> &teamRight,
+                     std::shared_ptr<const gameModel::Environment> env);
 
         /**
-         * Returns the next action required by a client
-         * @param env
-         * @throws std::runtime_error when player phase is over
-         * @return
+         * Returns the next Player action required by a client
+         * @return Next action to be taken, or nothing if player phase is over
          */
-        auto nextPlayer(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next;
+        auto nextPlayer() -> std::optional<communication::messages::broadcast::Next>;
 
-        auto nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next;
+        /**
+         * Returns the next Fan action required by a client
+         * @return Next action to be taken, or nothing if fan phase is over
+         */
+        auto nextInterference() -> std::optional<communication::messages::broadcast::Next>;
 
         /**
          *
-         * @return true if at least one player of any Team is available and not knocked out
+         * @return true if at least one Team can use an Interference
          */
-        bool hasNextPlayer() const;
-
-        bool hasNextInterference() const;
+        bool hasInterference() const;
 
         /**
          * Resets the internal states so that players can be selected again
@@ -51,35 +66,61 @@ namespace gameHandling{
          */
         void reset();
 
-        bool playerUsed(communication::messages::types::EntityId id) const;
-
+        /**
+         *
+         * @param type
+         * @return the number of times the specified fan was used (left team)
+         */
         int interferencesUsedLeft(communication::messages::types::FanType type) const;
-        int interferencesUsedRight(communication::messages::types::FanType type) const;
-
-    private:
-        MemberSelector teamLeft, teamRight;
-        TeamSide currentSidePlayers, currentSideInter;
-        bool oneTeamEmptyPlayers = false;
-        bool oneTeamEmptyInters = false;
-
-        bool currentTurnFinished = true;
-        std::shared_ptr<const gameModel::Player> currentPlayer;
 
         /**
-         * Determines the next action a player may take
-         * @param player player to calculate the action for
-         * @param env environment to operate on
+         *
+         * @param type
+         * @return the number of times the specified fan was used (right team)
+         */
+        int interferencesUsedRight(communication::messages::types::FanType type) const;
+
+        /**
+         *
+         * @param player
+         * @return true if the specified player already used their entire turn
+         */
+        bool playerUsed(const std::shared_ptr<const gameModel::Player> &player) const;
+
+    private:
+        MemberSelector teamLeft, teamRight; ///< Member selectors for both teams
+        const std::shared_ptr<const gameModel::Environment> env; ///<The immutable environment for rule checks
+        TeamSide currentSidePlayers, currentSideInter; ///< The current sides for Interferences and Players
+        std::optional<std::shared_ptr<gameModel::Player>> currentPlayer; ///<Current Player to make a move
+        PlayerTurnState playerTurnState = PlayerTurnState::Move; ///<The state of the current Players turn
+        TeamState teamStatePlayers = TeamState::BothAvailable; ///<State of the Memberselectors
+        TeamState teamStateInterferences = TeamState::BothAvailable; ///<State of the Memberselectors
+
+        /**
+         * Randomly initializes the given Teamside
+         * @param side
+         */
+        void chooseSide(TeamSide &side) const;
+
+        /**
+         * gets the Memberselector by teamside
+         * @param side
          * @return
          */
-        auto getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player, const std::shared_ptr<const gameModel::Environment> &env) const ->
-        std::pair<communication::messages::types::TurnType, bool>;
-        void chooseTeam(TeamSide &side) const;
-
-        auto getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>>;
-
         auto getTeam(TeamSide side) -> MemberSelector&;
 
+        /**
+         * gets the Memberselector by teamside
+         * @param side
+         * @return
+         */
         auto getTeam(TeamSide side) const -> const MemberSelector&;
+
+        /**
+         * Switches the teamside
+         * @param side the Team side enum to be toggled
+         */
+        void switchSide(TeamSide &side);
     };
 }
 

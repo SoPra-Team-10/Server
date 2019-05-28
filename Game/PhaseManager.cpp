@@ -6,83 +6,149 @@
 #include "conversions.h"
 
 namespace gameHandling{
-    PhaseManager::PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft, const std::shared_ptr<gameModel::Team> &teamRight) :
-            teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT){
-        chooseTeam(currentSidePlayers);
-        chooseTeam(currentSideInter);
+    PhaseManager::PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft,
+                               const std::shared_ptr<gameModel::Team> &teamRight,
+                               std::shared_ptr<const gameModel::Environment> env) :
+            teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT), env(std::move(env)) {
+        chooseSide(currentSidePlayers);
+        chooseSide(currentSideInter);
     }
 
-    auto PhaseManager::nextPlayer(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
-        if(!hasNextPlayer()){
-            throw std::runtime_error("Player phase is over");
+    auto PhaseManager::nextPlayer() -> std::optional<communication::messages::broadcast::Next> {
+        using namespace communication::messages;
+        bool noTurnAllowed = false;
+        if(currentPlayer.has_value() && currentPlayer.value()->isFined){
+            playerTurnState = PlayerTurnState::Move;
+            currentPlayer.reset();
+            return nextPlayer();
         }
 
-        if(currentTurnFinished){
-            currentPlayer = getNextPlayer().value();
-            currentTurnFinished = false;
-        }
+        switch (playerTurnState){
+            case PlayerTurnState::Move:
+                switch (teamStatePlayers){
+                    case TeamState::BothAvailable:{
+                        auto &team = getTeam(currentSidePlayers);
+                        currentPlayer = team.getNextPlayer();
+                        if(currentPlayer.value()->knockedOut || currentPlayer.value()->isFined){
+                            currentPlayer.value()->knockedOut = false;
+                            noTurnAllowed = true;
+                        }
 
-        auto action = getNextPlayerAction(currentPlayer, env);
-        currentTurnFinished = action.second;
-        if(!hasNextPlayer()){
-            while(teamLeft.hasPlayers()){
-                teamLeft.getNextPlayer()->knockedOut = false;
+                        if(!team.hasPlayers()){
+                            teamStatePlayers = TeamState::OneEmpty;
+                            switchSide(currentSidePlayers);
+                            break;
+                        }
+
+                        if(!currentPlayer.value()->isFined){
+                            switchSide(currentSidePlayers);
+                        }
+
+                        break;
+                    }
+
+                    case TeamState::OneEmpty:{
+                        auto &team = getTeam(currentSidePlayers);
+                        currentPlayer = team.getNextPlayer();
+                        if(currentPlayer.value()->knockedOut || currentPlayer.value()->isFined){
+                            currentPlayer.value()->knockedOut = false;
+                            noTurnAllowed = true;
+                        }
+
+                        if(!team.hasPlayers()){
+                            teamStatePlayers = TeamState::BothEmpty;
+                        }
+
+                        break;
+                    }
+
+                    case TeamState::BothEmpty:
+                        return {};
+                }
+
+                if(noTurnAllowed){
+                    return nextPlayer();
+                }
+
+                if(gameController::actionTriggered(env->config.getExtraTurnProb(currentPlayer.value()->broom))){
+                    playerTurnState = PlayerTurnState::ExtraMove;
+                } else {
+                    playerTurnState = PlayerTurnState::PossibleAction;
+                }
+
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+            case PlayerTurnState::ExtraMove:
+                playerTurnState = PlayerTurnState::PossibleAction;
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+            case PlayerTurnState::PossibleAction:
+                playerTurnState = PlayerTurnState::Move;
+                if(gameController::playerCanPerformAction(currentPlayer.value(), env)){
+                    auto id = currentPlayer.value()->id;
+                    currentPlayer.reset();
+                    return broadcast::Next{id, types::TurnType::ACTION, env->config.timeouts.playerTurn};
+                } else {
+                    return nextPlayer();
+                }
+
+            default:
+                throw std::runtime_error("Enum out of bounds");
+        }
+    }
+
+    auto PhaseManager::nextInterference() -> std::optional<communication::messages::broadcast::Next> {
+        using namespace communication::messages;
+        types::EntityId nextInter;
+        switch (teamStateInterferences){
+            case TeamState::BothAvailable:{
+                auto &team = getTeam(currentSideInter);
+                nextInter = team.getNextInterference();
+                if(!team.hasInterference()){
+                    teamStateInterferences = TeamState::OneEmpty;
+                }
+
+                switchSide(currentSideInter);
+                break;
             }
 
-            while(teamRight.hasPlayers()){
-                teamRight.getNextPlayer()->knockedOut = false;
+            case TeamState::OneEmpty:{
+                auto &team = getTeam(currentSideInter);
+                nextInter = team.getNextInterference();
+                if(!team.hasInterference()){
+                    teamStateInterferences = TeamState::BothEmpty;
+                }
+
+                break;
             }
+
+            case TeamState::BothEmpty:
+                return {};
         }
 
-        return {currentPlayer->id, action.first, env->config.timeouts.playerTurn};
-    }
-
-    auto PhaseManager::nextInterference(const std::shared_ptr<const gameModel::Environment> &env) -> communication::messages::broadcast::Next {
-        if(!hasNextInterference()){
-            throw std::runtime_error("Fan phase is over");
-        }
-
-        auto &team = getTeam(currentSideInter);
-        std::optional<communication::messages::types::EntityId> nextInter = {};
-        if(team.hasInterference()){
-            nextInter = team.getNextInterference();
-        }
-
-        if(!oneTeamEmptyInters){
-            currentSideInter = currentSideInter == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
-        }
-
-        if(nextInter.has_value()){
-            return {nextInter.value(), communication::messages::types::TurnType::FAN, env->config.timeouts.fanTurn};
-        } else if(!oneTeamEmptyInters){
-            oneTeamEmptyInters = true;
-            return nextInterference(env);
-        }
-
-        throw std::runtime_error("Fatal error, no interference found");
-    }
-
-    bool PhaseManager::hasNextPlayer() const{
-        return !currentTurnFinished || teamLeft.hasConciousPlayer() || teamRight.hasConciousPlayer();
-    }
-
-    bool PhaseManager::hasNextInterference() const {
-        return teamLeft.hasInterference() || teamRight.hasInterference();
+        return broadcast::Next{nextInter, types::TurnType::FAN, env->config.timeouts.fanTurn};
     }
 
     void PhaseManager::resetPlayers() {
-        oneTeamEmptyPlayers = false;
         teamRight.resetPlayers();
         teamLeft.resetPlayers();
-        chooseTeam(currentSidePlayers);
-        currentTurnFinished = true;
+        chooseSide(currentSidePlayers);
+        teamStatePlayers = TeamState::BothAvailable;
     }
 
     void PhaseManager::resetInterferences() {
-        oneTeamEmptyInters = false;
         teamRight.resetInterferences();
         teamLeft.resetInterferences();
-        chooseTeam(currentSideInter);
+        if(teamRight.hasInterference() && teamLeft.hasInterference()){
+            chooseSide(currentSideInter);
+            teamStateInterferences = TeamState::BothAvailable;
+        } else if(teamLeft.hasInterference()){
+            currentSideInter = TeamSide::LEFT;
+            teamStateInterferences = TeamState::OneEmpty;
+        } else if(teamRight.hasInterference()){
+            currentSideInter = TeamSide::RIGHT;
+            teamStateInterferences = TeamState::OneEmpty;
+        }else {
+            teamStateInterferences = TeamState::BothEmpty;
+        }
     }
 
     void PhaseManager::reset() {
@@ -90,61 +156,6 @@ namespace gameHandling{
         resetInterferences();
     }
 
-    auto PhaseManager::getNextPlayerAction(const std::shared_ptr<const gameModel::Player> &player,
-                                          const std::shared_ptr<const gameModel::Environment> &env) const -> std::pair<communication::messages::types::TurnType, bool> {
-        using TurnType = communication::messages::types::TurnType;
-        static TurnType turnState = TurnType::MOVE;
-        static bool extraMove = false;
-
-        //Method does not handel knocked out state
-        if(player->knockedOut){
-            throw std::runtime_error("Player is knocked out! No action possible!");
-        }
-
-        //If player is banned -> turn = remove ban
-        if(player->isFined){
-            extraMove = false;
-            turnState = TurnType::MOVE;
-            return {TurnType::REMOVE_BAN, true};
-        }
-
-        if(turnState == TurnType::MOVE && !extraMove){
-            //First move of player
-            if(gameController::actionTriggered(env->config.getExtraTurnProb(player->broom))){
-                //turn = move, turn not finished
-                extraMove = true;
-                return {TurnType::MOVE, false};
-            } else {
-                //no extra turn, turn = move
-                if(gameController::playerCanPerformAction(player, env)){
-                    //turn not finished, action in next turn
-                    turnState = TurnType::ACTION;
-                    return {TurnType::MOVE, false};
-                } else {
-                    //no action possible, end of turn
-                    return {TurnType::MOVE, true};
-                }
-            }
-
-        } else if(turnState == TurnType::MOVE){
-            //extra move turn
-            extraMove = false;
-            if(gameController::playerCanPerformAction(player, env)){
-                //player can make action -> turn not finished
-                turnState = TurnType::ACTION;
-                return {TurnType::MOVE, false};
-            } else {
-                //No action possible, end of turn
-                return {TurnType::MOVE, true};
-            }
-        } else if(turnState == TurnType::ACTION){
-            //turn = action, end of turn, start anew
-            turnState = TurnType::MOVE;
-            return {TurnType::ACTION, true};
-        }
-
-        throw std::runtime_error("Fatal error, possible memory corruption");
-    }
 
     auto PhaseManager::getTeam(TeamSide side) -> MemberSelector & {
         if(side == TeamSide::LEFT){
@@ -162,43 +173,12 @@ namespace gameHandling{
         }
     }
 
-    void PhaseManager::chooseTeam(TeamSide &side) const{
+    void PhaseManager::chooseSide(TeamSide &side) const{
         if(gameController::rng(0, 1)){
             side = TeamSide::LEFT;
         } else {
             side = TeamSide::RIGHT;
         }
-    }
-
-    auto PhaseManager::getNextPlayer() -> std::optional<std::shared_ptr<gameModel::Player>> {
-        if(!hasNextPlayer()){
-            throw std::runtime_error("Player phase over");
-        }
-
-        auto &team = getTeam(currentSidePlayers);
-        std::optional<std::shared_ptr<gameModel::Player>> player{};
-        while(team.hasPlayers()){
-            player = team.getNextPlayer();
-            if(player.value()->knockedOut){
-                player.value()->knockedOut = false;
-                player.reset();
-            } else {
-                break;
-            }
-        }
-
-        if(!oneTeamEmptyPlayers){
-            currentSidePlayers = currentSidePlayers == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
-        }
-
-        if(player.has_value()){
-            return player.value();
-        } else if(!oneTeamEmptyPlayers){
-            oneTeamEmptyPlayers = true;
-            return getNextPlayer();
-        }
-
-        return {};
     }
 
     int PhaseManager::interferencesUsedLeft(communication::messages::types::FanType type) const {
@@ -209,7 +189,17 @@ namespace gameHandling{
         return teamRight.usedInterferences(type);
     }
 
-    bool PhaseManager::playerUsed(communication::messages::types::EntityId id) const {
-        return getTeam(conversions::idToSide(id)).playerUsed(id) && currentPlayer->id != id;
+    void PhaseManager::switchSide(TeamSide &side) {
+        side = side == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
+    }
+
+    bool PhaseManager::playerUsed(const std::shared_ptr<const gameModel::Player> &player) const {
+        auto &team = getTeam(conversions::idToSide(player->id));
+        return team.playerUsed(player->id) && (currentPlayer != player || (playerTurnState == PlayerTurnState::PossibleAction &&
+            !gameController::playerCanPerformAction(player, env)));
+    }
+
+    bool PhaseManager::hasInterference() const{
+        return teamLeft.hasInterference() || teamRight.hasInterference();
     }
 }

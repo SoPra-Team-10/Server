@@ -24,8 +24,8 @@ auto getTeamConfig(bool left) -> communication::messages::request::TeamConfig {
         1,
         1,
         1,
-        4,
-        0, //@TODO fix me
+        3,
+        1,
         {"abc", Broom::CLEANSWEEP11, Sex::F},
         {"abc", Broom::COMET260, Sex::F},
         {"abc", Broom::FIREBOLT, Sex::F},
