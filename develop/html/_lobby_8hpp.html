@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Server: /home/travis/build/SoPra-Team-10/Server/Communication/Communicator.cpp File Reference</title>
+<title>Server: /home/travis/build/SoPra-Team-10/Server/Communication/Lobby.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -82,17 +82,52 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
-<div class="title">Communicator.cpp File Reference</div>  </div>
+<div class="title">Lobby.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Definition of the communicator class.  
+<p>Declaration of the Lobby class.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="_communicator_8hpp_source.html">Communicator.hpp</a>&quot;</code><br/>
-<code>#include &lt;SopraMessages/LobbyMod.hpp&gt;</code><br/>
-</div><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Definition of the communicator class. </p>
+<div class="textblock"><code>#include &lt;utility&gt;</code><br/>
+<code>#include &lt;set&gt;</code><br/>
+<code>#include &lt;chrono&gt;</code><br/>
+<code>#include &lt;queue&gt;</code><br/>
+<code>#include &lt;SopraMessages/Message.hpp&gt;</code><br/>
+<code>#include &lt;SopraMessages/Replay.hpp&gt;</code><br/>
+<code>#include &lt;SopraMessages/ReplayWithSnapshot.h&gt;</code><br/>
+<code>#include &lt;<a class="el" href="_logging_8hpp_source.html">Util/Logging.hpp</a>&gt;</code><br/>
+<code>#include &lt;Game/Game.h&gt;</code><br/>
+<code>#include &lt;SopraMessages/ReplayMessage.h&gt;</code><br/>
+<code>#include &quot;<a class="el" href="_animation_queue_8h_source.html">AnimationQueue.h</a>&quot;</code><br/>
+</div>
+<p><a href="_lobby_8hpp_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcommunication_1_1_client.html">communication::Client</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_lobby.html">communication::Lobby</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a9e0b1c225edac1070f3e2aa71f1366df"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>LobbyState</b> { <br/>
+&#160;&#160;<b>INITIAL</b>, 
+<b>WAITING_FORMATION</b>, 
+<b>GAME</b>, 
+<b>PAUSE</b>, 
+<br/>
+&#160;&#160;<b>FINISHED</b>
+<br/>
+ }</td></tr>
+<tr class="separator:a9e0b1c225edac1070f3e2aa71f1366df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Declaration of the Lobby class. </p>
 <dl class="section author"><dt>Author</dt><dd>paul </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>28.04.19 </dd></dl>
 </div></div><!-- contents -->

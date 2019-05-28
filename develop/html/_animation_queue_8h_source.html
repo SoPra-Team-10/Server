@@ -86,49 +86,46 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">AnimationQueue.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Created by paulnykiel on 07.05.19.</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#ifndef SERVER_ANIMATIONQUEUE_H</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SERVER_ANIMATIONQUEUE_H</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;chrono&gt;</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;atomic&gt;</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;future&gt;</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;SopraMessages/Message.hpp&gt;</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span>communication {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keyword">class </span>Communicator;</div>
+<a href="_animation_queue_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef SERVER_ANIMATIONQUEUE_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SERVER_ANIMATIONQUEUE_H</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;chrono&gt;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;atomic&gt;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;future&gt;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;SopraMessages/Message.hpp&gt;</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="classcommunication_1_1_animation_queue.html">   21</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keyword">explicit</span> <a class="code" href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">AnimationQueue</a>(<a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator);</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">add</a>(<span class="keyword">const</span> messages::Payload&amp; payload, <span class="keyword">const</span> std::vector&lt;int&gt;&amp; clients, std::chrono::milliseconds timeOffset = std::chrono::milliseconds{0});</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <a class="code" href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">~AnimationQueue</a>();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keywordtype">void</span> run();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        std::map&lt;std::chrono::milliseconds, std::pair&lt;messages::Payload, std::vector&lt;int&gt;&gt;&gt; toSend;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        std::map&lt;messages::types::PhaseType, std::chrono::milliseconds&gt; lastSnapshotForType;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        std::future&lt;void&gt; threadHandler;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        std::atomic_bool finished;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        std::mutex mapLock;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        std::mutex delayLock;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        std::condition_variable cv;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    };</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif //SERVER_ANIMATIONQUEUE_H</span></div>
-<div class="ttc" id="classcommunication_1_1_animation_queue_html"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html">communication::AnimationQueue</a></div><div class="ttdef"><b>Definition:</b> AnimationQueue.h:21</div></div>
-<div class="ttc" id="classcommunication_1_1_animation_queue_html_af994a25a574098150e4f2cdcf421a409"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">communication::AnimationQueue::AnimationQueue</a></div><div class="ttdeci">AnimationQueue(Communicator &amp;communicator)</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:10</div></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">namespace </span>communication {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">class </span>Communicator;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classcommunication_1_1_animation_queue.html">   24</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="keyword">explicit</span> <a class="code" href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">AnimationQueue</a>(<a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">add</a>(<span class="keyword">const</span> messages::Payload&amp; payload, <span class="keyword">const</span> std::vector&lt;int&gt;&amp; clients, std::chrono::milliseconds timeOffset = std::chrono::milliseconds{0});</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">~AnimationQueue</a>();</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keywordtype">void</span> run();</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <a class="code" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        std::map&lt;std::chrono::milliseconds, std::pair&lt;messages::Payload, std::vector&lt;int&gt;&gt;&gt; toSend;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        std::map&lt;messages::types::PhaseType, std::chrono::milliseconds&gt; lastSnapshotForType;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        std::future&lt;void&gt; threadHandler;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        std::atomic_bool finished;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        std::mutex mapLock;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        std::mutex delayLock;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        std::condition_variable cv;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    };</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;}</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#endif //SERVER_ANIMATIONQUEUE_H</span></div>
+<div class="ttc" id="classcommunication_1_1_animation_queue_html"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html">communication::AnimationQueue</a></div><div class="ttdef"><b>Definition:</b> AnimationQueue.h:24</div></div>
+<div class="ttc" id="classcommunication_1_1_animation_queue_html_af994a25a574098150e4f2cdcf421a409"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">communication::AnimationQueue::AnimationQueue</a></div><div class="ttdeci">AnimationQueue(Communicator &amp;communicator)</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:13</div></div>
 <div class="ttc" id="classcommunication_1_1_communicator_html"><div class="ttname"><a href="classcommunication_1_1_communicator.html">communication::Communicator</a></div><div class="ttdef"><b>Definition:</b> Communicator.hpp:21</div></div>
-<div class="ttc" id="classcommunication_1_1_animation_queue_html_aadc89e3e9657566643bb3932673a45df"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">communication::AnimationQueue::~AnimationQueue</a></div><div class="ttdeci">~AnimationQueue()</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:70</div></div>
-<div class="ttc" id="classcommunication_1_1_animation_queue_html_a27733d89d466f28e664b1134210c58b8"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">communication::AnimationQueue::add</a></div><div class="ttdeci">void add(const messages::Payload &amp;payload, const std::vector&lt; int &gt; &amp;clients, std::chrono::milliseconds timeOffset=std::chrono::milliseconds{0})</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:15</div></div>
+<div class="ttc" id="classcommunication_1_1_animation_queue_html_aadc89e3e9657566643bb3932673a45df"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">communication::AnimationQueue::~AnimationQueue</a></div><div class="ttdeci">~AnimationQueue()</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:73</div></div>
+<div class="ttc" id="classcommunication_1_1_animation_queue_html_a27733d89d466f28e664b1134210c58b8"><div class="ttname"><a href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">communication::AnimationQueue::add</a></div><div class="ttdeci">void add(const messages::Payload &amp;payload, const std::vector&lt; int &gt; &amp;clients, std::chrono::milliseconds timeOffset=std::chrono::milliseconds{0})</div><div class="ttdef"><b>Definition:</b> AnimationQueue.cpp:18</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

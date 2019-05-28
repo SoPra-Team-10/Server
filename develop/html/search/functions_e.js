@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['warn',['warn',['../classutil_1_1_logging.html#a4b6b4f063ab963576c24f9b33e998d5e',1,'util::Logging']]]
+  ['usedinterferences',['usedInterferences',['../classgame_handling_1_1_member_selector.html#a54d40d21116b393eac34a1549c63150e',1,'gameHandling::MemberSelector']]]
 ];
