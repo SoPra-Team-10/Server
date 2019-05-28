@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Server: /home/travis/build/SoPra-Team-10/Server/Communication/Communicator.cpp File Reference</title>
+<title>Server: /home/travis/build/SoPra-Team-10/Server/Communication/Lobby.cpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -82,17 +82,36 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">Communicator.cpp File Reference</div>  </div>
+<div class="title">Lobby.cpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Definition of the communicator class.  
+<p>Definition of the lobby class.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="_communicator_8hpp_source.html">Communicator.hpp</a>&quot;</code><br/>
-<code>#include &lt;SopraMessages/LobbyMod.hpp&gt;</code><br/>
-</div><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Definition of the communicator class. </p>
+<div class="textblock"><code>#include &lt;memory&gt;</code><br/>
+<code>#include &lt;filesystem&gt;</code><br/>
+<code>#include &lt;fstream&gt;</code><br/>
+<code>#include &lt;Game/ConfigCheck.h&gt;</code><br/>
+<code>#include &quot;<a class="el" href="_lobby_8hpp_source.html">Lobby.hpp</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="_communicator_8hpp_source.html">Communicator.hpp</a>&quot;</code><br/>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a9b1963307d37f0dfc56c4d7844ddad6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b1963307d37f0dfc56c4d7844ddad6d"></a>
+communicator&#160;</td><td class="memItemRight" valign="bottom"><b>communication::removeClient</b> (id, userName)</td></tr>
+<tr class="separator:a9b1963307d37f0dfc56c4d7844ddad6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac75047443c5ab0025b96adbc8809ee6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac75047443c5ab0025b96adbc8809ee6"></a>
+clients&#160;</td><td class="memItemRight" valign="bottom"><b>communication::erase</b> (clients.find(id))</td></tr>
+<tr class="separator:aac75047443c5ab0025b96adbc8809ee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a560ed9017fe536f85194da8f543497ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a560ed9017fe536f85194da8f543497ce"></a>
+log&#160;</td><td class="memItemRight" valign="bottom"><b>communication::info</b> (&quot;User left&quot;)</td></tr>
+<tr class="separator:a560ed9017fe536f85194da8f543497ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Definition of the lobby class. </p>
 <dl class="section author"><dt>Author</dt><dd>paul </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>28.04.19 </dd></dl>
 </div></div><!-- contents -->

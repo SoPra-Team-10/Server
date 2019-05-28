@@ -1,7 +1,6 @@
 var searchData=
 [
   ['game',['Game',['../classgame_handling_1_1_game.html',1,'gameHandling']]],
-  ['game_2ecpp',['Game.cpp',['../_game_8cpp.html',1,'']]],
   ['getleftpoints',['getLeftPoints',['../classgame_handling_1_1_game.html#ab69d8ef518447521f57266679ce1c10c',1,'gameHandling::Game']]],
   ['getmatch',['getMatch',['../classutil_1_1_argument_parser.html#af8af305b07f6713a9c19636a5fa810b8',1,'util::ArgumentParser']]],
   ['getname',['getName',['../classcommunication_1_1_lobby.html#aaf5ca9e36ef08ff0236e302aa0d31d00',1,'communication::Lobby']]],
