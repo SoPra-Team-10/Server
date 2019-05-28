@@ -16,7 +16,7 @@ namespace gameHandling{
                        (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2, environment),
                        lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
+                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1, std::nullopt);
         log.debug("Constructed game");
     }
 
@@ -911,6 +911,11 @@ namespace gameHandling{
         phaseManager.reset();
         lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
+
+        if(roundNumber == SNITCH_SPAWN_ROUND){
+            gameController::spawnSnitch(environment);
+        }
+
         switch (overTimeState){
             case gameController::ExcessLength::None:
                 if(roundNumber > environment->config.maxRounds){
@@ -919,14 +924,14 @@ namespace gameHandling{
 
                 break;
             case gameController::ExcessLength::Stage1:
-                if(++overTimeCounter > 3){
+                if(++overTimeCounter > OVERTIME_INTERVAL){
                     overTimeState = gameController::ExcessLength::Stage2;
                     overTimeCounter = 0;
                 }
                 break;
             case gameController::ExcessLength::Stage2:
                 if(environment->snitch->position == gameModel::Position{8, 6} &&
-                    ++overTimeCounter > 3){
+                    ++overTimeCounter > OVERTIME_INTERVAL){
                     overTimeState = gameController::ExcessLength::Stage3;
                 }
                 break;

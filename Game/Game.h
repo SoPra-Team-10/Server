@@ -19,6 +19,9 @@
 #include "Util/Timer.h"
 #include "PhaseManager.h"
 
+#define SNITCH_SPAWN_ROUND 2
+#define OVERTIME_INTERVAL 3
+
 namespace gameHandling{
     class Game {
     public:
@@ -98,7 +101,7 @@ namespace gameHandling{
         communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
-        unsigned int roundNumber = 0;
+        unsigned int roundNumber = 1;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
