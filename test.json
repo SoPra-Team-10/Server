@@ -11,7 +11,7 @@
         "minUnbanPhaseAnimationDuration": 100
     },
     "probabilities": {
-        "throwSuccess": 1,
+        "throwSuccess": 0.5,
         "knockOut": 0.5,
         "foolAway": 0.5,
         "catchSnitch": 0.5,
@@ -32,11 +32,11 @@
             "snitchnip": 0.5
         },
         "fanFoulDetection": {
-            "elfTeleportation": 1,
-            "goblinShock": 1,
-            "trollRoar": 1,
-            "snitchSnatch": 1,
-            "wombatPoo": 1
+            "elfTeleportation": 0.5,
+            "goblinShock": 0.5,
+            "trollRoar": 0.5,
+            "snitchSnatch": 0.5,
+            "wombatPoo": 0.5
         }
     }
 }

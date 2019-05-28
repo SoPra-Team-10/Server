@@ -1,5 +1,5 @@
 /**
- * @file Communicator.hpp
+ * @file MessageHandler.hpp
  * @author paul
  * @date 15.03.19
  * @brief Declaration of the MessageHandler class

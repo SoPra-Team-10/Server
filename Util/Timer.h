@@ -1,6 +1,9 @@
-//
-// Created by bjorn on 04.05.19.
-//
+/**
+ * @file Timer.h
+ * @author paul, tim, björn
+ * @date 01.05.19
+ * @brief Declaration of the Timer class
+ */
 
 #ifndef SERVER_TIMER_H
 #define SERVER_TIMER_H
@@ -10,8 +13,6 @@
 #include <future>
 #include <atomic>
 #include <variant>
-
-#define RESOLUTION 100
 
 namespace util {
     class Timer {

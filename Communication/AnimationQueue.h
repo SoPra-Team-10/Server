@@ -1,6 +1,9 @@
-//
-// Created by paulnykiel on 07.05.19.
-//
+/**
+ * @file AnimationQueue.h
+ * @author paul
+ * @date 07.05.19
+ * @brief Declaration of the AnimationQueue class
+ */
 
 #ifndef SERVER_ANIMATIONQUEUE_H
 #define SERVER_ANIMATIONQUEUE_H

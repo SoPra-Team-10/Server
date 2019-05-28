@@ -1,6 +1,9 @@
-//
-// Created by bjorn on 04.05.19.
-//
+/**
+ * @file Timer.cpp
+ * @author paul, tim, björn
+ * @date 01.05.19
+ * @brief Implementation of the Timer class
+ */
 
 #include "Timer.h"
 

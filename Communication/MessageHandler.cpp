@@ -1,5 +1,5 @@
 /**
- * @file Communicator.cpp
+ * @file MessageHandler.cpp
  * @author paul
  * @date 15.03.19
  * @brief Definition of the MessageHandler class
