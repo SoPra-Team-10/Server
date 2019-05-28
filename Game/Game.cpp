@@ -179,7 +179,7 @@ namespace gameHandling{
                             if(result == gameController::ActionResult::Knockout){
                                 //Successful knockout
                                 if(!targetPlayer.has_value()){
-                                    fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
+                                    fatalErrorEvent.emplace(std::string{"Fatal error, inconsistent game state"});
                                     return false;
                                 }
 
@@ -190,7 +190,7 @@ namespace gameHandling{
                             } else if(result == gameController::ActionResult::FoolAway){
                                 //Knockout an quaffle lost
                                 if(!targetPlayer.has_value()){
-                                    fatalErrorListener(std::string{"Fatal error, inconsistent game state"});
+                                    fatalErrorEvent.emplace(std::string{"Fatal error, inconsistent game state"});
                                     return false;
                                 }
 
@@ -200,7 +200,7 @@ namespace gameHandling{
                                                    environment->quaffle->id, targetPlayer.value()->id, std::nullopt, std::nullopt,
                                                    std::nullopt, std::nullopt, std::nullopt);
                             } else {
-                                fatalErrorListener(std::string{"Unexpected action result"});
+                                fatalErrorEvent.emplace(std::string{"Unexpected action result"});
                                 return false;
                             }
                         }
@@ -223,7 +223,7 @@ namespace gameHandling{
                                 player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -279,7 +279,7 @@ namespace gameHandling{
                                 success = true;
                             } else if(result != gameController::ActionResult::Intercepted &&
                                 result != gameController::ActionResult::Miss){
-                                fatalErrorListener(std::string{"Unexpected action result"});
+                                fatalErrorEvent.emplace(std::string{"Unexpected action result"});
                                 return false;
                             }
                         }
@@ -299,7 +299,7 @@ namespace gameHandling{
 
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
                 } else{
@@ -341,7 +341,7 @@ namespace gameHandling{
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::runtime_error &e){
-                    fatalErrorListener(std::string(e.what()));
+                    fatalErrorEvent.emplace(std::string(e.what()));
                     return false;
                 }
             }
@@ -388,7 +388,7 @@ namespace gameHandling{
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::runtime_error &e){
-                    fatalErrorListener(std::string(e.what()));
+                    fatalErrorEvent.emplace(std::string(e.what()));
                     return false;
                 }
             }
@@ -429,7 +429,7 @@ namespace gameHandling{
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -482,7 +482,7 @@ namespace gameHandling{
 
                         return true;
                     } catch (std::runtime_error &e){
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -536,7 +536,7 @@ namespace gameHandling{
                                                    environment->team2->score, std::nullopt, std::nullopt);
                             } else if(result == gameController::ActionResult::FoolAway){
                                 if(!targetPlayer.has_value()){
-                                    fatalErrorListener(std::string{"Inconsistent game state at Ramming foul"});
+                                    fatalErrorEvent.emplace(std::string{"Inconsistent game state at Ramming foul"});
                                     return false;
                                 }
 
@@ -547,7 +547,7 @@ namespace gameHandling{
                             } else if(result == gameController::ActionResult::SnitchCatch){
                                 snitchCaught = true;
                             } else {
-                                fatalErrorListener(std::string{"Unexpected action result"});
+                                fatalErrorEvent.emplace(std::string{"Unexpected action result"});
                                 return false;
                             }
                         }
@@ -577,12 +577,12 @@ namespace gameHandling{
                                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                                environment->team2->score, std::nullopt, std::nullopt);
                             auto winningTeam = getVictoriousTeam(player);
-                            winListener(winningTeam.first, winningTeam.second);
+                            winEvent.emplace(winningTeam.first, winningTeam.second);
                         }
 
                         return true;
                     } catch (std::runtime_error &e) {
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
                 } else {
@@ -647,7 +647,7 @@ namespace gameHandling{
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::runtime_error &e) {
-                        fatalErrorListener(std::string(e.what()));
+                        fatalErrorEvent.emplace(std::string(e.what()));
                         return false;
                     }
 
@@ -682,7 +682,7 @@ namespace gameHandling{
                         auto res = wQuaffle.execute();
                         addFouls(res.second, player);
                         if(res.first.size() > 1){
-                            fatalErrorListener(std::string{"Unexpected action result"});
+                            fatalErrorEvent.emplace(std::string{"Unexpected action result"});
                             return false;
                         }
 
@@ -692,7 +692,7 @@ namespace gameHandling{
                                 std::nullopt, std::nullopt);
                         return true;
                     } catch(std::runtime_error &e){
-                        fatalErrorListener(std::string{e.what()});
+                        fatalErrorEvent.emplace(std::string{e.what()});
                         return false;
                     }
                 } else {
@@ -700,7 +700,7 @@ namespace gameHandling{
                     return false;
                 }
             default:
-                fatalErrorListener(std::string("Fatal error, DeltaType out of range! Possible memory corruption!"));
+                fatalErrorEvent.emplace(std::string("Fatal error, DeltaType out of range! Possible memory corruption!"));
                 return false;
         }
     }
@@ -751,7 +751,7 @@ namespace gameHandling{
                 std::shared_ptr<gameModel::Bludger> bludger = std::dynamic_pointer_cast<gameModel::Bludger>(ball);
 
                 if(!bludger){
-                    fatalErrorListener(std::string{"We done fucked it up!"});
+                    fatalErrorEvent.emplace(std::string{"We done fucked it up!"});
                     return;
                 }
 
@@ -775,7 +775,7 @@ namespace gameHandling{
                 lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
                              std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
             } catch (std::runtime_error &e){
-                fatalErrorListener(std::string{e.what()});
+                fatalErrorEvent.emplace(std::string{e.what()});
                 return;
             }
 
@@ -785,7 +785,7 @@ namespace gameHandling{
             oldY = ball->position.y;
             auto snitch = std::dynamic_pointer_cast<gameModel::Snitch>(ball);
             if(!snitch){
-                fatalErrorListener(std::string{"We done fucked it up!"});
+                fatalErrorEvent.emplace(std::string{"We done fucked it up!"});
                 return;
             }
 
@@ -795,7 +795,7 @@ namespace gameHandling{
             if(caught){
                 auto catcher = environment->getPlayer(environment->snitch->position);
                 if(!catcher.has_value()){
-                    fatalErrorListener(std::string{"Fatal error! Snitch did not collide with a seeker"});
+                    fatalErrorEvent.emplace(std::string{"Fatal error! Snitch did not collide with a seeker"});
                     return;
                 }
 
@@ -807,7 +807,7 @@ namespace gameHandling{
                                    std::nullopt, std::nullopt, std::nullopt, std::nullopt, environment->team1->score,
                                    environment->team2->score, std::nullopt, std::nullopt);
                 auto winningTeam = getVictoriousTeam(catcher.value());
-                winListener(winningTeam.first, winningTeam.second);
+                winEvent.emplace(winningTeam.first, winningTeam.second);
             }
         } else {
             throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
@@ -852,12 +852,12 @@ namespace gameHandling{
             makeFans(FType::GOBLIN);
             makeFans(FType::WOMBAT);
         } catch (std::runtime_error &e){
-            fatalErrorListener(std::string{e.what()});
+            fatalErrorEvent.emplace(std::string{e.what()});
             return {};
         }
 
         if(fans.size() != 7){
-            fatalErrorListener(std::string{"Fanblock corrupt"});
+            fatalErrorEvent.emplace(std::string{"Fanblock corrupt"});
             return {};
         }
 
@@ -895,7 +895,7 @@ namespace gameHandling{
                 beater2holdsBludger, phaseManager.playerUsed(team->beaters[1]), team->beaters[1]->knockedOut
             };
         } catch (std::runtime_error &e){
-            fatalErrorListener(std::string{e.what()});
+            fatalErrorEvent.emplace(std::string{e.what()});
             return {};
         }
     }

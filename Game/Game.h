@@ -31,8 +31,8 @@ namespace gameHandling{
              util::Logging &log);
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
-        const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
-        const util::Listener<std::string> fatalErrorListener;
+        mutable std::optional<std::tuple<TeamSide, communication::messages::types::VictoryReason>> winEvent;
+        mutable std::optional<std::string> fatalErrorEvent;
 
         /**
          * Pauses the games timers

@@ -193,10 +193,11 @@ namespace communication {
                             teamFormations.first.value(), teamFormations.second.value(), log);
                     game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1,
                             std::placeholders::_2));
-                    game->winListener(std::bind(&Lobby::onWin, this, std::placeholders::_1,
-                                                       std::placeholders::_2));
-                    game->fatalErrorListener(std::bind(&Lobby::onFatalError, this, std::placeholders::_1));
                     modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                    if (game->fatalErrorEvent.has_value()) {
+                        onFatalError(game->fatalErrorEvent.value());
+                        return;
+                    }
                     auto next = game->getNextAction();
                     lastNext = next;
                     this->sendAll(next);
@@ -206,7 +207,18 @@ namespace communication {
                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
                         game->executeBallDelta(next.getEntityId());
+                        if (game->fatalErrorEvent.has_value()) {
+                            onFatalError(game->fatalErrorEvent.value());
+                            return;
+                        } else if (game->winEvent.has_value()) {
+                            onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+                            return;
+                        }
                         modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                        if (game->fatalErrorEvent.has_value()) {
+                            onFatalError(game->fatalErrorEvent.value());
+                            return;
+                        }
                         next = game->getNextAction();
                         lastNext = next;
                         sendAll(next);
@@ -229,8 +241,21 @@ namespace communication {
             if (state == LobbyState::GAME) {
                 gameHandling::TeamSide teamSide =
                         (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
-                if (game->executeDelta(deltaRequest, teamSide)) {
+                auto res = game->executeDelta(deltaRequest, teamSide);
+
+                if (game->fatalErrorEvent.has_value()) {
+                    onFatalError(game->fatalErrorEvent.value());
+                    return;
+                } else if (game->winEvent.has_value()) {
+                    onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+                    return;
+                }
+                if (res) {
                     modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                    if (game->fatalErrorEvent.has_value()) {
+                        onFatalError(game->fatalErrorEvent.value());
+                        return;
+                    }
                     auto next = game->getNextAction();
                     lastNext = next;
                     this->sendAll(next);
@@ -240,7 +265,18 @@ namespace communication {
                             || next.getEntityId() == messages::types::EntityId::BLUDGER2
                             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
                         game->executeBallDelta(next.getEntityId());
+                        if (game->fatalErrorEvent.has_value()) {
+                            onFatalError(game->fatalErrorEvent.value());
+                            return;
+                        } else if (game->winEvent.has_value()) {
+                            onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+                            return;
+                        }
                         modifySnapshotsAddToLogAndSend(game->getSnapshot());
+                        if (game->fatalErrorEvent.has_value()) {
+                            onFatalError(game->fatalErrorEvent.value());
+                            return;
+                        }
                         next = game->getNextAction();
                         lastNext = next;
                         sendAll(next);
@@ -367,8 +403,19 @@ namespace communication {
             std::nullopt
         };
         game->executeDelta(deltaRequest, gameHandling::getSideFromEntity(entityId));
+        if (game->fatalErrorEvent.has_value()) {
+            onFatalError(game->fatalErrorEvent.value());
+            return;
+        } else if (game->winEvent.has_value()) {
+            onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+            return;
+        }
 
         modifySnapshotsAddToLogAndSend(game->getSnapshot());
+        if (game->fatalErrorEvent.has_value()) {
+            onFatalError(game->fatalErrorEvent.value());
+            return;
+        }
         auto next = game->getNextAction();
         lastNext = next;
         this->sendAll(next);
@@ -377,6 +424,13 @@ namespace communication {
             || next.getEntityId() == messages::types::EntityId::BLUDGER2
             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
             game->executeBallDelta(next.getEntityId());
+            if (game->fatalErrorEvent.has_value()) {
+                onFatalError(game->fatalErrorEvent.value());
+                return;
+            } else if (game->winEvent.has_value()) {
+                onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+                return;
+            }
         }
         replay.second.addLog(communication::messages::Message{next});
     }
