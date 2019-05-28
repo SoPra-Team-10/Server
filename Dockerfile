@@ -45,10 +45,6 @@ COPY . /src/
 RUN rm -rf /src/build
 RUN mkdir -p /src/build
 
-# sonarqube stuff
-WORKDIR /src
-RUN chmod +x run-sonarqube.sh
-
 WORKDIR /src/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc)
 
