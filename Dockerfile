@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 # Install dependencies
-RUN apt-get update -y && apt-get install -y libgtest-dev cmake gcc-8 g++-8 libasan5 google-mock git libssl-dev
+RUN apt-get update -y && apt-get install -y libgtest-dev cmake gcc-8 g++-8 libasan5 google-mock git wget unzip bash
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
 
 # Compile GTest
@@ -45,8 +45,12 @@ COPY . /src/
 RUN rm -rf /src/build
 RUN mkdir -p /src/build
 
-WORKDIR /src/build
+# sonarqube stuff
+WORKDIR /src
+RUN chmod +x run-sonarqube.sh
 
+WORKDIR /src/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc)
 
-CMD ["./Server"]
+WORKDIR /src
+#CMD ["./Server"]
