@@ -752,6 +752,7 @@ namespace gameHandling{
 
                 if(!bludger){
                     fatalErrorListener(std::string{"We done fucked it up!"});
+                    return;
                 }
 
                 oldX = bludger->position.x;
@@ -775,6 +776,7 @@ namespace gameHandling{
                              std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
             } catch (std::runtime_error &e){
                 fatalErrorListener(std::string{e.what()});
+                return;
             }
 
         } else if (entityId == communication::messages::types::EntityId::SNITCH) {
@@ -784,6 +786,7 @@ namespace gameHandling{
             auto snitch = std::dynamic_pointer_cast<gameModel::Snitch>(ball);
             if(!snitch){
                 fatalErrorListener(std::string{"We done fucked it up!"});
+                return;
             }
 
             bool caught = gameController::moveSnitch(snitch, environment, overTimeState);
@@ -793,6 +796,7 @@ namespace gameHandling{
                 auto catcher = environment->getPlayer(environment->snitch->position);
                 if(!catcher.has_value()){
                     fatalErrorListener(std::string{"Fatal error! Snitch did not collide with a seeker"});
+                    return;
                 }
 
                 lastDeltas.emplace(DType::SNITCH_CATCH, true, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -849,10 +853,12 @@ namespace gameHandling{
             makeFans(FType::WOMBAT);
         } catch (std::runtime_error &e){
             fatalErrorListener(std::string{e.what()});
+            return {};
         }
 
         if(fans.size() != 7){
             fatalErrorListener(std::string{"Fanblock corrupt"});
+            return {};
         }
 
         try{
