@@ -16,7 +16,7 @@ namespace gameHandling{
                        (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2, environment),
                        lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 0, std::nullopt);
+                std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1, std::nullopt);
         log.debug("Constructed game");
     }
 
@@ -139,10 +139,10 @@ namespace gameHandling{
         }
 
         switch (command.getDeltaType()){
-            case communication::messages::types::DeltaType::SNITCH_CATCH:
+            case DeltaType::SNITCH_CATCH:
                 log.warn("Illegal delta request type");
                 return false;
-            case communication::messages::types::DeltaType::BLUDGER_BEATING:{
+            case DeltaType::BLUDGER_BEATING:{
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())  ||
@@ -231,7 +231,7 @@ namespace gameHandling{
                     return false;
                 }
             }
-            case communication::messages::types::DeltaType::QUAFFLE_THROW:{
+            case DeltaType::QUAFFLE_THROW:{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                 command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
@@ -307,7 +307,7 @@ namespace gameHandling{
                     return false;
                 }
             }
-            case communication::messages::types::DeltaType::SNITCH_SNATCH:{
+            case DeltaType::SNITCH_SNATCH:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
                     log.warn("Interference request but not in fan phase");
                     return false;
@@ -345,7 +345,7 @@ namespace gameHandling{
                     return false;
                 }
             }
-            case communication::messages::types::DeltaType::TROLL_ROAR:{
+            case DeltaType::TROLL_ROAR:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
                     log.warn("Interference request but not in fan phase");
                     return false;
@@ -392,7 +392,7 @@ namespace gameHandling{
                     return false;
                 }
             }
-            case communication::messages::types::DeltaType::ELF_TELEPORTATION:{
+            case DeltaType::ELF_TELEPORTATION:{
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
                     log.warn("Interference request but not in fan phase");
                     return false;
@@ -437,7 +437,7 @@ namespace gameHandling{
                     return false;
                 }
             }
-            case communication::messages::types::DeltaType::GOBLIN_SHOCK:
+            case DeltaType::GOBLIN_SHOCK:
                 if(expectedRequestType.getTurnType() != TurnType::FAN){
                     log.warn("Interference request but not in fan phase");
                     return false;
@@ -489,13 +489,39 @@ namespace gameHandling{
                     log.warn("Ranged attack request has insufficient information");
                     return false;
                 }
-            case communication::messages::types::DeltaType::BAN:
-                log.warn("Illegal delta request type");
-                return false;
-            case communication::messages::types::DeltaType::BLUDGER_KNOCKOUT:
-                log.warn("Illegal delta request type");
-                return false;
-            case communication::messages::types::DeltaType::MOVE:
+            case DeltaType::WOMBAT_POO:
+                if(command.getXPosNew().has_value() && command.getYPosNew().has_value()){
+                    try{
+                        auto shit = gameController::BlockCell(environment, getTeam(side),
+                                                              {command.getXPosNew().value(), command.getYPosNew().value()});
+                        if(!shit.isPossible()){
+                            log.warn(std::string{"BlockCell is impossible"});
+                            return false;
+                        }
+
+                        if(shit.execute() == gameController::ActionCheckResult::Foul){
+                            log.debug("Block cell was detected as foul");
+                            lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                               conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
+                                               std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::WOMBAT_POO);
+                        }
+
+                        log.debug("Block cell");
+                        lastDeltas.emplace(DeltaType::WOMBAT_POO, std::nullopt, std::nullopt, std::nullopt, command.getXPosNew().value(), command.getYPosNew().value(),
+                                           conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
+                                           std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+                        return true;
+                    } catch (std::runtime_error &e){
+                        fatalErrorListener(std::string(e.what()));
+                        return false;
+                    }
+
+                } else {
+                    log.warn("Wombat poo request has insufficient information");
+                    return false;
+                }
+            case DeltaType::MOVE:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
@@ -589,16 +615,7 @@ namespace gameHandling{
                     log.warn("Move request has insufficient information");
                     return false;
                 }
-            case communication::messages::types::DeltaType::PHASE_CHANGE:
-                log.warn("Illegal delta request type");
-                return false;
-            case communication::messages::types::DeltaType::GOAL_POINTS_CHANGE:
-                log.warn("Illegal delta request type");
-                return false;
-            case communication::messages::types::DeltaType::ROUND_CHANGE:
-                log.warn("Illegal delta request type");
-                return false;
-            case communication::messages::types::DeltaType::SKIP:
+            case DeltaType::SKIP:
                 if(command.getActiveEntity().has_value()){
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
@@ -614,7 +631,7 @@ namespace gameHandling{
                     log.warn("Skip request has insufficient information");
                     return false;
                 }
-            case communication::messages::types::DeltaType::UNBAN:
+            case DeltaType::UNBAN:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
                     if(!conversions::isPlayer(command.getActiveEntity().value())){
@@ -655,7 +672,7 @@ namespace gameHandling{
                     log.warn("Unban request has insufficient information");
                     return false;
                 }
-            case communication::messages::types::DeltaType::WREST_QUAFFLE:
+            case DeltaType::WREST_QUAFFLE:
                 if(command.getActiveEntity().has_value()){
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
@@ -699,6 +716,17 @@ namespace gameHandling{
                     log.warn("Wrest request has insufficient information");
                     return false;
                 }
+
+            case DeltaType::FOOL_AWAY:
+            case DeltaType::TURN_USED:
+            case DeltaType::PHASE_CHANGE:
+            case DeltaType::GOAL_POINTS_CHANGE:
+            case DeltaType::ROUND_CHANGE:
+            case DeltaType::BAN:
+            case DeltaType::BLUDGER_KNOCKOUT:
+            case DeltaType::REMOVE_POO:
+                log.warn("Illegal delta request type");
+                return false;
             default:
                 fatalErrorEvent.emplace(std::string("Fatal error, DeltaType out of range! Possible memory corruption!"));
                 return false;
@@ -720,6 +748,12 @@ namespace gameHandling{
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
         using namespace communication::messages::broadcast;
         std::queue<Snapshot> ret;
+        std::vector<std::pair<int, int>> shitList;
+        shitList.reserve(environment->pileOfShit.size());
+        for(const auto &pieceOfShit : environment->pileOfShit){
+            shitList.emplace_back(pieceOfShit->position.x, pieceOfShit->position.y);
+        }
+
         while (!lastDeltas.empty()){
             std::optional<int> snitchX = {};
             std::optional<int> snitchY = {};
@@ -732,7 +766,7 @@ namespace gameHandling{
                 teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
                 environment->bludgers[1]->position.x, environment->bludgers[1]->position.y,
-                std::vector<std::pair<int,int>>{}, false); // @TODO change last two params
+                shitList, goalScored);
             lastDeltas.pop();
         }
 
@@ -915,8 +949,14 @@ namespace gameHandling{
         currentPhase = PhaseType::BALL_PHASE;
         roundNumber++;
         phaseManager.reset();
+        environment->removeDeprecatedShit();
         lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
+
+        if(roundNumber == SNITCH_SPAWN_ROUND){
+            gameController::spawnSnitch(environment);
+        }
+
         switch (overTimeState){
             case gameController::ExcessLength::None:
                 if(roundNumber > environment->config.maxRounds){
@@ -925,14 +965,14 @@ namespace gameHandling{
 
                 break;
             case gameController::ExcessLength::Stage1:
-                if(++overTimeCounter > 3){
+                if(++overTimeCounter > OVERTIME_INTERVAL){
                     overTimeState = gameController::ExcessLength::Stage2;
                     overTimeCounter = 0;
                 }
                 break;
             case gameController::ExcessLength::Stage2:
                 if(environment->snitch->position == gameModel::Position{8, 6} &&
-                    ++overTimeCounter > 3){
+                    ++overTimeCounter > OVERTIME_INTERVAL){
                     overTimeState = gameController::ExcessLength::Stage3;
                 }
                 break;
