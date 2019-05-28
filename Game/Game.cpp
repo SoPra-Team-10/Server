@@ -59,7 +59,7 @@ namespace gameHandling{
                         //Ball phase end, Player phase next
                         currentPhase = PhaseType::PLAYER_PHASE;
                         log.debug("Bludger2 requested to make a move");
-                        changePhaseDelta();
+                        changePhase();
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
                         throw std::runtime_error("Fatal Error! Inconsistent game state!");
@@ -74,7 +74,7 @@ namespace gameHandling{
                     return expectedRequestType = next.value();
                 } else {
                     currentPhase = PhaseType::FAN_PHASE;
-                    changePhaseDelta();
+                    changePhase();
                     return getNextAction();
                 }
             }
@@ -87,7 +87,7 @@ namespace gameHandling{
                     log.debug("Requested fan turn");
                     return expectedRequestType = next.value();
                 } else {
-                    changePhaseDelta();
+                    changePhase();
                     if(goalScored && !bannedPlayers.empty()){
                         currentPhase = PhaseType::UNBAN_PHASE;
                     } else {
@@ -102,7 +102,7 @@ namespace gameHandling{
             case PhaseType::UNBAN_PHASE:
                 if(bannedPlayers.empty()){
                     currentPhase = PhaseType::BALL_PHASE;
-                    changePhaseDelta();
+                    changePhase();
                     endRound();
                     return getNextAction();
                 } else {
@@ -934,11 +934,12 @@ namespace gameHandling{
         }
     }
 
-    void Game::changePhaseDelta() {
+    void Game::changePhase() {
         log.debug("Phase over");
         using namespace communication::messages::types;
         lastDeltas.emplace(DeltaType::PHASE_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+        gameController::moveQuaffelAfterGoal(environment);
 
     }
 

@@ -133,7 +133,7 @@ namespace gameHandling{
         /**
          * pushes a PHASE_CHANGE DeltaBroadcast on the lastDeltas queue if the game phase has changed
          */
-        void changePhaseDelta();
+        void changePhase();
 
         /**
          * Calls the timeoutListener
