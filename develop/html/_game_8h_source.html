@@ -122,8 +122,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;             <a class="code" href="classutil_1_1_logging.html">util::Logging</a> &amp;log);</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keyword">const</span> util::Listener&lt;communication::messages::types::EntityId, communication::messages::types::PhaseType&gt; timeoutListener;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keyword">const</span> util::Listener&lt;TeamSide, communication::messages::types::VictoryReason&gt; winListener;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="keyword">const</span> util::Listener&lt;std::string&gt; fatalErrorListener;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keyword">mutable</span> std::optional&lt;std::tuple&lt;TeamSide, communication::messages::types::VictoryReason&gt;&gt; winEvent;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="keyword">mutable</span> std::optional&lt;std::string&gt; fatalErrorEvent;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classgame_handling_1_1_game.html#a75924403cb56e738c63d7bd67466b3cf">pause</a>();</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
