@@ -9,8 +9,8 @@
 #include <memory>
 #include <filesystem>
 #include <fstream>
-#include <Game/ConfigCheck.h>
-#include <Game/conversions.h>
+#include <src/Game/ConfigCheck.h>
+#include <src/Game/conversions.h>
 #include "Lobby.hpp"
 #include "Communicator.hpp"
 

@@ -5,7 +5,7 @@
 #ifndef SERVER_CONFIGCHECK_H
 #define SERVER_CONFIGCHECK_H
 
-#include <Game/GameTypes.h>
+#include <src/Game/GameTypes.h>
 #include <SopraMessages/TeamFormation.hpp>
 #include <SopraMessages/TeamConfig.hpp>
 

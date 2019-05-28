@@ -1,7 +1,7 @@
 #ifndef SERVER_MESSAGEHANDLERMOCK_H
 #define SERVER_MESSAGEHANDLERMOCK_H
 
-#include <Communication/MessageHandler.hpp>
+#include <src/Communication/MessageHandler.hpp>
 
 #include <gmock/gmock.h>
 
