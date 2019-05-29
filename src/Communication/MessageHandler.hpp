@@ -17,7 +17,7 @@
 #include <SopraMessages/ReplayMessage.h>
 #include <SopraMessages/json.hpp>
 
-#include <src/Util/Logging.hpp>
+#include <Util/Logging.hpp>
 #include <SopraMessages/LobbyMod.hpp>
 
 

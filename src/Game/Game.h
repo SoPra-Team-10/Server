@@ -14,9 +14,9 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
-#include <src/Util/Logging.hpp>
+#include "Util/Logging.hpp"
 #include "GameTypes.h"
-#include "src/Util/Timer.h"
+#include "Util/Timer.h"
 #include "PhaseManager.h"
 
 #define SNITCH_SPAWN_ROUND 2

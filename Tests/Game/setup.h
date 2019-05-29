@@ -5,7 +5,7 @@
 #ifndef SERVER_SETUP_H
 #define SERVER_SETUP_H
 
-#include <src/Game/Game.h>
+#include <Game/Game.h>
 namespace setup{
     auto createGame(util::Logging &log) -> gameHandling::Game;
     auto createEnv(const gameModel::Config &config) -> std::shared_ptr<gameModel::Environment>;

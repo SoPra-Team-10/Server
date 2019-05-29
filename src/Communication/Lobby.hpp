@@ -15,8 +15,8 @@
 #include <SopraMessages/Message.hpp>
 #include <SopraMessages/Replay.hpp>
 #include <SopraMessages/ReplayWithSnapshot.h>
-#include <src/Util/Logging.hpp>
-#include <src/Game/Game.h>
+#include <Util/Logging.hpp>
+#include <Game/Game.h>
 #include <SopraMessages/ReplayMessage.h>
 #include "AnimationQueue.h"
 

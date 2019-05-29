@@ -3,8 +3,8 @@
 //
 
 #include "gtest/gtest.h"
-#include "SopraGameLogic/GameModel.h"
-#include "src/Game/ConfigCheck.h"
+#include <SopraGameLogic/GameModel.h>
+#include "Game/ConfigCheck.h"
 
 TEST(teamFormationCheck, valid_team_formation){
     EXPECT_TRUE(configCheck::checkTeamFormation(communication::messages::request::TeamFormation{0,4,1,4,2,4,3,4,4,4,5,4,6,4}, gameHandling::TeamSide::LEFT));

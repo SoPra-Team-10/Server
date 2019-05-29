@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <src/Util/Logging.hpp>
+#include <Util/Logging.hpp>
 
 using namespace util;
 

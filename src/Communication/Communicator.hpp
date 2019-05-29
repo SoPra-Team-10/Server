@@ -10,7 +10,7 @@
 
 #include <cstdint>
 #include <unordered_set>
-#include <src/Util/Logging.hpp>
+#include <Util/Logging.hpp>
 #include "Lobby.hpp"
 #include "MessageHandler.hpp"
 

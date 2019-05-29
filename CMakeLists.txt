@@ -42,7 +42,7 @@ else()
     set(LIBS ${LIBS} SopraNetwork)
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 

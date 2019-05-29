@@ -5,7 +5,7 @@
 #ifndef SERVER_COMMUNICATORTEST_H
 #define SERVER_COMMUNICATORTEST_H
 
-#include <src/Communication/Communicator.hpp>
+#include <Communication/Communicator.hpp>
 
 namespace communication {
     class CommunicatorTest : public Communicator {
