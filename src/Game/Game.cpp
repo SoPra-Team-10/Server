@@ -62,59 +62,68 @@ namespace gameHandling{
                         changePhase();
                         return {EntityId::BLUDGER2, TurnType::MOVE, 0};
                     default:
-                        throw std::runtime_error("Fatal Error! Inconsistent game state!");
+                        fatalErrorEvent.emplace("Fatal Error! Inconsistent game state!");
+                        return {};
                 }
 
-            case PhaseType::PLAYER_PHASE:{
-                auto next = phaseManager.nextPlayer();
-                if(next.has_value()){
-                    currentSide = conversions::idToSide(next.value().getEntityId());
-                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
-                    log.debug("Requested player turn");
-                    return expectedRequestType = next.value();
-                } else {
-                    currentPhase = PhaseType::FAN_PHASE;
-                    changePhase();
-                    return getNextAction();
-                }
-            }
-
-            case PhaseType::FAN_PHASE: {
-                auto next = phaseManager.nextInterference();
-                if(next.has_value()){
-                    currentSide = conversions::idToSide(next.value().getEntityId());
-                    timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
-                    log.debug("Requested fan turn");
-                    return expectedRequestType = next.value();
-                } else {
-                    changePhase();
-                    if(goalScored && !bannedPlayers.empty()){
-                        currentPhase = PhaseType::UNBAN_PHASE;
+            case PhaseType::PLAYER_PHASE:
+                try{
+                    auto next = phaseManager.nextPlayer();
+                    if(next.has_value()){
+                        currentSide = conversions::idToSide(next.value().getEntityId());
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                        log.debug("Requested player turn");
+                        return expectedRequestType = next.value();
                     } else {
-                        currentPhase = PhaseType::BALL_PHASE;
-                        endRound();
+                        currentPhase = PhaseType::FAN_PHASE;
+                        changePhase();
+                        return getNextAction();
                     }
-
-                    return getNextAction();
+                } catch (std::exception &e){
+                    fatalErrorEvent.emplace(e.what());
                 }
-            }
+            case PhaseType::FAN_PHASE:
+                try {
+                    auto next = phaseManager.nextInterference();
+                    if(next.has_value()){
+                        currentSide = conversions::idToSide(next.value().getEntityId());
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
+                        log.debug("Requested fan turn");
+                        return expectedRequestType = next.value();
+                    } else {
+                        changePhase();
+                        if(goalScored && !bannedPlayers.empty()){
+                            currentPhase = PhaseType::UNBAN_PHASE;
+                        } else {
+                            currentPhase = PhaseType::BALL_PHASE;
+                            endRound();
+                        }
 
+                        return getNextAction();
+                    }
+                } catch (std::exception &e){
+                    fatalErrorEvent.emplace(e.what());
+                }
             case PhaseType::UNBAN_PHASE:
-                if(bannedPlayers.empty()){
-                    currentPhase = PhaseType::BALL_PHASE;
-                    changePhase();
-                    endRound();
-                    return getNextAction();
-                } else {
-                    log.debug("Requested unban");
-                    auto actorId = (*bannedPlayers.begin())->id;
-                    currentSide = conversions::idToSide(actorId);
-                    bannedPlayers.erase(bannedPlayers.begin());
-                    return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
+                try {
+                    if(bannedPlayers.empty()){
+                        currentPhase = PhaseType::BALL_PHASE;
+                        changePhase();
+                        endRound();
+                        return getNextAction();
+                    } else {
+                        log.debug("Requested unban");
+                        auto actorId = (*bannedPlayers.begin())->id;
+                        currentSide = conversions::idToSide(actorId);
+                        bannedPlayers.erase(bannedPlayers.begin());
+                        return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
+                    }
+                } catch (std::exception &e){
+                    fatalErrorEvent.emplace(e.what());
                 }
-
             default:
-                throw std::runtime_error("Fatal error, inconsistent game state!");
+                fatalErrorEvent.emplace("Fatal error, inconsistent game state!");
+                return {};
         }
     }
 
@@ -222,8 +231,8 @@ namespace gameHandling{
                         lastDeltas.emplace(DeltaType::TURN_USED, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                                 player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
-                    } catch (std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else {
@@ -298,8 +307,8 @@ namespace gameHandling{
                                 player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
-                    } catch (std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else{
@@ -340,8 +349,8 @@ namespace gameHandling{
                                      conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
-                } catch (std::runtime_error &e){
-                    fatalErrorEvent.emplace(std::string(e.what()));
+                } catch (std::exception &e){
+                    fatalErrorEvent.emplace(e.what());
                     return false;
                 }
             }
@@ -387,8 +396,8 @@ namespace gameHandling{
                                      conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
-                } catch (std::runtime_error &e){
-                    fatalErrorEvent.emplace(std::string(e.what()));
+                } catch (std::exception &e){
+                    fatalErrorEvent.emplace(e.what());
                     return false;
                 }
             }
@@ -428,8 +437,8 @@ namespace gameHandling{
                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
-                    } catch (std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else {
@@ -481,8 +490,8 @@ namespace gameHandling{
                                          targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
-                    } catch (std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else {
@@ -512,8 +521,8 @@ namespace gameHandling{
                                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
-                    } catch (std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
 
@@ -607,8 +616,8 @@ namespace gameHandling{
                         }
 
                         return true;
-                    } catch (std::runtime_error &e) {
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e) {
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else {
@@ -663,8 +672,8 @@ namespace gameHandling{
                         lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt, target.x, target.y, player->id,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
-                    } catch (std::runtime_error &e) {
-                        fatalErrorEvent.emplace(std::string(e.what()));
+                    } catch (std::exception &e) {
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
 
@@ -708,8 +717,8 @@ namespace gameHandling{
                                 environment->quaffle->position.y, player->id, targetPlayer.value()->id, std::nullopt, std::nullopt, std::nullopt,
                                 std::nullopt, std::nullopt);
                         return true;
-                    } catch(std::runtime_error &e){
-                        fatalErrorEvent.emplace(std::string{e.what()});
+                    } catch(std::exception &e){
+                        fatalErrorEvent.emplace(e.what());
                         return false;
                     }
                 } else {
@@ -808,8 +817,8 @@ namespace gameHandling{
 
                 lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
                              std::nullopt, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
-            } catch (std::runtime_error &e){
-                fatalErrorEvent.emplace(std::string{e.what()});
+            } catch (std::exception &e){
+                fatalErrorEvent.emplace(e.what());
                 return;
             }
 
@@ -844,7 +853,7 @@ namespace gameHandling{
                 winEvent.emplace(winningTeam.first, winningTeam.second);
             }
         } else {
-            throw std::runtime_error{"Quaffle or !ball passed to executeBallDelta!"};
+            fatalErrorEvent.emplace("Quaffle or !ball passed to executeBallDelta!");
         }
     }
 
@@ -885,8 +894,8 @@ namespace gameHandling{
             makeFans(FType::ELF);
             makeFans(FType::GOBLIN);
             makeFans(FType::WOMBAT);
-        } catch (std::runtime_error &e){
-            fatalErrorEvent.emplace(std::string{e.what()});
+        } catch (std::exception &e){
+            fatalErrorEvent.emplace(e.what());
             return {};
         }
 
@@ -928,8 +937,8 @@ namespace gameHandling{
                 team->beaters[1]->position.x, team->beaters[1]->position.y, team->beaters[1]->isFined,
                 beater2holdsBludger, phaseManager.playerUsed(team->beaters[1]), team->beaters[1]->knockedOut
             };
-        } catch (std::runtime_error &e){
-            fatalErrorEvent.emplace(std::string{e.what()});
+        } catch (std::exception &e){
+            fatalErrorEvent.emplace(e.what());
             return {};
         }
     }
