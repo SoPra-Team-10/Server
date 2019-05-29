@@ -578,6 +578,11 @@ namespace gameHandling{
                         }
 
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
+                            if(overTimeState != gameController::ExcessLength::None){
+                                snitchCaught = true;
+                                getTeam(side)->score += SNITCH_POINTS;
+                            }
+
                             if(!snitchCaught){
                                 log.debug("Failed to catch snitch");
                             }
