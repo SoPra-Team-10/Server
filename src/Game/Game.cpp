@@ -81,6 +81,7 @@ namespace gameHandling{
                     }
                 } catch (std::exception &e){
                     fatalErrorEvent.emplace(e.what());
+                    return {};
                 }
             case PhaseType::FAN_PHASE:
                 try {
@@ -103,6 +104,7 @@ namespace gameHandling{
                     }
                 } catch (std::exception &e){
                     fatalErrorEvent.emplace(e.what());
+                    return {};
                 }
             case PhaseType::UNBAN_PHASE:
                 try {
@@ -120,6 +122,7 @@ namespace gameHandling{
                     }
                 } catch (std::exception &e){
                     fatalErrorEvent.emplace(e.what());
+                    return {};
                 }
             default:
                 fatalErrorEvent.emplace("Fatal error, inconsistent game state!");
