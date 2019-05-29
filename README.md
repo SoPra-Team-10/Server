@@ -72,6 +72,3 @@ you can now run the server by executing the created `Server` file:
 ## Doxygen Dokumentation
 - [Master Branch](https://sopra-team-10.github.io/Server/master/html/index.html)
 - [Develop Branch](https://sopra-team-10.github.io/Server/develop/html/index.html)
-
-## SonarQube Analyse
-Das Analyseergebniss von SonarQube ist [hier auf SonarCloud](https://sonarcloud.io/dashboard?id=SoPra-Team-10_Server) zu finden.

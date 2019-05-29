@@ -16,18 +16,18 @@ endif ()
 project(Server VERSION 0.0.1 DESCRIPTION "Server for SoPra")
 
 set(SOURCES
-        ${CMAKE_SOURCE_DIR}/src/Util/ArgumentParser.cpp
-        ${CMAKE_SOURCE_DIR}/src/Util/Logging.cpp
-        ${CMAKE_SOURCE_DIR}/src/Communication/MessageHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Communication/Communicator.cpp
-        ${CMAKE_SOURCE_DIR}/src/Communication/Lobby.cpp
-        ${CMAKE_SOURCE_DIR}/src/Communication/AnimationQueue.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/Game.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/MemberSelector.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/PhaseManager.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/conversions.cpp
-        ${CMAKE_SOURCE_DIR}/src/Util/Timer.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/ConfigCheck.cpp)
+        ${CMAKE_SOURCE_DIR}/Util/ArgumentParser.cpp
+        ${CMAKE_SOURCE_DIR}/Util/Logging.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/MessageHandler.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Communicator.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/Lobby.cpp
+        ${CMAKE_SOURCE_DIR}/Communication/AnimationQueue.cpp
+        ${CMAKE_SOURCE_DIR}/Game/Game.cpp
+        ${CMAKE_SOURCE_DIR}/Game/MemberSelector.cpp
+        ${CMAKE_SOURCE_DIR}/Game/PhaseManager.cpp
+        ${CMAKE_SOURCE_DIR}/Game/conversions.cpp
+        ${CMAKE_SOURCE_DIR}/Util/Timer.cpp
+        ${CMAKE_SOURCE_DIR}/Game/ConfigCheck.cpp)
 
 set(LIBS pthread stdc++fs SopraGameLogic SopraMessages)
 
@@ -42,8 +42,8 @@ else()
     set(LIBS ${LIBS} SopraNetwork)
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
+include_directories(${CMAKE_SOURCE_DIR})
+add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 add_subdirectory(Tests)

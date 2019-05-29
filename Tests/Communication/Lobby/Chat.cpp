@@ -1,5 +1,5 @@
-#include "Communication/MessageHandlerMock.h"
-#include "Communication/CommunicatorTest.h"
+#include "Tests/Communication/MessageHandlerMock.h"
+#include "Tests/Communication/CommunicatorTest.h"
 
 #include <gtest/gtest.h>
 

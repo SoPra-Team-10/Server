@@ -46,7 +46,7 @@ RUN rm -rf /src/build
 RUN mkdir -p /src/build
 
 WORKDIR /src/build
+
 RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc)
 
-WORKDIR /src
-CMD ["./build/Server"]
+CMD ["./Server"]
