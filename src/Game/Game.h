@@ -14,7 +14,7 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
-#include <Util/Logging.hpp>
+#include "Util/Logging.hpp"
 #include "GameTypes.h"
 #include "Util/Timer.h"
 #include "PhaseManager.h"

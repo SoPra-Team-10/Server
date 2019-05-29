@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "SopraGameLogic/GameModel.h"
+#include <SopraGameLogic/GameModel.h>
 #include "Game/ConfigCheck.h"
 
 TEST(teamFormationCheck, valid_team_formation){

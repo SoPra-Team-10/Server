@@ -4,6 +4,7 @@ enable_testing()
 find_package(GTest)
 if (GTest_FOUND)
     include_directories(${GTEST_INCLUDE_DIR})
+    include_directories(.)
 
     file(GLOB_RECURSE TEST_SOURCES . *.cpp)
 
