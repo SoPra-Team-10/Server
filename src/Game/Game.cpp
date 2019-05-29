@@ -434,7 +434,6 @@ namespace gameHandling{
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::ELF_TELEPORTATION);
                         }
 
-                        //@TODO was tun, wenn target den quaffle hält?
                         log.debug("Teleport");
                         lastDeltas.emplace(DeltaType::ELF_TELEPORTATION, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
@@ -591,6 +590,11 @@ namespace gameHandling{
                         }
 
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
+                            if(overTimeState != gameController::ExcessLength::None){
+                                snitchCaught = true;
+                                getTeam(side)->score += SNITCH_POINTS;
+                            }
+
                             if(!snitchCaught){
                                 log.debug("Failed to catch snitch");
                             }
@@ -803,7 +807,7 @@ namespace gameHandling{
 
                 oldX = bludger->position.x;
                 oldY = bludger->position.y;
-
+                auto oldQuafPos = environment->quaffle->position;
                 auto res = gameController::moveBludger(bludger, environment);
                 if(res.has_value()){
                     oldX = res.value()->position.x;
@@ -816,6 +820,14 @@ namespace gameHandling{
 
                     lastDeltas.emplace(DType::BLUDGER_KNOCKOUT, res.value()->knockedOut, oldX, oldY, bludger->position.x, bludger->position.y,
                                  bludger->id, res.value()->id, currentPhase, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
+
+                    if(oldQuafPos != environment->quaffle->position){
+                        log.debug("Quaffle was lost due to bludger knockout");
+                        lastDeltas.emplace(DType::FOOL_AWAY, std::nullopt, oldQuafPos.x, oldQuafPos.y,
+                                           environment->quaffle->position.x, environment->quaffle->position.y,
+                                           environment->quaffle->id, res.value()->id, std::nullopt, std::nullopt,
+                                           std::nullopt, std::nullopt, std::nullopt);
+                    }
                 }
 
                 lastDeltas.emplace(DType::MOVE, std::nullopt, oldX, oldY, bludger->position.x, bludger->position.y, bludger->id,
