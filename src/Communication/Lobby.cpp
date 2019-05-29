@@ -588,6 +588,7 @@ namespace communication {
             this->sendAll(snapshot);
             replay.first.setFirstSnapshot(snapshot);
             replay.second.setFirstSnapshot(snapshot);
+            lastSnapshot = snapshot;
         }
     }
 
