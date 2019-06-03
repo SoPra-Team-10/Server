@@ -17,8 +17,6 @@ namespace gameHandling {
     enum class TeamSide : char {
         LEFT, RIGHT
     };
-
-    auto getSideFromEntity(communication::messages::types::EntityId entityId) -> TeamSide;
 }
 
 #endif //SERVER_GAMETYPES_H

@@ -14,10 +14,13 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
-#include <Util/Logging.hpp>
+#include "Util/Logging.hpp"
 #include "GameTypes.h"
 #include "Util/Timer.h"
 #include "PhaseManager.h"
+
+#define SNITCH_SPAWN_ROUND 2
+#define OVERTIME_INTERVAL 3
 
 namespace gameHandling{
     class Game {
@@ -31,8 +34,8 @@ namespace gameHandling{
              util::Logging &log);
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
-        const util::Listener<TeamSide, communication::messages::types::VictoryReason> winListener;
-        const util::Listener<std::string> fatalErrorListener;
+        mutable std::optional<std::tuple<TeamSide, communication::messages::types::VictoryReason>> winEvent;
+        mutable std::optional<std::string> fatalErrorEvent;
 
         /**
          * Pauses the games timers
@@ -98,7 +101,7 @@ namespace gameHandling{
         communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
-        unsigned int roundNumber = 0;
+        unsigned int roundNumber = 1;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
@@ -130,7 +133,7 @@ namespace gameHandling{
         /**
          * pushes a PHASE_CHANGE DeltaBroadcast on the lastDeltas queue if the game phase has changed
          */
-        void changePhaseDelta();
+        void changePhase();
 
         /**
          * Calls the timeoutListener
