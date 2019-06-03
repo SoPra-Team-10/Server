@@ -36,7 +36,7 @@ RUN cmake . && make -j$(nproc) SopraMessages && make install
 WORKDIR /
 RUN git clone https://github.com/SoPra-Team-10/GameLogic.git
 WORKDIR /GameLogic
-RUN cmake . && make -j$(nproc) SopraGameLogic && make install
+RUN cmake . && make -j$(nproc) SopraUtil && make install
 
 # Compile Util
 WORKDIR /
