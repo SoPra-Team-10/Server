@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['timer',['Timer',['../classutil_1_1_timer.html',1,'util']]],
-  ['timer_2ecpp',['Timer.cpp',['../_timer_8cpp.html',1,'']]],
-  ['timer_2eh',['Timer.h',['../_timer_8h.html',1,'']]]
+  ['_7eanimationqueue',['~AnimationQueue',['../classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df',1,'communication::AnimationQueue']]]
 ];
