@@ -1,4 +1,8 @@
 var searchData=
 [
-  ['send',['send',['../classcommunication_1_1_communicator.html#a8541d8cff93200f3f651158b8478ea33',1,'communication::Communicator::send()'],['../classcommunication_1_1_message_handler.html#af7b757662184ac08274861a550b5f07d',1,'communication::MessageHandler::send(const messages::Message &amp;message, int client)'],['../classcommunication_1_1_message_handler.html#ada4c4377351e1fc321afdd273d95ce79',1,'communication::MessageHandler::send(const messages::ReplayMessage &amp;message, int client)'],['../classcommunication_1_1_message_handler.html#ad25abba1f6cd7b340de54c6b202610ef',1,'communication::MessageHandler::send(const messages::mods::other::LobbyMod &amp;message, int client)']]]
+  ['removeclient',['removeClient',['../classcommunication_1_1_communicator.html#a27699c7db9fcfde35b6bc11b2c4e610b',1,'communication::Communicator']]],
+  ['reset',['reset',['../classgame_handling_1_1_phase_manager.html#aee32a69ae32d433f572507db8ab6c7be',1,'gameHandling::PhaseManager']]],
+  ['resetinterferences',['resetInterferences',['../classgame_handling_1_1_member_selector.html#ac9f74d185653dfd2189c92048d7790ae',1,'gameHandling::MemberSelector::resetInterferences()'],['../classgame_handling_1_1_phase_manager.html#aea4735635edc16e19ff89b77afeedd10',1,'gameHandling::PhaseManager::resetInterferences()']]],
+  ['resetplayers',['resetPlayers',['../classgame_handling_1_1_member_selector.html#a655bfceb29386c1bbd4d6c3459ae1afc',1,'gameHandling::MemberSelector::resetPlayers()'],['../classgame_handling_1_1_phase_manager.html#a4b040978284f56ffa80710208467c78b',1,'gameHandling::PhaseManager::resetPlayers()']]],
+  ['resume',['resume',['../classgame_handling_1_1_game.html#a2bbd9b0adc627fd0e478cbdb9ea4eaec',1,'gameHandling::Game::resume()'],['../classutil_1_1_timer.html#a0f9eff8f12abeab2c6a825bae39fec23',1,'util::Timer::resume()']]]
 ];

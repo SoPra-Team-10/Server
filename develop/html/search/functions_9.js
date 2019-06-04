@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['onleave',['onLeave',['../classcommunication_1_1_lobby.html#a94f0e14294b016def24942a1f7685380',1,'communication::Lobby']]],
-  ['onmessage',['onMessage',['../classcommunication_1_1_lobby.html#a25b9b029f4087e0f268b9b5cc2edb0d5',1,'communication::Lobby']]]
+  ['nextinterference',['nextInterference',['../classgame_handling_1_1_phase_manager.html#a5e64c1843462d1695a80252c2a96434e',1,'gameHandling::PhaseManager']]],
+  ['nextplayer',['nextPlayer',['../classgame_handling_1_1_phase_manager.html#a21fa0dd31665e529c39da6c69b33d0e0',1,'gameHandling::PhaseManager']]]
 ];
