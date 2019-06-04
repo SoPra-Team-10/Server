@@ -117,6 +117,7 @@ namespace gameHandling{
                         log.debug("Requested unban");
                         auto actorId = (*bannedPlayers.begin())->id;
                         currentSide = conversions::idToSide(actorId);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
                         bannedPlayers.erase(bannedPlayers.begin());
                         return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
                     }
