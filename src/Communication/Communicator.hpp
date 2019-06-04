@@ -10,7 +10,7 @@
 
 #include <cstdint>
 #include <unordered_set>
-#include <Util/Logging.hpp>
+#include <SopraUtil/Logging.hpp>
 #include "Lobby.hpp"
 #include "MessageHandler.hpp"
 
