@@ -425,6 +425,7 @@ namespace communication {
             || next.getEntityId() == messages::types::EntityId::BLUDGER2
             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
             game->executeBallDelta(next.getEntityId());
+            modifySnapshotsAddToLogAndSend(game->getSnapshot());
             if (game->fatalErrorEvent.has_value()) {
                 onFatalError(game->fatalErrorEvent.value());
                 return;
