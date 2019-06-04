@@ -138,6 +138,11 @@ namespace gameHandling{
             for(const auto &foul : fouls){
                 log.debug("Foul was detected, player banned");
                 bannedPlayers.emplace_back(player);
+                if(!firstSideDisqualified.has_value() &&
+                    environment->getTeam(player)->numberOfBannedMembers() > MAX_BAN_COUNT) {
+                    firstSideDisqualified = getSide(player);
+                }
+
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                         player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
             }
@@ -978,6 +983,25 @@ namespace gameHandling{
         lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
 
+        if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT &&
+            environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            auto winningTeam = getVictoriousTeam(environment->team1->keeper);
+            if(winningTeam.second != VictoryReason::MOST_POINTS) {
+                if(!firstSideDisqualified.has_value()){
+                    fatalErrorEvent.emplace("Fatal error, inconsistent game state");
+                }
+
+                auto winningSide = firstSideDisqualified.value() == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
+                winEvent.emplace(winningSide, VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_LAST_DISQUALIFICATION);
+            } else {
+                winEvent.emplace(winningTeam.first, VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS);
+            }
+        } else if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            winEvent.emplace(TeamSide::RIGHT, VictoryReason::DISQUALIFICATION);
+        } else if(environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            winEvent.emplace(TeamSide::LEFT, VictoryReason::DISQUALIFICATION);
+        }
+
         if(roundNumber == SNITCH_SPAWN_ROUND){
             gameController::spawnSnitch(environment);
         }
@@ -1011,7 +1035,7 @@ namespace gameHandling{
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 
-    auto Game::getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
+    auto Game::getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
@@ -1025,5 +1049,9 @@ namespace gameHandling{
                 return {TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
+    }
+
+    TeamSide Game::getSide(const std::shared_ptr<const gameModel::Player> &player) const {
+        return environment->team1->hasMember(player) ? TeamSide::LEFT : TeamSide::RIGHT;
     }
 }
