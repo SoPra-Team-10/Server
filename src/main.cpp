@@ -5,7 +5,7 @@
 
 #include <Communication/Communicator.hpp>
 #include <Util/ArgumentParser.hpp>
-#include <Util/Logging.hpp>
+#include <SopraUtil/Logging.hpp>
 
 int main(int argc, char *argv[]) {
     std::string match;

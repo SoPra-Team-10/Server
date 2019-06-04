@@ -513,7 +513,7 @@ namespace communication {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
         log.error(error);
-        state = LobbyState::GAME;
+        state = LobbyState::INITIAL;
         game.reset();
         teamConfigs.first.reset();
         teamConfigs.second.reset();
