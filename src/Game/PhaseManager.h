@@ -14,7 +14,6 @@
 #include "MemberSelector.h"
 
 namespace gameHandling{
-
     enum class PlayerTurnState{
         Move,
         ExtraMove,
@@ -31,7 +30,7 @@ namespace gameHandling{
     public:
         PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft,
                      const std::shared_ptr<gameModel::Team> &teamRight,
-                     std::shared_ptr<const gameModel::Environment> env);
+                     std::shared_ptr<const gameModel::Environment> env, Timeouts timeouts);
 
         /**
          * Returns the next Player action required by a client
@@ -95,6 +94,7 @@ namespace gameHandling{
         PlayerTurnState playerTurnState = PlayerTurnState::Move; ///<The state of the current Players turn
         TeamState teamStatePlayers = TeamState::BothAvailable; ///<State of the Memberselectors
         TeamState teamStateInterferences = TeamState::BothAvailable; ///<State of the Memberselectors
+        gameHandling::Timeouts timeouts;
 
         /**
          * Randomly initializes the given Teamside

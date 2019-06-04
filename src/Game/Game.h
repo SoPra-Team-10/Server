@@ -98,6 +98,7 @@ namespace gameHandling{
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         unsigned int roundNumber = 1;
+        Timeouts timeouts;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
