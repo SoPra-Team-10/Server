@@ -644,8 +644,7 @@ namespace gameHandling{
                         auto player = environment->getPlayerById(command.getActiveEntity().value());
                         environment->placePlayerOnRandomFreeCell(player);
                         player->isFined = false;
-                        lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt,
-                                           player->position.x,
+                        lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt, player->position.x,
                                            player->position.y, player->id, std::nullopt, std::nullopt, std::nullopt,
                                            std::nullopt, std::nullopt, std::nullopt);
                     }
