@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['pause',['pause',['../classgame_handling_1_1_game.html#a75924403cb56e738c63d7bd67466b3cf',1,'gameHandling::Game']]],
-  ['playerused',['playerUsed',['../classgame_handling_1_1_member_selector.html#a13adcb3880470e96487ea0b4f0e92d75',1,'gameHandling::MemberSelector::playerUsed()'],['../classgame_handling_1_1_phase_manager.html#ae1de0177f94a329270036b64a1b205a6',1,'gameHandling::PhaseManager::playerUsed()']]],
-  ['printhelp',['printHelp',['../classutil_1_1_argument_parser.html#af94e90be0cc1019b0c89d78a471971a9',1,'util::ArgumentParser']]]
+  ['onleave',['onLeave',['../classcommunication_1_1_lobby.html#a94f0e14294b016def24942a1f7685380',1,'communication::Lobby']]],
+  ['onmessage',['onMessage',['../classcommunication_1_1_lobby.html#a25b9b029f4087e0f268b9b5cc2edb0d5',1,'communication::Lobby']]]
 ];
