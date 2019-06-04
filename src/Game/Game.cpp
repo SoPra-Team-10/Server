@@ -13,8 +13,9 @@ namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
-                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2, environment),
-                       lastDeltas(), log(log){
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
+                       timeouts{matchConfig.getPlayerTurnTimeout(), matchConfig.getFanTurnTimeout(),matchConfig.getUnbanTurnTimeout()},
+                       phaseManager(environment->team1, environment->team2, environment, timeouts), lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1, std::nullopt);
         log.debug("Constructed game");
@@ -71,7 +72,7 @@ namespace gameHandling{
                     auto next = phaseManager.nextPlayer();
                     if(next.has_value()){
                         currentSide = conversions::idToSide(next.value().getEntityId());
-                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.playerTurn);
                         log.debug("Requested player turn");
                         return expectedRequestType = next.value();
                     } else {
@@ -88,7 +89,7 @@ namespace gameHandling{
                     auto next = phaseManager.nextInterference();
                     if(next.has_value()){
                         currentSide = conversions::idToSide(next.value().getEntityId());
-                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.fanTurn);
                         log.debug("Requested fan turn");
                         return expectedRequestType = next.value();
                     } else {
@@ -117,9 +118,9 @@ namespace gameHandling{
                         log.debug("Requested unban");
                         auto actorId = (*bannedPlayers.begin())->id;
                         currentSide = conversions::idToSide(actorId);
-                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.unbanTurn);
                         bannedPlayers.erase(bannedPlayers.begin());
-                        return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
+                        return expectedRequestType = {actorId, TurnType::REMOVE_BAN, timeouts.unbanTurn};
                     }
                 } catch (std::exception &e){
                     fatalErrorEvent.emplace(e.what());
@@ -1027,7 +1028,7 @@ namespace gameHandling{
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 
-    auto Game::getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
+    auto Game::getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
