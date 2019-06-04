@@ -1,5 +1,5 @@
 {
-    "maxRounds": 100,
+    "maxRounds": 20,
     "timings": {
         "teamFormationTimeout": 60000,
         "playerTurnTimeout": 60000,
@@ -12,17 +12,17 @@
     },
     "probabilities": {
         "throwSuccess": 0.9,
-        "knockOut": 0.5,
+        "knockOut": 0.75,
         "foolAway": 0.5,
         "catchSnitch": 0.5,
-        "catchQuaffle": 0.5,
-        "wrestQuaffle": 0.5,
+        "catchQuaffle": 0.6,
+        "wrestQuaffle": 0.8,
         "extraMove": {
-            "tinderblast": 0.5,
-            "cleansweep11": 0.5,
-            "comet260": 0.5,
-            "nimbus2001": 0.5,
-            "firebolt": 0.5
+            "tinderblast": 0.3,
+            "cleansweep11": 0.4,
+            "comet260": 0.6,
+            "nimbus2001": 0.7,
+            "firebolt": 0.8
         },
         "foulDetection": {
             "flacking": 0.5,

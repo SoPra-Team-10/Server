@@ -118,6 +118,13 @@ namespace gameHandling{
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
         /**
+         * Gets the side of the given Team
+         * @param player
+         * @return
+         */
+        TeamSide getSide(const std::shared_ptr<const gameModel::Player> &player) const;
+
+        /**
          * gets the winning Team and the reason for winning when the snitch has been caught.
          * @param winningPlayer the Player catching the snitch
          * @return the winning team according to the game rules and the reason they won
