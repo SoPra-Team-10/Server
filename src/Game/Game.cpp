@@ -639,9 +639,20 @@ namespace gameHandling{
                     }
 
                     log.debug("Turn skipped");
+                    if(currentPhase == PhaseType::UNBAN_PHASE) {
+                        //Unban skipped -> place on random cell
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        environment->placePlayerOnRandomFreeCell(player);
+                        player->isFined = false;
+                        lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt,
+                                           player->position.x,
+                                           player->position.y, player->id, std::nullopt, std::nullopt, std::nullopt,
+                                           std::nullopt, std::nullopt, std::nullopt);
+                    }
+
                     lastDeltas.emplace(DeltaType::SKIP, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                     command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                     std::nullopt, std::nullopt);
+                                       command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                       std::nullopt, std::nullopt);
                     return true;
                 } else {
                     log.warn("Skip request has insufficient information");
@@ -670,6 +681,11 @@ namespace gameHandling{
                         gameModel::Position target{command.getXPosNew().value(), command.getYPosNew().value()};
                         if(!environment->cellIsFree(target)){
                             log.warn("Invalid target for unban! Cell is occupied");
+                            return false;
+                        }
+
+                        if(gameModel::Environment::isGoalCell(target)) {
+                            log.warn("Invalid target for unban! Must not place player on goal");
                             return false;
                         }
 
@@ -984,7 +1000,7 @@ namespace gameHandling{
 
         switch (overTimeState){
             case gameController::ExcessLength::None:
-                if(roundNumber > environment->config.maxRounds){
+                if(roundNumber == environment->config.maxRounds){
                     overTimeState = gameController::ExcessLength::Stage1;
                 }
 
