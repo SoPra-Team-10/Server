@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['timer',['Timer',['../classutil_1_1_timer.html',1,'util']]]
+  ['timeouts',['Timeouts',['../structgame_handling_1_1_timeouts.html',1,'gameHandling']]]
 ];
