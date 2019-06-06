@@ -8,7 +8,7 @@ For the server the following flags exist:
 * `-m` / `--match` path to the matchconfig json file (mandatory)
 * `-h` / `--help` print the help page and exit (optional)
 * `-p` / `--port` set the port (the port needs to be larger `0` and smaller `65536`) (optional, the default value is `8080`)
-* `-v` / `--verbosity` change the verbosity level, for more information on log-levels see the [SoPra-Team-10/Util](https://github.com/SoPra-Team-10/Util) (optional, the default value is `0`)
+* `-v` / `--verbosity` change the verbosity level, for more information on log-levels see [SoPra-Team-10/Util](https://github.com/SoPra-Team-10/Util) (optional, the default value is `0`)
 
 ## Getting started
 You can choose between using Docker or manually installing all dependencies.
