@@ -7,9 +7,9 @@
 
 namespace gameHandling{
     PhaseManager::PhaseManager(const std::shared_ptr<gameModel::Team> &teamLeft,
-                               const std::shared_ptr<gameModel::Team> &teamRight,
-                               std::shared_ptr<const gameModel::Environment> env) :
-            teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT), env(std::move(env)) {
+             const std::shared_ptr<gameModel::Team> &teamRight, std::shared_ptr<const gameModel::Environment> env,
+             Timeouts timeouts) : teamLeft(teamLeft, TeamSide::LEFT), teamRight(teamRight, TeamSide::RIGHT), env(std::move(env)),
+             timeouts(timeouts){
         chooseSide(currentSidePlayers);
         chooseSide(currentSideInter);
     }
@@ -76,16 +76,16 @@ namespace gameHandling{
                     playerTurnState = PlayerTurnState::PossibleAction;
                 }
 
-                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, timeouts.playerTurn};
             case PlayerTurnState::ExtraMove:
                 playerTurnState = PlayerTurnState::PossibleAction;
-                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, env->config.timeouts.playerTurn};
+                return broadcast::Next{currentPlayer.value()->id, types::TurnType::MOVE, timeouts.playerTurn};
             case PlayerTurnState::PossibleAction:
                 playerTurnState = PlayerTurnState::Move;
                 if(gameController::playerCanPerformAction(currentPlayer.value(), env)){
                     auto id = currentPlayer.value()->id;
                     currentPlayer.reset();
-                    return broadcast::Next{id, types::TurnType::ACTION, env->config.timeouts.playerTurn};
+                    return broadcast::Next{id, types::TurnType::ACTION, timeouts.playerTurn};
                 } else {
                     return nextPlayer();
                 }
@@ -124,7 +124,7 @@ namespace gameHandling{
                 return {};
         }
 
-        return broadcast::Next{nextInter, types::TurnType::FAN, env->config.timeouts.fanTurn};
+        return broadcast::Next{nextInter, types::TurnType::FAN, timeouts.fanTurn};
     }
 
     void PhaseManager::resetPlayers() {

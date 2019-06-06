@@ -13,8 +13,9 @@ namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
-                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)), phaseManager(environment->team1, environment->team2, environment),
-                       lastDeltas(), log(log){
+                       (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
+                       timeouts{matchConfig.getPlayerTurnTimeout(), matchConfig.getFanTurnTimeout(),matchConfig.getUnbanTurnTimeout()},
+                       phaseManager(environment->team1, environment->team2, environment, timeouts), lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1, std::nullopt);
         log.debug("Constructed game");
@@ -71,7 +72,7 @@ namespace gameHandling{
                     auto next = phaseManager.nextPlayer();
                     if(next.has_value()){
                         currentSide = conversions::idToSide(next.value().getEntityId());
-                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.playerTurn);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.playerTurn);
                         log.debug("Requested player turn");
                         return expectedRequestType = next.value();
                     } else {
@@ -88,7 +89,7 @@ namespace gameHandling{
                     auto next = phaseManager.nextInterference();
                     if(next.has_value()){
                         currentSide = conversions::idToSide(next.value().getEntityId());
-                        timer.setTimeout(std::bind(&Game::onTimeout, this), environment->config.timeouts.fanTurn);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.fanTurn);
                         log.debug("Requested fan turn");
                         return expectedRequestType = next.value();
                     } else {
@@ -117,8 +118,9 @@ namespace gameHandling{
                         log.debug("Requested unban");
                         auto actorId = (*bannedPlayers.begin())->id;
                         currentSide = conversions::idToSide(actorId);
+                        timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.unbanTurn);
                         bannedPlayers.erase(bannedPlayers.begin());
-                        return expectedRequestType = {actorId, TurnType::REMOVE_BAN, environment->config.timeouts.playerTurn};
+                        return expectedRequestType = {actorId, TurnType::REMOVE_BAN, timeouts.unbanTurn};
                     }
                 } catch (std::exception &e){
                     fatalErrorEvent.emplace(e.what());
@@ -138,6 +140,11 @@ namespace gameHandling{
             for(const auto &foul : fouls){
                 log.debug("Foul was detected, player banned");
                 bannedPlayers.emplace_back(player);
+                if(!firstSideDisqualified.has_value() &&
+                    environment->getTeam(player)->numberOfBannedMembers() > MAX_BAN_COUNT) {
+                    firstSideDisqualified = getSide(player);
+                }
+
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                         player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
             }
@@ -639,9 +646,19 @@ namespace gameHandling{
                     }
 
                     log.debug("Turn skipped");
+                    if(currentPhase == PhaseType::UNBAN_PHASE) {
+                        //Unban skipped -> place on random cell
+                        auto player = environment->getPlayerById(command.getActiveEntity().value());
+                        environment->placePlayerOnRandomFreeCell(player);
+                        player->isFined = false;
+                        lastDeltas.emplace(DeltaType::UNBAN, std::nullopt, std::nullopt, std::nullopt, player->position.x,
+                                           player->position.y, player->id, std::nullopt, std::nullopt, std::nullopt,
+                                           std::nullopt, std::nullopt, std::nullopt);
+                    }
+
                     lastDeltas.emplace(DeltaType::SKIP, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                     command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                     std::nullopt, std::nullopt);
+                                       command.getActiveEntity().value(), std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                       std::nullopt, std::nullopt);
                     return true;
                 } else {
                     log.warn("Skip request has insufficient information");
@@ -670,6 +687,11 @@ namespace gameHandling{
                         gameModel::Position target{command.getXPosNew().value(), command.getYPosNew().value()};
                         if(!environment->cellIsFree(target)){
                             log.warn("Invalid target for unban! Cell is occupied");
+                            return false;
+                        }
+
+                        if(gameModel::Environment::isGoalCell(target)) {
+                            log.warn("Invalid target for unban! Must not place player on goal");
                             return false;
                         }
 
@@ -978,13 +1000,32 @@ namespace gameHandling{
         lastDeltas.emplace(DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, getRound(), std::nullopt);
 
+        if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT &&
+            environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            auto winningTeam = getVictoriousTeam(environment->team1->keeper);
+            if(winningTeam.second != VictoryReason::MOST_POINTS) {
+                if(!firstSideDisqualified.has_value()){
+                    fatalErrorEvent.emplace("Fatal error, inconsistent game state");
+                }
+
+                auto winningSide = firstSideDisqualified.value() == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
+                winEvent.emplace(winningSide, VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_LAST_DISQUALIFICATION);
+            } else {
+                winEvent.emplace(winningTeam.first, VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS);
+            }
+        } else if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            winEvent.emplace(TeamSide::RIGHT, VictoryReason::DISQUALIFICATION);
+        } else if(environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
+            winEvent.emplace(TeamSide::LEFT, VictoryReason::DISQUALIFICATION);
+        }
+
         if(roundNumber == SNITCH_SPAWN_ROUND){
             gameController::spawnSnitch(environment);
         }
 
         switch (overTimeState){
             case gameController::ExcessLength::None:
-                if(roundNumber > environment->config.maxRounds){
+                if(roundNumber == environment->config.maxRounds){
                     overTimeState = gameController::ExcessLength::Stage1;
                 }
 
@@ -1011,7 +1052,7 @@ namespace gameHandling{
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 
-    auto Game::getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
+    auto Game::getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
@@ -1025,5 +1066,9 @@ namespace gameHandling{
                 return {TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
+    }
+
+    TeamSide Game::getSide(const std::shared_ptr<const gameModel::Player> &player) const {
+        return environment->team1->hasMember(player) ? TeamSide::LEFT : TeamSide::RIGHT;
     }
 }

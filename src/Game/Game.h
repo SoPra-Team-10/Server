@@ -14,13 +14,14 @@
 #include <SopraMessages/Snapshot.hpp>
 #include <SopraGameLogic/GameModel.h>
 #include <chrono>
-#include "Util/Logging.hpp"
+#include <SopraUtil/Logging.hpp>
 #include "GameTypes.h"
-#include "Util/Timer.h"
+#include <SopraUtil/Timer.h>
 #include "PhaseManager.h"
 
-#define SNITCH_SPAWN_ROUND 2
+#define SNITCH_SPAWN_ROUND 10
 #define OVERTIME_INTERVAL 3
+#define MAX_BAN_COUNT 2
 
 namespace gameHandling{
     class Game {
@@ -91,17 +92,13 @@ namespace gameHandling{
          */
         auto getRightPoints() const -> int;
 
-        /**
-         * Prepares the game state for the next round. Is called by the server after every call of executeDelta
-         */
-        void endRound();
-
     private:
         util::Timer timer;
         communication::messages::types::PhaseType currentPhase = communication::messages::types::PhaseType::BALL_PHASE; ///< the basic game phases
         communication::messages::types::EntityId ballTurn =
                 communication::messages::types::EntityId::SNITCH; ///< the Ball to make a move
         unsigned int roundNumber = 1;
+        Timeouts timeouts;
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
@@ -111,6 +108,7 @@ namespace gameHandling{
         unsigned int overTimeCounter = 0;
         bool goalScored = false;
         std::deque<std::shared_ptr<gameModel::Player>> bannedPlayers = {};
+        std::optional<TeamSide> firstSideDisqualified = std::nullopt;
 
         /**
          * Gets the team associated with the given side
@@ -119,7 +117,19 @@ namespace gameHandling{
          */
         auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
 
-        auto getVictoriousTeam(const std::shared_ptr<gameModel::Player> &winningPlayer) const -> std::pair<TeamSide, communication::messages::types::VictoryReason>;
+        /**
+         * Gets the side of the given Team
+         * @param player
+         * @return
+         */
+        TeamSide getSide(const std::shared_ptr<const gameModel::Player> &player) const;
+
+        /**
+         * gets the winning Team and the reason for winning when the snitch has been caught.
+         * @param winningPlayer the Player catching the snitch
+         * @return the winning team according to the game rules and the reason they won
+         */
+        auto getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide, communication::messages::types::VictoryReason>;
 
         /**
          * Constructs a TeamSnapshot object from a Team
@@ -132,6 +142,7 @@ namespace gameHandling{
 
         /**
          * pushes a PHASE_CHANGE DeltaBroadcast on the lastDeltas queue if the game phase has changed
+         * and makes necessary changes to the environment for the next phase
          */
         void changePhase();
 
@@ -139,6 +150,11 @@ namespace gameHandling{
          * Calls the timeoutListener
          */
         void onTimeout();
+
+        /**
+         * Prepares the game state for the next round.
+         */
+        void endRound();
     };
 }
 

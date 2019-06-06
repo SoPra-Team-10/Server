@@ -17,7 +17,6 @@ project(Server VERSION 0.0.1 DESCRIPTION "Server for SoPra")
 
 set(SOURCES
         ${CMAKE_SOURCE_DIR}/src/Util/ArgumentParser.cpp
-        ${CMAKE_SOURCE_DIR}/src/Util/Logging.cpp
         ${CMAKE_SOURCE_DIR}/src/Communication/MessageHandler.cpp
         ${CMAKE_SOURCE_DIR}/src/Communication/Communicator.cpp
         ${CMAKE_SOURCE_DIR}/src/Communication/Lobby.cpp
@@ -26,10 +25,9 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/src/Game/MemberSelector.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/PhaseManager.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/conversions.cpp
-        ${CMAKE_SOURCE_DIR}/src/Util/Timer.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/ConfigCheck.cpp)
 
-set(LIBS pthread stdc++fs SopraGameLogic SopraMessages)
+set(LIBS pthread stdc++fs SopraGameLogic SopraMessages SopraUtil)
 
 if (USE_LOCAL_NETWORK)
     include_directories(../Network/)

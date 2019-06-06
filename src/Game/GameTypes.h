@@ -17,6 +17,10 @@ namespace gameHandling {
     enum class TeamSide : char {
         LEFT, RIGHT
     };
+
+    struct Timeouts{
+        const int playerTurn, fanTurn, unbanTurn;
+    };
 }
 
 #endif //SERVER_GAMETYPES_H

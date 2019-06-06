@@ -425,6 +425,7 @@ namespace communication {
             || next.getEntityId() == messages::types::EntityId::BLUDGER2
             || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
             game->executeBallDelta(next.getEntityId());
+            modifySnapshotsAddToLogAndSend(game->getSnapshot());
             if (game->fatalErrorEvent.has_value()) {
                 onFatalError(game->fatalErrorEvent.value());
                 return;
@@ -513,7 +514,7 @@ namespace communication {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
         }
         log.error(error);
-        state = LobbyState::GAME;
+        state = LobbyState::INITIAL;
         game.reset();
         teamConfigs.first.reset();
         teamConfigs.second.reset();
