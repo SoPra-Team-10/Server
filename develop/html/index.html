@@ -80,6 +80,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="textblock"><p><a href="https://travis-ci.org/SoPra-Team-10/Server"></a> </p>
 <h1>Server</h1>
 <p>Server component for the Quidditch Game.</p>
+<h2>Usage</h2>
+<p>In accordance to the standard, it is possible to change some options of the server using command line arguments. For the server the following flags exist:</p>
+<ul>
+<li><code>-m</code> / <code>--match</code> path to the matchconfig json file (mandatory)</li>
+<li><code>-h</code> / <code>--help</code> print the help page and exit (optional)</li>
+<li><code>-p</code> / <code>--port</code> set the port (the port needs to be larger <code>0</code> and smaller <code>65536</code>) (optional, the default value is <code>8080</code>)</li>
+<li><code>-v</code> / <code>--verbosity</code> change the verbosity level, for more information on log-levels see <a href="https://github.com/SoPra-Team-10/Util">SoPra-Team-10/Util</a> (optional, the default value is <code>0</code>)</li>
+</ul>
 <h2>Getting started</h2>
 <p>You can choose between using Docker or manually installing all dependencies. Docker is the preferred method as it already installs the toolchain and all dependencies.</p>
 <h3>Docker</h3>
@@ -102,21 +110,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h3>Compiling the Application</h3>
 <p>In the root directory of the project create a new directory (in this example it will be called build), change in this directory.</p>
 <p>Next generate a makefile using cmake: ``` cmake .. ``` if any error occurs recheck the prerequisites. Next compile the program: ``` make ``<code> you can now run the server by executing the created</code>Server<code>file: </code>`` ./Server ```</p>
-<h2>Log-Levels</h2>
-<table class="doxtable">
-<tr>
-<th>Log-Level </th><th>Color </th><th>Explanation  </th></tr>
-<tr>
-<td>0 </td><td>- </td><td>No log messages </td></tr>
-<tr>
-<td>1 </td><td>Red </td><td>Only error messages </td></tr>
-<tr>
-<td>2 </td><td>Yellow </td><td>Error messages and warning </td></tr>
-<tr>
-<td>3 </td><td>Blue </td><td>Error messages, warning and info messages </td></tr>
-<tr>
-<td>4 </td><td>White </td><td>All messages (error, warning, info and debug) </td></tr>
-</table>
 <h2>External Librarys</h2>
 <ul>
 <li><a href="https://github.com/SoPra-Team-10/Network">SopraNetwork</a></li>

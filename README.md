@@ -2,6 +2,14 @@
 # Server
 Server component for the Quidditch Game.
 
+## Usage
+In accordance to the standard, it is possible to change some options of the server using command line arguments.
+For the server the following flags exist:
+* `-m` / `--match` path to the matchconfig json file (mandatory)
+* `-h` / `--help` print the help page and exit (optional)
+* `-p` / `--port` set the port (the port needs to be larger `0` and smaller `65536`) (optional, the default value is `8080`)
+* `-v` / `--verbosity` change the verbosity level, for more information on log-levels see [SoPra-Team-10/Util](https://github.com/SoPra-Team-10/Util) (optional, the default value is `0`)
+
 ## Getting started
 You can choose between using Docker or manually installing all dependencies.
 Docker is the preferred method as it already installs the toolchain
@@ -55,15 +63,7 @@ you can now run the server by executing the created `Server` file:
 ./Server
 ```
 
-## Log-Levels
 
-| Log-Level | Color | Explanation |
-| ----- | ----- | ---- |
-| 0 | - | No log messages |
-| 1 | Red | Only error messages |
-| 2 | Yellow | Error messages and warning |
-| 3 | Blue | Error messages, warning and info messages |
-| 4 | White | All messages (error, warning, info and debug) |
 
 ## External Librarys
  * [SopraNetwork](https://github.com/SoPra-Team-10/Network)
