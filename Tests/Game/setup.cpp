@@ -33,8 +33,6 @@ auto setup::createEnv(const gameModel::Config &config) -> std::shared_ptr<gameMo
     return std::make_shared<gameModel::Environment>(config, t1, t2);
 }
 
-
-
 auto setup::createGame(util::Logging &log) -> gameHandling::Game {
     using namespace communication::messages;
     using namespace communication::messages::request;

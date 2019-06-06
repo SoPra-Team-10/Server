@@ -2,3 +2,5 @@ cmake-build-debug/
 .idea/
 build/
 /.project
+*replay.json
+*replaySnapshot.json
