@@ -5,7 +5,7 @@ Server component for the Quidditch Game.
 ## Usage
 In accordance to the standard, it is possible to change some options of the server using command line arguments.
 For the server the following flags exist:
-* `-m` / `--match` path to the matchconfig json file (mandatory)
+* `-m` / `--match` path to the MatchConfig JSON file (mandatory)
 * `-h` / `--help` print the help page and exit (optional)
 * `-p` / `--port` set the port (the port needs to be larger `0` and smaller `65536`) (optional, the default value is `8080`)
 * `-v` / `--verbosity` change the verbosity level, for more information on log-levels see [SoPra-Team-10/Util](https://github.com/SoPra-Team-10/Util) (optional, the default value is `0`)
