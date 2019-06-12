@@ -24,10 +24,9 @@ namespace communication {
 
         if (std::holds_alternative<messages::broadcast::Snapshot>(payload)) {
             auto &snapshot = std::get<messages::broadcast::Snapshot>(payload);
-            if (lastSnapshotForType.find(snapshot.getPhase()) != lastSnapshotForType.end()) {
-                if (lastSnapshotForType.at(snapshot.getPhase()) + timeOffset > toSendTime) {
-                    toSendTime = lastSnapshotForType.at(snapshot.getPhase()) + timeOffset;
-                }
+            if (lastSnapshotForType.find(snapshot.getPhase()) != lastSnapshotForType.end() &&
+                lastSnapshotForType.at(snapshot.getPhase()) + timeOffset > toSendTime) {
+                toSendTime = lastSnapshotForType.at(snapshot.getPhase()) + timeOffset;
             }
             for (const auto &msg : toSend) {
                 if (std::holds_alternative<messages::broadcast::Snapshot>(msg.second.first)) {

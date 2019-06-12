@@ -73,6 +73,11 @@ namespace communication {
          * Listener, that gets called when a client closes the connection
          */
         const util::Listener<int> onClose;
+
+        /**
+         * DTor, marks as virtual
+         */
+        virtual ~MessageHandler() = default;
     private:
         void connectionListener(std::shared_ptr<network::Connection> connection);
         void receiveListener(int client, std::string string);

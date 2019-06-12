@@ -43,8 +43,10 @@ namespace communication {
          */
         void removeClient(int id, const std::string& name);
     protected:
-        void onConnection(int id);
         void receive(messages::Message message, int client);
+
+    private:
+        void onConnection(int id);
         void closeEvent(int id);
         void sendLobbyModMessage(int id);
 

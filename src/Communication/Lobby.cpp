@@ -200,6 +200,7 @@ namespace communication {
                         return;
                     }
                     auto next = game->getNextAction();
+                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
                     lastNext = next;
                     this->sendAll(next);
                     replay.second.addLog(communication::messages::Message{next});
@@ -221,6 +222,7 @@ namespace communication {
                             return;
                         }
                         next = game->getNextAction();
+                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
                         lastNext = next;
                         sendAll(next);
                         replay.second.addLog(communication::messages::Message{next});
@@ -258,6 +260,7 @@ namespace communication {
                         return;
                     }
                     auto next = game->getNextAction();
+                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
                     lastNext = next;
                     this->sendAll(next);
                     replay.second.addLog(communication::messages::Message{next});
@@ -279,6 +282,7 @@ namespace communication {
                             return;
                         }
                         next = game->getNextAction();
+                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
                         lastNext = next;
                         sendAll(next);
                         replay.second.addLog(communication::messages::Message{next});
@@ -418,6 +422,7 @@ namespace communication {
             return;
         }
         auto next = game->getNextAction();
+        modifySnapshotsAddToLogAndSend(game->getSnapshot());
         lastNext = next;
         this->sendAll(next);
         if (next.getEntityId() == messages::types::EntityId::SNITCH

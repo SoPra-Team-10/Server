@@ -27,9 +27,10 @@ namespace communication {
      * A client represents one client and all the relevant information
      */
     struct Client {
-        std::string userName, password;
-        bool isAi;
-        std::set<messages::types::Mods> mods;
+        std::string userName; ///< Name of the user, as given at the login
+        std::string password; ///< Password of the user, absolutely useless
+        bool isAi; ///< True if the player is an AI (AI players can't pause)
+        std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
     };
 
     /**

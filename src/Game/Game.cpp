@@ -14,7 +14,7 @@ namespace gameHandling{
             const communication::messages::request::TeamConfig& teamConfig2, communication::messages::request::TeamFormation teamFormation1,
                communication::messages::request::TeamFormation teamFormation2, util::Logging &log) : environment(std::make_shared<gameModel::Environment>
                        (matchConfig, teamConfig1, teamConfig2, teamFormation1, teamFormation2)),
-                       timeouts{matchConfig.getPlayerTurnTimeout(), matchConfig.getFanTurnTimeout(),matchConfig.getUnbanTurnTimeout()},
+                       timeouts{matchConfig.getPlayerTurnTimeout(), matchConfig.getFanTurnTimeout(), matchConfig.getUnbanTurnTimeout()},
                        phaseManager(environment->team1, environment->team2, environment, timeouts), lastDeltas(), log(log){
         lastDeltas.emplace(communication::messages::types::DeltaType::ROUND_CHANGE, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
                 std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1, std::nullopt);
@@ -599,7 +599,7 @@ namespace gameHandling{
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
                             if(overTimeState != gameController::ExcessLength::None){
                                 snitchCaught = true;
-                                getTeam(side)->score += SNITCH_POINTS;
+                                getTeam(side)->score += gameController::SNITCH_POINTS;
                             }
 
                             if(!snitchCaught){
