@@ -86,8 +86,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a>  </div>
+<a href="#pro-methods">Protected Member Functions</a>  </div>
   <div class="headertitle">
 <div class="title">communication::Communicator Class Reference</div>  </div>
 </div><!--header-->
@@ -107,42 +106,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a180b2a84787141704961db44900f1d14"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a180b2a84787141704961db44900f1d14"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>onConnection</b> (int id)</td></tr>
-<tr class="separator:a180b2a84787141704961db44900f1d14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40509e2ca7fdc28f12c2a3f73def7bb2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40509e2ca7fdc28f12c2a3f73def7bb2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>receive</b> (messages::Message message, int client)</td></tr>
 <tr class="separator:a40509e2ca7fdc28f12c2a3f73def7bb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6de5741fd8f4f7392280f453c404d02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6de5741fd8f4f7392280f453c404d02"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>closeEvent</b> (int id)</td></tr>
-<tr class="separator:ad6de5741fd8f4f7392280f453c404d02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c6bd7db983166ee7e7fe20be8d33844"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c6bd7db983166ee7e7fe20be8d33844"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>sendLobbyModMessage</b> (int id)</td></tr>
-<tr class="separator:a5c6bd7db983166ee7e7fe20be8d33844"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a3e5b53b022bef4645cad8c224d6fb3af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e5b53b022bef4645cad8c224d6fb3af"></a>
-<a class="el" href="classcommunication_1_1_message_handler.html">MessageHandler</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>messageHandler</b></td></tr>
-<tr class="separator:a3e5b53b022bef4645cad8c224d6fb3af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0ad7b612c68472f0a8e18ab1519d143"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0ad7b612c68472f0a8e18ab1519d143"></a>
-std::map&lt; int, std::shared_ptr<br class="typebreak"/>
-&lt; <a class="el" href="classcommunication_1_1_lobby.html">Lobby</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>clientMapping</b></td></tr>
-<tr class="separator:ad0ad7b612c68472f0a8e18ab1519d143"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6b8cdbee71e7008ac8a1cae73cac444"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6b8cdbee71e7008ac8a1cae73cac444"></a>
-std::map&lt; std::string, <br class="typebreak"/>
-std::shared_ptr&lt; <a class="el" href="classcommunication_1_1_lobby.html">Lobby</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>lobbyMapping</b></td></tr>
-<tr class="separator:aa6b8cdbee71e7008ac8a1cae73cac444"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd3ae1a9ff68397c4a88258ab3eb426c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd3ae1a9ff68397c4a88258ab3eb426c"></a>
-std::set&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>userNameMapping</b></td></tr>
-<tr class="separator:acd3ae1a9ff68397c4a88258ab3eb426c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a50d2a8dc1312931342604c1c5e0103af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a50d2a8dc1312931342604c1c5e0103af"></a>
-const <br class="typebreak"/>
-messages::broadcast::MatchConfig&#160;</td><td class="memItemRight" valign="bottom"><b>matchConfig</b></td></tr>
-<tr class="separator:a50d2a8dc1312931342604c1c5e0103af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2312f8982f129831bd54fbf8d2e8bcb6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2312f8982f129831bd54fbf8d2e8bcb6"></a>
-util::Logging &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>log</b></td></tr>
-<tr class="separator:a2312f8982f129831bd54fbf8d2e8bcb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The communicator is responsible for managing player sessions and lobbys. </p>
