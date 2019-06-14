@@ -111,7 +111,7 @@ namespace communication {
         void onTimeout(communication::messages::types::EntityId entityId,
                 communication::messages::types::PhaseType phaseType);
         void onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
-        void onFatalError(std::string error);
+        void onFatalError(const std::string& error);
         void modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots);
 
         auto getSpectators() const -> std::vector<std::string>;

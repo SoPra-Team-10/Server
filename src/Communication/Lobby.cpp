@@ -513,7 +513,7 @@ namespace communication {
         return std::make_pair(getUserInLobby() <= 0, userName);
     }
 
-    void Lobby::onFatalError(std::string error) {
+    void Lobby::onFatalError(const std::string& error) {
         log.error("Fatal error!");
         for (const auto &c : clients) {
             sendWarn("Internal Server error, the game gets reseted", error, c.first);
