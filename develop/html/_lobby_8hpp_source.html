@@ -149,7 +149,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        <span class="keywordtype">void</span> onTimeout(communication::messages::types::EntityId entityId,</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;                communication::messages::types::PhaseType phaseType);</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <span class="keywordtype">void</span> onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        <span class="keywordtype">void</span> onFatalError(std::string error);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        <span class="keywordtype">void</span> onFatalError(<span class="keyword">const</span> std::string&amp; error);</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        <span class="keywordtype">void</span> modifySnapshotsAddToLogAndSend(std::queue&lt;communication::messages::broadcast::Snapshot&gt; snapshots);</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        <span class="keyword">auto</span> getSpectators() <span class="keyword">const</span> -&gt; std::vector&lt;std::string&gt;;</div>

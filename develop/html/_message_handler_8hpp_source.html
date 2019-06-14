@@ -123,8 +123,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="keyword">virtual</span> <a class="code" href="classcommunication_1_1_message_handler.html#a7f4d17b2a78b6df539c71c2561e8ccab">~MessageHandler</a>() = <span class="keywordflow">default</span>;</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        <span class="keywordtype">void</span> connectionListener(std::shared_ptr&lt;network::Connection&gt; connection);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordtype">void</span> receiveListener(<span class="keywordtype">int</span> client, std::string <span class="keywordtype">string</span>);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordtype">void</span> closeListener(std::shared_ptr&lt;network::Connection&gt; connection);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordtype">void</span> receiveListener(<span class="keywordtype">int</span> client, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">string</span>);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordtype">void</span> closeListener(<span class="keyword">const</span> std::shared_ptr&lt;network::Connection&gt;&amp; connection);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <span class="keywordtype">int</span> connectionCount;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        std::optional&lt;network::WebSocketServer&gt; webSocketServer;</div>
