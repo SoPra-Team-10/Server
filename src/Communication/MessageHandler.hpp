@@ -80,8 +80,8 @@ namespace communication {
         virtual ~MessageHandler() = default;
     private:
         void connectionListener(std::shared_ptr<network::Connection> connection);
-        void receiveListener(int client, std::string string);
-        void closeListener(std::shared_ptr<network::Connection> connection);
+        void receiveListener(int client, const std::string& string);
+        void closeListener(const std::shared_ptr<network::Connection>& connection);
         int connectionCount;
 
         std::optional<network::WebSocketServer> webSocketServer;

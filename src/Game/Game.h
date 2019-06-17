@@ -19,11 +19,11 @@
 #include <SopraUtil/Timer.h>
 #include "PhaseManager.h"
 
-#define SNITCH_SPAWN_ROUND 10
-#define OVERTIME_INTERVAL 3
-#define MAX_BAN_COUNT 2
+namespace gameHandling {
+    constexpr auto SNITCH_SPAWN_ROUND = 10;
+    constexpr auto OVERTIME_INTERVAL = 3;
+    constexpr auto MAX_BAN_COUNT = 2;
 
-namespace gameHandling{
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
