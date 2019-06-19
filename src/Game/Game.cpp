@@ -333,7 +333,7 @@ namespace gameHandling{
                 }
 
                 try{
-                    auto &team = getTeam(side);
+                    auto team = environment->getTeam(side);
                     gameController::SnitchPush sPush(environment, team);
                     if(!sPush.isPossible()){
                         log.warn("Snitch push is impossible");
@@ -371,7 +371,7 @@ namespace gameHandling{
                 }
 
                 try{
-                    auto &team = getTeam(side);
+                    auto team = environment->getTeam(side);
                     gameController::Impulse impulse(environment, team);
                     if(!impulse.isPossible()){
                         log.warn("Impulse is impossible");
@@ -424,7 +424,7 @@ namespace gameHandling{
                     }
 
                     try{
-                        auto &team = getTeam(side);
+                        auto team = environment->getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
                         auto oldX = targetPlayer->position.x;
                         auto oldY = targetPlayer->position.y;
@@ -467,7 +467,7 @@ namespace gameHandling{
                     }
 
                     try{
-                        auto &team = getTeam(side);
+                        auto team = environment->getTeam(side);
                         auto targetPlayer = environment->getPlayerById(command.getPassiveEntity().value());
                         auto oldX = targetPlayer->position.x;
                         auto oldY = targetPlayer->position.y;
@@ -510,7 +510,7 @@ namespace gameHandling{
             case DeltaType::WOMBAT_POO:
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value()){
                     try{
-                        auto shit = gameController::BlockCell(environment, getTeam(side),
+                        auto shit = gameController::BlockCell(environment, environment->getTeam(side),
                                                               {command.getXPosNew().value(), command.getYPosNew().value()});
                         if(!shit.isPossible()){
                             log.warn(std::string{"BlockCell is impossible"});
@@ -599,7 +599,7 @@ namespace gameHandling{
                         if(environment->snitch->position == player->position && (std::dynamic_pointer_cast<gameModel::Seeker>(player))){
                             if(overTimeState != gameController::ExcessLength::None){
                                 snitchCaught = true;
-                                getTeam(side)->score += gameController::SNITCH_POINTS;
+                                environment->getTeam(side)->score += gameController::SNITCH_POINTS;
                             }
 
                             if(!snitchCaught){
@@ -776,11 +776,11 @@ namespace gameHandling{
     }
 
     auto Game::getLeftPoints() const -> int {
-        return getTeam(gameModel::TeamSide::LEFT)->score;
+        return environment->getTeam(gameModel::TeamSide::LEFT)->score;
     }
 
     auto Game::getRightPoints() const -> int {
-        return getTeam(gameModel::TeamSide::RIGHT)->score;
+        return environment->getTeam(gameModel::TeamSide::RIGHT)->score;
     }
 
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
@@ -800,8 +800,8 @@ namespace gameHandling{
                 snitchY = environment->snitch->position.y;
             }
 
-            ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, gameModel::TeamSide::LEFT),
-                teamToTeamSnapshot(environment->team2, gameModel::TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
+            ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1),
+                teamToTeamSnapshot(environment->team2), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
                 environment->bludgers[1]->position.x, environment->bludgers[1]->position.y,
                 shitList, goalScored);
@@ -894,26 +894,18 @@ namespace gameHandling{
         }
     }
 
-    auto Game::getTeam(gameModel::TeamSide side) const -> std::shared_ptr<gameModel::Team> & {
-        if(side == gameModel::TeamSide::LEFT){
-            return environment->team1;
-        } else {
-            return environment->team2;
-        }
-    }
-
-    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, gameModel::TeamSide side) const
+    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
         -> communication::messages::broadcast::TeamSnapshot {
         using FType = communication::messages::types::FanType;
         std::vector<communication::messages::broadcast::Fan> fans;
         fans.reserve(7);
 
-        auto makeFans = [this, &fans, &team, &side](FType type){
+        auto makeFans = [this, &fans, &team](FType type){
             for(int i = 0; i < team->fanblock.getBannedCount(type); i++){
                 fans.emplace_back(communication::messages::broadcast::Fan{type, true, false});
             }
 
-            int used = side == gameModel::TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
+            int used = team->side == gameModel::TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
                     phaseManager.interferencesUsedRight(type);
             int left = team->fanblock.getUses(type) - used;
             for(int i = 0; i < used; i++){

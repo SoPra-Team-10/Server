@@ -111,13 +111,6 @@ namespace gameHandling {
         std::optional<gameModel::TeamSide> firstSideDisqualified = std::nullopt;
 
         /**
-         * Gets the team associated with the given side
-         * @param side
-         * @return
-         */
-        auto getTeam(gameModel::TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
-
-        /**
          * Gets the side of the given Team
          * @param player
          * @return
@@ -134,10 +127,9 @@ namespace gameHandling {
         /**
          * Constructs a TeamSnapshot object from a Team
          * @param team
-         * @param side
          * @return
          */
-        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, gameModel::TeamSide side) const
+        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
             -> communication::messages::broadcast::TeamSnapshot;
 
         /**
