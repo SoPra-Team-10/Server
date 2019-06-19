@@ -4,10 +4,10 @@
 
 #include "Game.h"
 #include "iostream"
-#include "conversions.h"
 #include <SopraGameLogic/GameController.h>
 #include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
+#include <SopraGameLogic/conversions.h>
 
 namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
@@ -71,7 +71,7 @@ namespace gameHandling{
                 try{
                     auto next = phaseManager.nextPlayer();
                     if(next.has_value()){
-                        currentSide = conversions::idToSide(next.value().getEntityId());
+                        currentSide = gameLogic::conversions::idToSide(next.value().getEntityId());
                         timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.playerTurn);
                         log.debug("Requested player turn");
                         return expectedRequestType = next.value();
@@ -88,7 +88,7 @@ namespace gameHandling{
                 try {
                     auto next = phaseManager.nextInterference();
                     if(next.has_value()){
-                        currentSide = conversions::idToSide(next.value().getEntityId());
+                        currentSide = gameLogic::conversions::idToSide(next.value().getEntityId());
                         timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.fanTurn);
                         log.debug("Requested fan turn");
                         return expectedRequestType = next.value();
@@ -117,7 +117,7 @@ namespace gameHandling{
                     } else {
                         log.debug("Requested unban");
                         auto actorId = (*bannedPlayers.begin())->id;
-                        currentSide = conversions::idToSide(actorId);
+                        currentSide = gameLogic::conversions::idToSide(actorId);
                         timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.unbanTurn);
                         bannedPlayers.erase(bannedPlayers.begin());
                         return expectedRequestType = {actorId, TurnType::REMOVE_BAN, timeouts.unbanTurn};
@@ -132,7 +132,7 @@ namespace gameHandling{
         }
     }
 
-    bool Game::executeDelta(communication::messages::request::DeltaRequest command, TeamSide side) {
+    bool Game::executeDelta(communication::messages::request::DeltaRequest command, gameModel::TeamSide side) {
         using namespace communication::messages::types;
         //stop current timer since expected request arrived
         timer.stop();
@@ -146,7 +146,7 @@ namespace gameHandling{
                 }
 
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                        player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, conversions::foulToBanReason(foul));
+                        player->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, gameLogic::conversions::foulToBanReason(foul));
             }
         };
 
@@ -164,8 +164,8 @@ namespace gameHandling{
             case DeltaType::BLUDGER_BEATING:{
                 if(command.getXPosNew().has_value() && command.getYPosNew().has_value() &&
                    command.getActiveEntity().has_value() && command.getPassiveEntity().has_value()){
-                    if(!conversions::isPlayer(command.getActiveEntity().value())  ||
-                       !conversions::isBall(command.getPassiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getActiveEntity().value())  ||
+                       !gameLogic::conversions::isBall(command.getPassiveEntity().value())){
                         log.warn("Invalid entities for bludger shot");
                         return false;
                     }
@@ -253,7 +253,7 @@ namespace gameHandling{
             case DeltaType::QUAFFLE_THROW:{
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                 command.getYPosNew().has_value()){
-                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getActiveEntity().value())){
                         log.warn("Invalid entity for quaffle throw");
                         return false;
                     }
@@ -350,13 +350,13 @@ namespace gameHandling{
                     if(sPush.execute() == gameController::ActionCheckResult::Foul){
                         log.debug("Snitch push was detected as foul");
                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                         std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
+                                         std::nullopt, gameLogic::conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::SNITCH_SNATCH);
                     }
 
                     log.debug("Snitch push");
                     lastDeltas.emplace(DeltaType::SNITCH_SNATCH, std::nullopt, oldX, oldY, environment->snitch->position.x, environment->snitch->position.y,
-                                     conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
+                                     gameLogic::conversions::interferenceToId(gameModel::InterferenceType::SnitchPush, side), environment->snitch->id,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::exception &e){
@@ -389,7 +389,7 @@ namespace gameHandling{
                     if(impulse.execute() == gameController::ActionCheckResult::Foul){
                         log.debug("Impulse was detected as foul");
                         lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                         std::nullopt, conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
+                                         std::nullopt, gameLogic::conversions::interferenceToId(gameModel::InterferenceType::Impulse, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt,  BanReason::TROLL_ROAR);
                     }
 
@@ -403,7 +403,7 @@ namespace gameHandling{
 
                     log.debug("Impulse");
                     lastDeltas.emplace(DeltaType::TROLL_ROAR, std::nullopt, oldX, oldY, environment->quaffle->position.x, environment->quaffle->position.y,
-                                     conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
+                                     gameLogic::conversions::interferenceToId(gameModel::InterferenceType::Impulse, side), holdingPlayerId,
                                      std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                     return true;
                 } catch (std::exception &e){
@@ -418,7 +418,7 @@ namespace gameHandling{
                 }
 
                 if(command.getPassiveEntity().has_value()){
-                    if(!conversions::isPlayer(command.getPassiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getPassiveEntity().value())){
                         log.warn("Teleport target is no player");
                         return false;
                     }
@@ -437,13 +437,13 @@ namespace gameHandling{
                         if(teleport.execute() == gameController::ActionCheckResult::Foul){
                             log.debug("Teleport was detected as foul");
                             lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                          conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
+                                          gameLogic::conversions::interferenceToId(gameModel::InterferenceType::Teleport, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::ELF_TELEPORTATION);
                         }
 
                         log.debug("Teleport");
                         lastDeltas.emplace(DeltaType::ELF_TELEPORTATION, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
+                                         gameLogic::conversions::interferenceToId(gameModel::InterferenceType::Teleport, side), targetPlayer->id,
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
                         return true;
                     } catch (std::exception &e){
@@ -462,7 +462,7 @@ namespace gameHandling{
                 }
 
                 if(command.getPassiveEntity().has_value()){
-                    if(!conversions::isPlayer(command.getPassiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getPassiveEntity().value())){
                         return false;
                     }
 
@@ -482,7 +482,7 @@ namespace gameHandling{
                         if(rAttack.execute() == gameController::ActionCheckResult::Foul){
                             log.debug("Ranged attack was detected as foul");
                           lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                           conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
+                                           gameLogic::conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
                                          std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::GOBLIN_SHOCK);
                         }
 
@@ -495,7 +495,7 @@ namespace gameHandling{
 
                         log.debug("Ranged attack");
                         lastDeltas.emplace(DeltaType::GOBLIN_SHOCK, std::nullopt, oldX, oldY, targetPlayer->position.x, targetPlayer->position.y,
-                                         conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
+                                         gameLogic::conversions::interferenceToId(gameModel::InterferenceType::RangedAttack, side),
                                          targetPlayer->id, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
@@ -520,13 +520,13 @@ namespace gameHandling{
                         if(shit.execute() == gameController::ActionCheckResult::Foul){
                             log.debug("Block cell was detected as foul");
                             lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                               conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
+                                               gameLogic::conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
                                                std::nullopt, std::nullopt, std::nullopt, std::nullopt, BanReason::WOMBAT_POO);
                         }
 
                         log.debug("Block cell");
                         lastDeltas.emplace(DeltaType::WOMBAT_POO, std::nullopt, std::nullopt, std::nullopt, command.getXPosNew().value(), command.getYPosNew().value(),
-                                           conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
+                                           gameLogic::conversions::interferenceToId(gameModel::InterferenceType::BlockCell, side),
                                            std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
 
                         return true;
@@ -542,7 +542,7 @@ namespace gameHandling{
             case DeltaType::MOVE:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
-                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getActiveEntity().value())){
                         log.warn("Moving entity is no player");
                         return false;
                     }
@@ -667,7 +667,7 @@ namespace gameHandling{
             case DeltaType::UNBAN:
                 if(command.getActiveEntity().has_value() && command.getXPosNew().has_value() &&
                     command.getYPosNew().has_value()){
-                    if(!conversions::isPlayer(command.getActiveEntity().value())){
+                    if(!gameLogic::conversions::isPlayer(command.getActiveEntity().value())){
                         log.warn("Unban entity is no player");
                         return false;
                     }
@@ -776,11 +776,11 @@ namespace gameHandling{
     }
 
     auto Game::getLeftPoints() const -> int {
-        return getTeam(TeamSide::LEFT)->score;
+        return getTeam(gameModel::TeamSide::LEFT)->score;
     }
 
     auto Game::getRightPoints() const -> int {
-        return getTeam(TeamSide::RIGHT)->score;
+        return getTeam(gameModel::TeamSide::RIGHT)->score;
     }
 
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
@@ -800,8 +800,8 @@ namespace gameHandling{
                 snitchY = environment->snitch->position.y;
             }
 
-            ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, TeamSide::LEFT),
-                teamToTeamSnapshot(environment->team2, TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
+            ret.emplace(lastDeltas.front(), currentPhase, std::vector<std::string>{}, getRound(), teamToTeamSnapshot(environment->team1, gameModel::TeamSide::LEFT),
+                teamToTeamSnapshot(environment->team2, gameModel::TeamSide::RIGHT), snitchX, snitchY, environment->quaffle->position.x,
                 environment->quaffle->position.y, environment->bludgers[0]->position.x, environment->bludgers[0]->position.y,
                 environment->bludgers[1]->position.x, environment->bludgers[1]->position.y,
                 shitList, goalScored);
@@ -894,15 +894,15 @@ namespace gameHandling{
         }
     }
 
-    auto Game::getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team> & {
-        if(side == TeamSide::LEFT){
+    auto Game::getTeam(gameModel::TeamSide side) const -> std::shared_ptr<gameModel::Team> & {
+        if(side == gameModel::TeamSide::LEFT){
             return environment->team1;
         } else {
             return environment->team2;
         }
     }
 
-    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
+    auto Game::teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, gameModel::TeamSide side) const
         -> communication::messages::broadcast::TeamSnapshot {
         using FType = communication::messages::types::FanType;
         std::vector<communication::messages::broadcast::Fan> fans;
@@ -913,7 +913,7 @@ namespace gameHandling{
                 fans.emplace_back(communication::messages::broadcast::Fan{type, true, false});
             }
 
-            int used = side == TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
+            int used = side == gameModel::TeamSide::LEFT ? phaseManager.interferencesUsedLeft(type) :
                     phaseManager.interferencesUsedRight(type);
             int left = team->fanblock.getUses(type) - used;
             for(int i = 0; i < used; i++){
@@ -1008,15 +1008,15 @@ namespace gameHandling{
                     fatalErrorEvent.emplace("Fatal error, inconsistent game state");
                 }
 
-                auto winningSide = firstSideDisqualified.value() == TeamSide::LEFT ? TeamSide::RIGHT : TeamSide::LEFT;
+                auto winningSide = firstSideDisqualified.value() == gameModel::TeamSide::LEFT ? gameModel::TeamSide::RIGHT : gameModel::TeamSide::LEFT;
                 winEvent.emplace(winningSide, VictoryReason::BOTH_DISQUALIFICATION_POINTS_EQUAL_LAST_DISQUALIFICATION);
             } else {
                 winEvent.emplace(winningTeam.first, VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS);
             }
         } else if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT) {
-            winEvent.emplace(TeamSide::RIGHT, VictoryReason::DISQUALIFICATION);
+            winEvent.emplace(gameModel::TeamSide::RIGHT, VictoryReason::DISQUALIFICATION);
         } else if(environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
-            winEvent.emplace(TeamSide::LEFT, VictoryReason::DISQUALIFICATION);
+            winEvent.emplace(gameModel::TeamSide::LEFT, VictoryReason::DISQUALIFICATION);
         }
 
         if(roundNumber == SNITCH_SPAWN_ROUND){
@@ -1052,23 +1052,23 @@ namespace gameHandling{
         timeoutListener(expectedRequestType.getEntityId(), currentPhase);
     }
 
-    auto Game::getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide,
+    auto Game::getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<gameModel::TeamSide,
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
-            return {TeamSide::LEFT, VictoryReason::MOST_POINTS};
+            return {gameModel::TeamSide::LEFT, VictoryReason::MOST_POINTS};
         } else if(environment->team1->score < environment->team2->score){
-            return {TeamSide::RIGHT, VictoryReason::MOST_POINTS};
+            return {gameModel::TeamSide::RIGHT, VictoryReason::MOST_POINTS};
         } else {
             if(environment->team1->hasMember(winningPlayer)){
-                return {TeamSide::LEFT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {gameModel::TeamSide::LEFT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             } else {
-                return {TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {gameModel::TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
     }
 
-    TeamSide Game::getSide(const std::shared_ptr<const gameModel::Player> &player) const {
-        return environment->team1->hasMember(player) ? TeamSide::LEFT : TeamSide::RIGHT;
+    auto Game::getSide(const std::shared_ptr<const gameModel::Player> &player) const -> gameModel::TeamSide {
+        return environment->team1->hasMember(player) ? gameModel::TeamSide::LEFT : gameModel::TeamSide::RIGHT;
     }
 }
