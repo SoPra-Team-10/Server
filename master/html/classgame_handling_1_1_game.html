@@ -103,8 +103,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2bbd9b0adc627fd0e478cbdb9ea4eaec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208aa2e0f50a211db96fb90aa9134cff"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a208aa2e0f50a211db96fb90aa9134cff">getNextAction</a> () -&gt; communication::messages::broadcast::Next</td></tr>
 <tr class="separator:a208aa2e0f50a211db96fb90aa9134cff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a687278b2b24317df4a680e4e5a190ea9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a687278b2b24317df4a680e4e5a190ea9">executeDelta</a> (communication::messages::request::DeltaRequest command, TeamSide teamSide)</td></tr>
-<tr class="separator:a687278b2b24317df4a680e4e5a190ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4da9f347fe8de061d0b131c2074e46fd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a4da9f347fe8de061d0b131c2074e46fd">executeDelta</a> (communication::messages::request::DeltaRequest command, gameModel::TeamSide teamSide)</td></tr>
+<tr class="separator:a4da9f347fe8de061d0b131c2074e46fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a608e5ad465c8832c25669fced9b7ab45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a608e5ad465c8832c25669fced9b7ab45">executeBallDelta</a> (communication::messages::types::EntityId entityId)</td></tr>
 <tr class="separator:a608e5ad465c8832c25669fced9b7ab45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d46111882b0b3b596fad03ca825f2ab"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_game.html#a6d46111882b0b3b596fad03ca825f2ab">getSnapshot</a> () -&gt; std::queue&lt; communication::messages::broadcast::Snapshot &gt;</td></tr>
@@ -127,11 +127,11 @@ const util::Listener<br class="typebreak"/>
 &lt; communication::messages::types::EntityId, <br class="typebreak"/>
 communication::messages::types::PhaseType &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>timeoutListener</b></td></tr>
 <tr class="separator:a0c3252d9a49a8ea2e4020c316ac4ad62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab277acb89df3fd2897cd9b5cf645979b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab277acb89df3fd2897cd9b5cf645979b"></a>
+<tr class="memitem:a4512b311013ffce2310e71c792bbca02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4512b311013ffce2310e71c792bbca02"></a>
 std::optional&lt; std::tuple<br class="typebreak"/>
-&lt; TeamSide, <br class="typebreak"/>
+&lt; gameModel::TeamSide, <br class="typebreak"/>
 communication::messages::types::VictoryReason &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>winEvent</b></td></tr>
-<tr class="separator:ab277acb89df3fd2897cd9b5cf645979b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a4512b311013ffce2310e71c792bbca02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ef687b24dc8668ed79ff20e5a4e57db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ef687b24dc8668ed79ff20e5a4e57db"></a>
 std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fatalErrorEvent</b></td></tr>
 <tr class="separator:a4ef687b24dc8668ed79ff20e5a4e57db"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -160,7 +160,7 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
 
 </div>
 </div>
-<a class="anchor" id="a687278b2b24317df4a680e4e5a190ea9"></a>
+<a class="anchor" id="a4da9f347fe8de061d0b131c2074e46fd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -173,7 +173,7 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TeamSide&#160;</td>
+          <td class="paramtype">gameModel::TeamSide&#160;</td>
           <td class="paramname"><em>teamSide</em>&#160;</td>
         </tr>
         <tr>

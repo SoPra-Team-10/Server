@@ -103,7 +103,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span>gameHandling{</div>
 <div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classgame_handling_1_1_member_selector.html">   16</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classgame_handling_1_1_member_selector.html">MemberSelector</a> {</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="classgame_handling_1_1_member_selector.html">MemberSelector</a>(<span class="keyword">const</span> std::shared_ptr&lt;gameModel::Team&gt; &amp;team, TeamSide side);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="classgame_handling_1_1_member_selector.html">MemberSelector</a>(<span class="keyword">const</span> std::shared_ptr&lt;gameModel::Team&gt; &amp;team, gameModel::TeamSide side);</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keyword">auto</span> <a class="code" href="classgame_handling_1_1_member_selector.html#aa30bf8187cf7822b4f8a453804c312f0">getNextPlayer</a>() -&gt; std::shared_ptr&lt;gameModel::Player&gt;;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
@@ -123,7 +123,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        std::shared_ptr&lt;const gameModel::Team&gt; team; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keyword">const</span> TeamSide side; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keyword">const</span> gameModel::TeamSide side; </div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        std::deque&lt;std::shared_ptr&lt;gameModel::Player&gt;&gt; playersLeft; </div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        std::deque&lt;std::pair&lt;gameModel::InterferenceType, int&gt;&gt; interferencesLeft; </div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
