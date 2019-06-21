@@ -24,7 +24,6 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/src/Game/Game.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/MemberSelector.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/PhaseManager.cpp
-        ${CMAKE_SOURCE_DIR}/src/Game/conversions.cpp
         ${CMAKE_SOURCE_DIR}/src/Game/ConfigCheck.cpp)
 
 set(LIBS pthread stdc++fs SopraGameLogic SopraMessages SopraUtil)
