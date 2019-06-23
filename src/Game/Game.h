@@ -19,11 +19,11 @@
 #include <SopraUtil/Timer.h>
 #include "PhaseManager.h"
 
-#define SNITCH_SPAWN_ROUND 10
-#define OVERTIME_INTERVAL 3
-#define MAX_BAN_COUNT 2
+namespace gameHandling {
+    constexpr auto SNITCH_SPAWN_ROUND = 10;
+    constexpr auto OVERTIME_INTERVAL = 3;
+    constexpr auto MAX_BAN_COUNT = 2;
 
-namespace gameHandling{
     class Game {
     public:
         std::shared_ptr<gameModel::Environment> environment;
@@ -35,7 +35,7 @@ namespace gameHandling{
              util::Logging &log);
 
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
-        mutable std::optional<std::tuple<TeamSide, communication::messages::types::VictoryReason>> winEvent;
+        mutable std::optional<std::tuple<gameModel::TeamSide, communication::messages::types::VictoryReason>> winEvent;
         mutable std::optional<std::string> fatalErrorEvent;
 
         /**
@@ -60,7 +60,7 @@ namespace gameHandling{
          * @param teamSide Side which executes the command
          * @return true if successful, false if rule violation
          */
-        bool executeDelta(communication::messages::request::DeltaRequest command, TeamSide teamSide);
+        bool executeDelta(communication::messages::request::DeltaRequest command, gameModel::TeamSide teamSide);
 
         /**
          * Executes a ball turn
@@ -102,42 +102,34 @@ namespace gameHandling{
         PhaseManager phaseManager;
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
-        TeamSide currentSide; ///<Current side to make a move
+        gameModel::TeamSide currentSide; ///<Current side to make a move
         util::Logging &log;
         gameController::ExcessLength overTimeState = gameController::ExcessLength::None;
         unsigned int overTimeCounter = 0;
         bool goalScored = false;
         std::deque<std::shared_ptr<gameModel::Player>> bannedPlayers = {};
-        std::optional<TeamSide> firstSideDisqualified = std::nullopt;
-
-        /**
-         * Gets the team associated with the given side
-         * @param side
-         * @return
-         */
-        auto getTeam(TeamSide side) const -> std::shared_ptr<gameModel::Team>&;
+        std::optional<gameModel::TeamSide> firstSideDisqualified = std::nullopt;
 
         /**
          * Gets the side of the given Team
          * @param player
          * @return
          */
-        TeamSide getSide(const std::shared_ptr<const gameModel::Player> &player) const;
+        auto getSide(const std::shared_ptr<const gameModel::Player> &player) const -> gameModel::TeamSide;
 
         /**
          * gets the winning Team and the reason for winning when the snitch has been caught.
          * @param winningPlayer the Player catching the snitch
          * @return the winning team according to the game rules and the reason they won
          */
-        auto getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<TeamSide, communication::messages::types::VictoryReason>;
+        auto getVictoriousTeam(const std::shared_ptr<const gameModel::Player> &winningPlayer) const -> std::pair<gameModel::TeamSide, communication::messages::types::VictoryReason>;
 
         /**
          * Constructs a TeamSnapshot object from a Team
          * @param team
-         * @param side
          * @return
          */
-        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team, TeamSide side) const
+        auto teamToTeamSnapshot(const std::shared_ptr<const gameModel::Team> &team) const
             -> communication::messages::broadcast::TeamSnapshot;
 
         /**

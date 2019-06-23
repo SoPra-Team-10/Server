@@ -14,10 +14,6 @@ namespace gameHandling {
         InterferencePhase
     };
 
-    enum class TeamSide : char {
-        LEFT, RIGHT
-    };
-
     struct Timeouts{
         const int playerTurn, fanTurn, unbanTurn;
     };

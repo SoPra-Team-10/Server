@@ -24,7 +24,7 @@ namespace communication {
         sendLobbyModMessage(id);
     }
 
-    void Communicator::receive(messages::Message message, int client) {
+    void Communicator::receive(const messages::Message& message, int client) {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             if (clientMapping.find(client) == clientMapping.end()) {
                 auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
