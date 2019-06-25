@@ -8,11 +8,11 @@
 
 namespace configCheck {
     bool checkTeamFormation(const communication::messages::request::TeamFormation &formation,
-                                         const gameHandling::TeamSide &side) {
-        gameModel::Team team = {{"", "", "", "", "", 1,4,1,1,0,{},{},{},{},{},{},{}}, formation, true};
+                                         const gameModel::TeamSide &side) {
+        gameModel::Team team = {{"", "", "", "", "", 1,4,1,1,0,{},{},{},{},{},{},{}}, formation, side};
 
         auto allPlayers = team.getAllPlayers();
-        if(side == gameHandling::TeamSide::LEFT) {
+        if(side == gameModel::TeamSide::LEFT) {
             for (auto &player : allPlayers) {
                 if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
                     player->position.x > 7 || gameModel::Environment::getCell(player->position) == gameModel::Cell::Centre) {
@@ -38,7 +38,7 @@ namespace configCheck {
     }
 
     bool checkTeamConfig(const communication::messages::request::TeamConfig &config) {
-        gameModel::Team team(config, {}, true);
+        gameModel::Team team(config, {}, gameModel::TeamSide::LEFT);
 
         int tinderblast = 0;
         int cleansweep11 = 0;

@@ -10,7 +10,8 @@
 #include <filesystem>
 #include <fstream>
 #include <Game/ConfigCheck.h>
-#include <Game/conversions.h>
+#include <SopraGameLogic/GameModel.h>
+#include <SopraGameLogic/conversions.h>
 #include "Lobby.hpp"
 #include "Communicator.hpp"
 
@@ -161,7 +162,7 @@ namespace communication {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
-                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::LEFT)) {
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::LEFT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         kickUser(id);
                         log.warn("Got invalid team formation");
@@ -175,7 +176,7 @@ namespace communication {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
                         kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
-                    } else if (!configCheck::checkTeamFormation(teamFormation, gameHandling::TeamSide::RIGHT)) {
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::RIGHT)) {
                         kickUser(id);
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         log.warn("Got invalid team formation");
@@ -242,8 +243,8 @@ namespace communication {
     void Lobby::onPayload(const messages::request::DeltaRequest &deltaRequest, int clientId) {
         if (clientId == players.first || clientId == players.second) {
             if (state == LobbyState::GAME) {
-                gameHandling::TeamSide teamSide =
-                        (clientId == players.first ? gameHandling::TeamSide::LEFT : gameHandling::TeamSide::RIGHT);
+                gameModel::TeamSide teamSide =
+                        (clientId == players.first ? gameModel::TeamSide::LEFT : gameModel::TeamSide::RIGHT);
                 auto res = game->executeDelta(deltaRequest, teamSide);
 
                 if (game->fatalErrorEvent.has_value()) {
@@ -407,7 +408,7 @@ namespace communication {
             std::nullopt,
             std::nullopt
         };
-        game->executeDelta(deltaRequest, conversions::idToSide(entityId));
+        game->executeDelta(deltaRequest, gameLogic::conversions::idToSide(entityId));
         if (game->fatalErrorEvent.has_value()) {
             onFatalError(game->fatalErrorEvent.value());
             return;
@@ -442,9 +443,9 @@ namespace communication {
         replay.second.addLog(communication::messages::Message{next});
     }
 
-    void Lobby::onWin(gameHandling::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
+    void Lobby::onWin(gameModel::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason) {
         int winnerId;
-        if (teamSide == gameHandling::TeamSide::LEFT) {
+        if (teamSide == gameModel::TeamSide::LEFT) {
             winnerId = players.first.value();
         } else {
             winnerId = players.second.value();
@@ -496,12 +497,12 @@ namespace communication {
             teamFormationTimer.stop();
             if (id == players.first) {
                 if (players.second.has_value()) {
-                    onWin(gameHandling::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameModel::TeamSide::RIGHT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                     players.second.reset();
                 }
             } else {
                 if (players.first.has_value()) {
-                    onWin(gameHandling::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
+                    onWin(gameModel::TeamSide::LEFT, messages::types::VictoryReason::VIOLATION_OF_PROTOCOL);
                     players.first.reset();
                 }
             }

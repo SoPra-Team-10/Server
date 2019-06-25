@@ -89,7 +89,7 @@ namespace gameHandling{
     private:
         MemberSelector teamLeft, teamRight; ///< Member selectors for both teams
         const std::shared_ptr<const gameModel::Environment> env; ///<The immutable environment for rule checks
-        TeamSide currentSidePlayers, currentSideInter; ///< The current sides for Interferences and Players
+        gameModel::TeamSide currentSidePlayers, currentSideInter; ///< The current sides for Interferences and Players
         std::optional<std::shared_ptr<gameModel::Player>> currentPlayer; ///<Current Player to make a move
         PlayerTurnState playerTurnState = PlayerTurnState::Move; ///<The state of the current Players turn
         TeamState teamStatePlayers = TeamState::BothAvailable; ///<State of the Memberselectors
@@ -100,27 +100,27 @@ namespace gameHandling{
          * Randomly initializes the given Teamside
          * @param side
          */
-        void chooseSide(TeamSide &side) const;
+        void chooseSide(gameModel::TeamSide &side) const;
 
         /**
          * gets the Memberselector by teamside
          * @param side
          * @return
          */
-        auto getTeam(TeamSide side) -> MemberSelector&;
+        auto getTeam(gameModel::TeamSide side) -> MemberSelector&;
 
         /**
          * gets the Memberselector by teamside
          * @param side
          * @return
          */
-        auto getTeam(TeamSide side) const -> const MemberSelector&;
+        auto getTeam(gameModel::TeamSide side) const -> const MemberSelector&;
 
         /**
          * Switches the teamside
          * @param side the Team side enum to be toggled
          */
-        void switchSide(TeamSide &side);
+        void switchSide(gameModel::TeamSide &side);
     };
 }
 
