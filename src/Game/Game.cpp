@@ -142,7 +142,7 @@ namespace gameHandling{
                 bannedPlayers.emplace_back(player);
                 if(!firstSideDisqualified.has_value() &&
                     environment->getTeam(player)->numberOfBannedMembers() > MAX_BAN_COUNT) {
-                    firstSideDisqualified = getSide(player);
+                    firstSideDisqualified = environment->getTeam(player)->side;
                 }
 
                 lastDeltas.emplace(DeltaType::BAN, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
@@ -1058,9 +1058,5 @@ namespace gameHandling{
                 return {gameModel::TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
-    }
-
-    auto Game::getSide(const std::shared_ptr<const gameModel::Player> &player) const -> gameModel::TeamSide {
-        return environment->team1->hasMember(player) ? gameModel::TeamSide::LEFT : gameModel::TeamSide::RIGHT;
     }
 }
