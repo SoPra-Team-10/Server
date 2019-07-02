@@ -33,7 +33,7 @@ TEST(game_get_next_action, generic_name){
     //PlayerPhase
     std::deque<Id> playerIds;
     for(const auto &player : game.environment->getAllPlayers()){
-        playerIds.emplace_back(player->id);
+        playerIds.emplace_back(player->getId());
     }
 
     for(int i = 0; i < 26; i++){
