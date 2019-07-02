@@ -72,13 +72,14 @@ namespace communication {
                 this->send(messages::Message{messages::unicast::PrivateDebug{
                         e.what()
                 }}, client);
-                log.debug(string);
                 log.error("Got invalid json!");
+                log.debug(e.what());
             } catch (std::runtime_error &e) {
                 this->send(messages::Message{messages::unicast::PrivateDebug{
                         e.what()
                 }}, client);
                 log.error("Got invalid json values!");
+                log.debug(e.what());
             }
         }
     }
