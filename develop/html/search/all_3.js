@@ -10,6 +10,7 @@ var searchData=
   ['getport',['getPort',['../classutil_1_1_argument_parser.html#a417fff02a382543bd82da99553e4f500',1,'util::ArgumentParser']]],
   ['getrightpoints',['getRightPoints',['../classgame_handling_1_1_game.html#afa39fa4ed3db168a0ad22f12cb37b1c6',1,'gameHandling::Game']]],
   ['getround',['getRound',['../classgame_handling_1_1_game.html#a620465c98b44219ae30cf4235e74c7e0',1,'gameHandling::Game']]],
+  ['getside',['getSide',['../classgame_handling_1_1_member_selector.html#a6c49c9a05d9d12012f8824295a65eb31',1,'gameHandling::MemberSelector']]],
   ['getsnapshot',['getSnapshot',['../classgame_handling_1_1_game.html#a6d46111882b0b3b596fad03ca825f2ab',1,'gameHandling::Game']]],
   ['getuserinlobby',['getUserInLobby',['../classcommunication_1_1_lobby.html#a2276a1b6f9f6a9b76d468d6ec8ffa9ab',1,'communication::Lobby']]],
   ['getverbosity',['getVerbosity',['../classutil_1_1_argument_parser.html#a78174cfee24444d600c0e3b108c7aac5',1,'util::ArgumentParser']]]
