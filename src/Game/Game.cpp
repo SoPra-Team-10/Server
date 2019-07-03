@@ -1048,14 +1048,14 @@ namespace gameHandling{
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
-            return {gameModel::TeamSide::LEFT, VictoryReason::MOST_POINTS};
+            return {environment->team1->getSide(), VictoryReason::MOST_POINTS};
         } else if(environment->team1->score < environment->team2->score){
-            return {gameModel::TeamSide::RIGHT, VictoryReason::MOST_POINTS};
+            return {environment->team2->getSide(), VictoryReason::MOST_POINTS};
         } else {
             if(environment->team1->hasMember(winningPlayer)){
-                return {gameModel::TeamSide::LEFT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {environment->team1->getSide(), VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             } else {
-                return {gameModel::TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {environment->team2->getSide(), VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
     }
