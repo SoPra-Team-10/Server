@@ -74,7 +74,10 @@ namespace gameHandling{
                         currentSide = gameLogic::conversions::idToSide(next.value().getEntityId());
                         timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.playerTurn);
                         log.debug("Requested player turn");
-                        return expectedRequestType = next.value();
+                        expectedRequestType = next.value();
+                        log.debug("Requested entity: " + toString(expectedRequestType.getEntityId()));
+                        log.debug("Requested turn type: " + toString(expectedRequestType.getTurnType()));
+                        return expectedRequestType;
                     } else {
                         currentPhase = PhaseType::FAN_PHASE;
                         changePhase();
@@ -150,10 +153,28 @@ namespace gameHandling{
             }
         };
 
+        auto printError = [this, &command, &side](){
+            log.warn("Received request type: " + toString(command.getDeltaType()));
+            if(command.getActiveEntity().has_value()){
+                log.warn("ActiveID: " + toString(command.getActiveEntity().value()));
+            }
+
+            if(side == gameModel::TeamSide::LEFT){
+                log.warn("Received players Side: Left");
+            } else {
+                log.warn("Received players Side: Right");
+            }
+
+            log.warn("ActualPhase: " + toString(currentPhase));
+            log.warn("Expected request ID: " + toString(expectedRequestType.getEntityId()));
+            log.warn("Expected request TurnType: " + toString(expectedRequestType.getTurnType()));
+        };
+
         //Request in wrong phase or request from wrong side
         if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE &&
             currentPhase != PhaseType::UNBAN_PHASE) || currentSide != side){
             log.warn("Received request not allowed: Wrong Player or wrong phase");
+            printError();
             return false;
         }
 
@@ -174,6 +195,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -262,6 +284,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.debug("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -550,6 +573,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::MOVE){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -642,6 +666,7 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value()){
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -674,6 +699,7 @@ namespace gameHandling{
 
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -715,6 +741,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -1006,9 +1033,11 @@ namespace gameHandling{
                 winEvent.emplace(winningTeam.first, VictoryReason::BOTH_DISQUALIFICATION_MOST_POINTS);
             }
         } else if(environment->team1->numberOfBannedMembers() > MAX_BAN_COUNT) {
-            winEvent.emplace(gameModel::TeamSide::RIGHT, VictoryReason::DISQUALIFICATION);
+            auto winningSide = environment->team1->getSide() == gameModel::TeamSide::LEFT ? gameModel::TeamSide::RIGHT : gameModel::TeamSide::LEFT;
+            winEvent.emplace(winningSide, VictoryReason::DISQUALIFICATION);
         } else if(environment->team2->numberOfBannedMembers() > MAX_BAN_COUNT) {
-            winEvent.emplace(gameModel::TeamSide::LEFT, VictoryReason::DISQUALIFICATION);
+            auto winningSide = environment->team2->getSide() == gameModel::TeamSide::LEFT ? gameModel::TeamSide::RIGHT : gameModel::TeamSide::LEFT;
+            winEvent.emplace(winningSide, VictoryReason::DISQUALIFICATION);
         }
 
         if(roundNumber == SNITCH_SPAWN_ROUND){
@@ -1048,14 +1077,14 @@ namespace gameHandling{
     communication::messages::types::VictoryReason> {
         using namespace communication::messages::types;
         if(environment->team1->score > environment->team2->score){
-            return {gameModel::TeamSide::LEFT, VictoryReason::MOST_POINTS};
+            return {environment->team1->getSide(), VictoryReason::MOST_POINTS};
         } else if(environment->team1->score < environment->team2->score){
-            return {gameModel::TeamSide::RIGHT, VictoryReason::MOST_POINTS};
+            return {environment->team2->getSide(), VictoryReason::MOST_POINTS};
         } else {
             if(environment->team1->hasMember(winningPlayer)){
-                return {gameModel::TeamSide::LEFT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {environment->team1->getSide(), VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             } else {
-                return {gameModel::TeamSide::RIGHT, VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
+                return {environment->team2->getSide(), VictoryReason::POINTS_EQUAL_SNITCH_CATCH};
             }
         }
     }
