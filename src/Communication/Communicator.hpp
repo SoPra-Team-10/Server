@@ -43,7 +43,7 @@ namespace communication {
          */
         void removeClient(int id, const std::string& name);
     protected:
-        void receive(messages::Message message, int client);
+        void receive(const messages::Message& message, int client);
 
     private:
         void onConnection(int id);

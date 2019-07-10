@@ -50,7 +50,7 @@ namespace communication {
         ++this->connectionCount;
     }
 
-    void MessageHandler::receiveListener(int client, std::string string) {
+    void MessageHandler::receiveListener(int client, const std::string& string) {
         // For some strange reason js sends an empty string on connection breakup...
         if (!string.empty()) {
             try {
@@ -62,16 +62,18 @@ namespace communication {
                         e.what()
                 }}, client);
                 log.error("Got invalid json!");
+                log.debug(e.what());
             } catch (std::runtime_error &e) {
                 this->send(messages::Message{messages::unicast::PrivateDebug{
                         e.what()
                 }}, client);
                 log.error("Got invalid json values!");
+                log.debug(e.what());
             }
         }
     }
 
-    void MessageHandler::closeListener(std::shared_ptr<network::Connection> connection) {
+    void MessageHandler::closeListener(const std::shared_ptr<network::Connection>& connection) {
         // Reverse lookup in O(n)
         for (auto it = this->activeConnections.begin(); it != this->activeConnections.end(); ++it) {
             if (it->second.get() == connection.get()) {
