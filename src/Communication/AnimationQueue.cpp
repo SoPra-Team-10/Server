@@ -5,6 +5,7 @@
  * @brief Implementation of the AnimationQueue class
  */
 
+#include <iostream>
 #include "AnimationQueue.h"
 
 #include "Communicator.hpp"

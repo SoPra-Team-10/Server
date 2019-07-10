@@ -74,7 +74,10 @@ namespace gameHandling{
                         currentSide = gameLogic::conversions::idToSide(next.value().getEntityId());
                         timer.setTimeout(std::bind(&Game::onTimeout, this), timeouts.playerTurn);
                         log.debug("Requested player turn");
-                        return expectedRequestType = next.value();
+                        expectedRequestType = next.value();
+                        log.debug("Requested entity: " + toString(expectedRequestType.getEntityId()));
+                        log.debug("Requested turn type: " + toString(expectedRequestType.getTurnType()));
+                        return expectedRequestType;
                     } else {
                         currentPhase = PhaseType::FAN_PHASE;
                         changePhase();
@@ -150,10 +153,28 @@ namespace gameHandling{
             }
         };
 
+        auto printError = [this, &command, &side](){
+            log.warn("Received request type: " + toString(command.getDeltaType()));
+            if(command.getActiveEntity().has_value()){
+                log.warn("ActiveID: " + toString(command.getActiveEntity().value()));
+            }
+
+            if(side == gameModel::TeamSide::LEFT){
+                log.warn("Received players Side: Left");
+            } else {
+                log.warn("Received players Side: Right");
+            }
+
+            log.warn("ActualPhase: " + toString(currentPhase));
+            log.warn("Expected request ID: " + toString(expectedRequestType.getEntityId()));
+            log.warn("Expected request TurnType: " + toString(expectedRequestType.getTurnType()));
+        };
+
         //Request in wrong phase or request from wrong side
         if((currentPhase != PhaseType::PLAYER_PHASE && currentPhase != PhaseType::FAN_PHASE &&
             currentPhase != PhaseType::UNBAN_PHASE) || currentSide != side){
             log.warn("Received request not allowed: Wrong Player or wrong phase");
+            printError();
             return false;
         }
 
@@ -174,6 +195,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -262,6 +284,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.debug("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -550,6 +573,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::MOVE){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -642,6 +666,7 @@ namespace gameHandling{
                 if(command.getActiveEntity().has_value()){
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -674,6 +699,7 @@ namespace gameHandling{
 
                     if(command.getActiveEntity() != expectedRequestType.getEntityId()){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
@@ -715,6 +741,7 @@ namespace gameHandling{
                     if(command.getActiveEntity().value() != expectedRequestType.getEntityId() ||
                         expectedRequestType.getTurnType() != TurnType::ACTION){
                         log.warn("Received request not allowed: Wrong entity or no action allowed");
+                        printError();
                         return false;
                     }
 
