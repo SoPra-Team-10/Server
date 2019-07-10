@@ -102,8 +102,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:af7b757662184ac08274861a550b5f07d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada4c4377351e1fc321afdd273d95ce79"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_message_handler.html#ada4c4377351e1fc321afdd273d95ce79">send</a> (const messages::ReplayMessage &amp;message, int client)</td></tr>
 <tr class="separator:ada4c4377351e1fc321afdd273d95ce79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad25abba1f6cd7b340de54c6b202610ef"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_message_handler.html#ad25abba1f6cd7b340de54c6b202610ef">send</a> (const messages::mods::other::LobbyMod &amp;message, int client)</td></tr>
-<tr class="separator:ad25abba1f6cd7b340de54c6b202610ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f4d17b2a78b6df539c71c2561e8ccab"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_message_handler.html#a7f4d17b2a78b6df539c71c2561e8ccab">~MessageHandler</a> ()=default</td></tr>
 <tr class="separator:a7f4d17b2a78b6df539c71c2561e8ccab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -264,48 +262,6 @@ Data Fields</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">message</td><td>the replayMessage to send </td></tr>
-    <tr><td class="paramname">client</td><td>the client to which to send the message </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ad25abba1f6cd7b340de54c6b202610ef"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void communication::MessageHandler::send </td>
-          <td>(</td>
-          <td class="paramtype">const messages::mods::other::LobbyMod &amp;&#160;</td>
-          <td class="paramname"><em>message</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>client</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Send a lobbies to the client specified by id </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">message</td><td>the lobbyMod to send </td></tr>
     <tr><td class="paramname">client</td><td>the client to which to send the message </td></tr>
   </table>
   </dd>
