@@ -53,13 +53,6 @@ namespace communication {
         virtual void send(const messages::ReplayMessage &message, int client);
 
         /**
-         * Send a lobbies to the client specified by id
-         * @param message the lobbyMod to send
-         * @param client the client to which to send the message
-         */
-        virtual void send(const messages::mods::other::LobbyMod &message, int client);
-
-        /**
          * Listener that gets called on every new connection
          */
         const util::Listener<int> onConnect;
