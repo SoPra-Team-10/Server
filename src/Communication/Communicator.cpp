@@ -96,10 +96,10 @@ namespace communication {
     }
 
     void Communicator::sendLobbyModMessage(int id) {
-        messages::mods::other::LobbyMod lobbyMod;
+        messages::mods::unicast::LobbyMod lobbyMod;
         for (const auto &lobby : lobbyMapping) {
             lobbyMod.addLobby({lobby.first, lobby.second->isMatchStarted(), lobby.second->getUserInLobby()});
         }
-        messageHandler.send(lobbyMod, id);
+        messageHandler.send(messages::Message{lobbyMod}, id);
     }
 }
