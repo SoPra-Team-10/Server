@@ -320,8 +320,8 @@ namespace communication {
         } else {
             sendError(messages::request::PauseRequest::getName(),
                       "Invalid pause request: either AI or Game not started", id);
-            this->kickUser(id);
             log.warn("Invalid pause request");
+            this->kickUser(id);
         }
     }
 
