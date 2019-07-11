@@ -16,6 +16,7 @@
 #include "Communicator.hpp"
 
 namespace communication {
+    constexpr auto RECONNECT_TIMEOUT = 30000;
 
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
@@ -371,7 +372,7 @@ namespace communication {
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendSingle(matchFinish, id);
         }
-        onLeave(id);
+        onLeaveAfterTimeout(id);
     }
 
     void Lobby::onTeamFormationTimeout() {
@@ -492,7 +493,19 @@ namespace communication {
         }
     }
 
-    auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
+    void Lobby::onLeave(int id) {
+        auto leaveTimer = std::make_shared<util::Timer>();
+        leaveTimer->setTimeout(std::bind(&Lobby::onLeaveAfterTimeout, this, id, leaveTimer), RECONNECT_TIMEOUT);
+        this->leaveTimers.emplace(leaveTimer);
+        log.debug("Client left starting timeout");
+    }
+
+    void Lobby::onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer) {
+        if (timer.has_value()) {
+            timer.value()->stop();
+            this->leaveTimers.erase(timer.value());
+        }
+
         if (id == players.first || id == players.second) {
             teamFormationTimer.stop();
             if (id == players.first) {
@@ -511,7 +524,7 @@ namespace communication {
         communicator.removeClient(id, userName);
         clients.erase(clients.find(id));
         log.info("User left");
-        return std::make_pair(getUserInLobby() <= 0, userName);
+        communicator.removeFromLobbyAfterLeft(getUserInLobby() <= 0, userName, getName());
     }
 
     void Lobby::onFatalError(const std::string& error) {
@@ -621,5 +634,4 @@ namespace communication {
         }
         return ret;
     }
-
 }

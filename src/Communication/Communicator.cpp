@@ -72,15 +72,7 @@ namespace communication {
     void Communicator::closeEvent(int id) {
         auto cit = clientMapping.find(id);
         if (cit != clientMapping.end()) {
-            auto name = cit->second->getName();
-            auto [lobbyEmpty, userName] = cit->second->onLeave(id);
-            userNameMapping.erase(userName);
-            if(lobbyEmpty) {
-                auto lit = lobbyMapping.find(name);
-                if (lit != lobbyMapping.end()) {
-                    lobbyMapping.erase(lit);
-                }
-            }
+            cit->second->onLeave(id);
         }
     }
 
@@ -101,5 +93,16 @@ namespace communication {
             lobbyMod.addLobby({lobby.first, lobby.second->isMatchStarted(), lobby.second->getUserInLobby()});
         }
         messageHandler.send(messages::Message{lobbyMod}, id);
+    }
+
+    void Communicator::removeFromLobbyAfterLeft(bool lobbyEmpty, const std::string &userName,
+            const std::string &lobbyName) {
+        userNameMapping.erase(userName);
+        if(lobbyEmpty) {
+            auto lit = lobbyMapping.find(lobbyName);
+            if (lit != lobbyMapping.end()) {
+                lobbyMapping.erase(lit);
+            }
+        }
     }
 }
