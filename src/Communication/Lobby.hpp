@@ -76,7 +76,7 @@ namespace communication {
          * @param id the id of the player
          * @return true if the lobby is empty after the player left and thus if the lobby should be closed
          */
-        auto onLeave(int id) -> std::pair<bool, std::string>;
+        void onLeave(int id);
 
         /**
          * Get the number of users in the lobby
@@ -113,6 +113,7 @@ namespace communication {
         void onWin(gameModel::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
         void onFatalError(const std::string& error);
         void modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots);
+        void onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer = std::nullopt);
 
         auto getSpectators() const -> std::vector<std::string>;
 
@@ -125,6 +126,7 @@ namespace communication {
         std::map<int, Client> clients;
         std::string name;
         std::list<std::pair<std::string, std::string>> lastTenMessages;
+        std::set<std::shared_ptr<util::Timer>> leaveTimers;
 
         std::pair<std::optional<communication::messages::request::TeamConfig>,
                 std::optional<communication::messages::request::TeamConfig>> teamConfigs;

@@ -42,6 +42,14 @@ namespace communication {
          * Remove a client from the lobby, this is used by a lobby to kick a user.
          */
         void removeClient(int id, const std::string& name);
+
+        /**
+         * Removes a client after a timeout and closes the lobby if empty
+         * @param lobbyEmpty true if the player that left was the last player
+         * @param userName the name of the player
+         * @param lobbyName the name of the lobby
+         */
+        void removeFromLobbyAfterLeft(bool lobbyEmpty, const std::string &userName, const std::string &lobbyName);
     protected:
         void receive(const messages::Message& message, int client);
 
