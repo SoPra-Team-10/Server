@@ -36,7 +36,7 @@ namespace communication {
          * @param protocolName the name of the websocket protocol, "http-only" by default
          * @see Logger for more information on the Logger
          */
-        MessageHandler(uint16_t port, util::Logging &log, const std::string &protocolName = "http-only");
+        MessageHandler(uint16_t port, util::Logging &log, const std::string &protocolName = "");
 
         /**
          * Send a message to the client specified by id
@@ -79,7 +79,7 @@ namespace communication {
 
         std::optional<network::WebSocketServer> webSocketServer;
         std::map<int, std::shared_ptr<network::Connection>> activeConnections;
-        util::Logging &log;
+        util::Logging log;
     };
 }
 

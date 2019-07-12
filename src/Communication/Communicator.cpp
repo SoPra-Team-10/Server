@@ -28,30 +28,43 @@ namespace communication {
         if (std::holds_alternative<messages::request::JoinRequest>(message.getPayload())) {
             if (clientMapping.find(client) == clientMapping.end()) {
                 auto joinRequest = std::get<messages::request::JoinRequest>(message.getPayload());
+                std::set<messages::types::Mods> mods{joinRequest.getMods().begin(), joinRequest.getMods().end()};
+                Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
+                                 joinRequest.getIsAi(), mods};
+
                 if (userNameMapping.find(joinRequest.getUserName()) == userNameMapping.end()) {
-                    std::set<messages::types::Mods> mods{joinRequest.getMods().begin(), joinRequest.getMods().end()};
-                    Client newClient{joinRequest.getUserName(), joinRequest.getPassword(),
-                                     joinRequest.getIsAi(), mods};
                     if (lobbyMapping.find(joinRequest.getLobby()) != lobbyMapping.end()) {
                         lobbyMapping.at(joinRequest.getLobby())->addSpectator(newClient, client);
                         clientMapping.emplace(client, lobbyMapping.at(joinRequest.getLobby()));
-                        userNameMapping.emplace(joinRequest.getUserName());
+                        userNameMapping.emplace(std::make_pair(joinRequest.getUserName(),
+                                lobbyMapping.at(joinRequest.getLobby())));
                         log.info("New client joins existing lobby");
                     } else {
                         auto game = std::make_shared<Lobby>(joinRequest.getLobby(), message.getTimeStamp(),
                                                             *this, newClient, client, log, matchConfig);
                         lobbyMapping.emplace(joinRequest.getLobby(), game);
                         clientMapping.emplace(client, game);
-                        userNameMapping.emplace(joinRequest.getUserName());
+                        userNameMapping.emplace(std::make_pair(joinRequest.getUserName(),
+                                                               lobbyMapping.at(joinRequest.getLobby())));
                         log.info("New lobby");
                     }
                 } else {
-                    // Username taken
-                    this->send(messages::Message{
-                            messages::unicast::PrivateDebug{"Username is taken!"}}, client);
-                    log.warn("Username taken");
+                    auto lobby = userNameMapping.at(joinRequest.getUserName());
+
+                    auto oldId = lobby->reAddUser(newClient, client);
+                    if (oldId.has_value()) {
+                        clientMapping.erase(oldId.value());
+                        clientMapping.emplace(std::make_pair(client, lobby));
+                        log.warn("Client rejoined");
+                    } else {
+                        // Username taken
+                        this->send(messages::Message{
+                                messages::unicast::PrivateDebug{"Username is taken!"}}, client);
+                        log.warn("Username taken");
+                    }
                 }
             } else {
+
                 // User is already in a lobby
                 this->send(messages::Message{
                         messages::unicast::PrivateDebug{"You are already in a Lobby!"}}, client);
@@ -72,15 +85,7 @@ namespace communication {
     void Communicator::closeEvent(int id) {
         auto cit = clientMapping.find(id);
         if (cit != clientMapping.end()) {
-            auto name = cit->second->getName();
-            auto [lobbyEmpty, userName] = cit->second->onLeave(id);
-            userNameMapping.erase(userName);
-            if(lobbyEmpty) {
-                auto lit = lobbyMapping.find(name);
-                if (lit != lobbyMapping.end()) {
-                    lobbyMapping.erase(lit);
-                }
-            }
+            cit->second->onLeave(id);
         }
     }
 
@@ -101,5 +106,16 @@ namespace communication {
             lobbyMod.addLobby({lobby.first, lobby.second->isMatchStarted(), lobby.second->getUserInLobby()});
         }
         messageHandler.send(messages::Message{lobbyMod}, id);
+    }
+
+    void Communicator::removeFromLobbyAfterLeft(bool lobbyEmpty, const std::string &userName,
+            const std::string &lobbyName) {
+        userNameMapping.erase(userName);
+        if(lobbyEmpty) {
+            auto lit = lobbyMapping.find(lobbyName);
+            if (lit != lobbyMapping.end()) {
+                lobbyMapping.erase(lit);
+            }
+        }
     }
 }
