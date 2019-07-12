@@ -63,7 +63,7 @@ namespace communication {
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
         std::map<std::string, std::shared_ptr<Lobby>> userNameMapping;
         const messages::broadcast::MatchConfig matchConfig;
-        util::Logging &log;
+        util::Logging log;
     };
 
     template<typename T>

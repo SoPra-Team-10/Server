@@ -125,7 +125,7 @@ namespace communication {
 
         auto getSpectators() const -> std::vector<std::string>;
 
-        util::Logging &log;
+        util::Logging log;
         AnimationQueue animationQueue;
 
         LobbyState state;
