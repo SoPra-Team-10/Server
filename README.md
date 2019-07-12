@@ -18,7 +18,10 @@ and all dependencies.
 ### Docker
 
 #### Prebuild Docker Image
-Get a prebuild Docker Image [here](https://hub.docker.com/r/soprateamzehn/server).
+Get a prebuild Docker Image [here](https://hub.docker.com/r/soprateamzehn/server) or run:
+```
+docker pull soprateamzehn/server
+```
 
 #### Build your own Docker Image from source
 In the root directory of the project build the docker image
