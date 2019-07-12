@@ -103,7 +103,7 @@ namespace gameHandling {
         std::queue<communication::messages::broadcast::DeltaBroadcast> lastDeltas {};
         communication::messages::broadcast::Next expectedRequestType{}; ///<Next-object containing information about the next expected request from a client
         gameModel::TeamSide currentSide; ///<Current side to make a move
-        util::Logging &log;
+        util::Logging log;
         gameController::ExcessLength overTimeState = gameController::ExcessLength::None;
         unsigned int overTimeCounter = 0;
         bool goalScored = false;

@@ -21,7 +21,7 @@ namespace communication {
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-             : log{log}, animationQueue{communicator}, state{LobbyState::INITIAL},
+             : log{log, name}, animationQueue{communicator}, state{LobbyState::INITIAL},
                 communicator{communicator}, matchConfig{matchConfig}, name{name},
                 replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
         this->clients.emplace(id, client);
@@ -108,8 +108,8 @@ namespace communication {
         if (!players.first.has_value()) {
             if (!configCheck::checkTeamConfig(teamConfig)) {
                 sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
-                kickUser(id);
                 log.warn("Got invalid team config");
+                kickUser(id);
             } else {
                 players.first = id;
                 log.debug("Got first teamConfig");
@@ -118,8 +118,8 @@ namespace communication {
         } else if (!players.second.has_value()) {
             if (!configCheck::checkTeamConfig(teamConfig)) {
                 sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
-                kickUser(id);
                 log.warn("Got invalid team config");
+                kickUser(id);
             } else if (clients.find(players.first.value()) == clients.end()) {
                 log.warn("First client left after sending TeamConfig");
                 players.first.reset();
@@ -148,8 +148,8 @@ namespace communication {
                         std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
             }
         } else {
-            this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
+            this->kickUser(id);
         }
     }
 
@@ -161,12 +161,12 @@ namespace communication {
                     log.debug("Got teamFormation for left team");
                     if (teamFormations.first.has_value()) {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
-                        kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
+                        kickUser(id);
                     } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::LEFT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
-                        kickUser(id);
                         log.warn("Got invalid team formation");
+                        kickUser(id);
                         players.first.reset();
                     } else {
                         teamFormations.first = teamFormation;
@@ -175,12 +175,12 @@ namespace communication {
                     log.debug("Got teamFormation for right team");
                     if (teamFormations.second.has_value()) {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
-                        kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
-                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::RIGHT)) {
                         kickUser(id);
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::RIGHT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         log.warn("Got invalid team formation");
+                        kickUser(id);
                         players.second.reset();
                     } else {
                         teamFormations.second = teamFormation;
@@ -231,12 +231,12 @@ namespace communication {
                     }
                 }
             } else {
-                this->kickUser(id);
                 log.warn("Got teamFormation from a spectator, kicking user");
+                this->kickUser(id);
             }
         } else {
-            this->kickUser(id);
             log.warn("Got teamFormation in wrong state");
+            this->kickUser(id);
         }
     }
 
@@ -293,18 +293,18 @@ namespace communication {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
                               "Invalid delta request!", clientId);
-                    this->kickUser(clientId);
                     log.warn("Client sent an invalid deltaRequest");
+                    this->kickUser(clientId);
                 }
             } else {
                 sendError(messages::request::DeltaRequest::getName(),
                           "Not in game", clientId);
-                this->kickUser(clientId);
                 log.warn("Client sent a DeltaRequest while not in game");
+                this->kickUser(clientId);
             }
         } else {
-            this->kickUser(clientId);
             log.warn("Spectator send a DeltaRequest, kicking user");
+            this->kickUser(clientId);
         }
     }
 
@@ -337,8 +337,8 @@ namespace communication {
         } else {
             sendError(messages::request::ContinueRequest::getName(),
                       "Not paused!", id);
-            this->kickUser(id);
             log.warn("Client sent a continue while not paused");
+            this->kickUser(id);
         }
     }
 
@@ -355,8 +355,8 @@ namespace communication {
     void Lobby::onPayload(const T &, int client) {
         sendError(T::getName(),
                   "The message is not a request!", client);
-        this->kickUser(client);
         log.warn("Received message is not a request, kicking user");
+        this->kickUser(client);
     }
 
     void Lobby::onMessage(const messages::Message &message, int id) {
