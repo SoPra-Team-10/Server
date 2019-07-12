@@ -31,6 +31,8 @@ namespace communication {
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
         std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
+        bool operator==(const Client &rhs) const;
+        bool operator!=(const Client &rhs) const;
     };
 
     /**

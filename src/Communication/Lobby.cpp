@@ -55,9 +55,9 @@ namespace communication {
 
     auto Lobby::reAddUser(const Client& client, int id) -> std::optional<int> {
         std::optional<int> oldId;
-        for (auto & it : clients) {
-            if (client.userName == it.second.userName && client.password == it.second.password) {
-                oldId = it.first;
+        for (auto & currentClient : clients) {
+            if (client == currentClient.second) {
+                oldId = currentClient.first;
                 if (players.first.has_value() && oldId == players.first.value()) {
                     players.first.emplace(id);
                 } else if (players.second.has_value() && oldId == players.second.value()) {
@@ -669,4 +669,14 @@ namespace communication {
         return ret;
     }
 
+    bool Client::operator==(const Client &rhs) const {
+        return userName == rhs.userName &&
+               password == rhs.password &&
+               isAi == rhs.isAi &&
+               mods == rhs.mods;
+    }
+
+    bool Client::operator!=(const Client &rhs) const {
+        return !(rhs == *this);
+    }
 }
