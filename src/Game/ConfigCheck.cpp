@@ -21,7 +21,7 @@ namespace configCheck {
             }
         }else{
             for (auto &player : allPlayers) {
-                if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds ||
+                if (gameModel::Environment::getCell(player->position) == gameModel::Cell::OutOfBounds || gameModel::Environment::isGoalCell(player->position) ||
                     player->position.x < 9 || gameModel::Environment::getCell(player->position) == gameModel::Cell::Centre) {
                     return false;
                 }

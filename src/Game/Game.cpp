@@ -8,6 +8,7 @@
 #include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
 #include <SopraGameLogic/conversions.h>
+#include <exception>
 
 namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
@@ -812,6 +813,14 @@ namespace gameHandling{
 
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
         using namespace communication::messages::broadcast;
+        auto players = environment->getAllPlayers();
+        for(const auto &player : players){
+            for(const auto &op: players){
+                if(player != op && player->position == op->position){
+                    throw std::runtime_error("Two players on same positions");
+                }
+            }
+        }
         std::queue<Snapshot> ret;
         std::vector<std::pair<int, int>> shitList;
         shitList.reserve(environment->pileOfShit.size());
