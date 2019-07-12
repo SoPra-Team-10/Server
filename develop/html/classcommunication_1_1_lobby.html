@@ -99,6 +99,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a86268c4d523d19f158bbef73980754b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a716596792216a5ddaf0aeaf1d4f04437"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_lobby.html#a716596792216a5ddaf0aeaf1d4f04437">addSpectator</a> (<a class="el" href="structcommunication_1_1_client.html">Client</a> client, int id)</td></tr>
 <tr class="separator:a716596792216a5ddaf0aeaf1d4f04437"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01f2fa23a9f883dc2bef46057a2f56a8"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_lobby.html#a01f2fa23a9f883dc2bef46057a2f56a8">reAddUser</a> (const <a class="el" href="structcommunication_1_1_client.html">Client</a> &amp;client, int id) -&gt; std::optional&lt; int &gt;</td></tr>
+<tr class="separator:a01f2fa23a9f883dc2bef46057a2f56a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25b9b029f4087e0f268b9b5cc2edb0d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_lobby.html#a25b9b029f4087e0f268b9b5cc2edb0d5">onMessage</a> (const messages::Message &amp;message, int id)</td></tr>
 <tr class="separator:a25b9b029f4087e0f268b9b5cc2edb0d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a380ac987276c50dc756d9d2b43f024"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_lobby.html#a6a380ac987276c50dc756d9d2b43f024">onLeave</a> (int id)</td></tr>
@@ -316,6 +318,41 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Function that gets called on a new message (except JoinRequest which are handled in the <a class="el" href="classcommunication_1_1_communicator.html">Communicator</a>) </p>
+
+</div>
+</div>
+<a class="anchor" id="a01f2fa23a9f883dc2bef46057a2f56a8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto communication::Lobby::reAddUser </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structcommunication_1_1_client.html">Client</a> &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> -&gt;  std::optional&lt; int &gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Checks if a user with the same name and password is already in the lobby </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>the new client </td></tr>
+    <tr><td class="paramname">id</td><td>the id of the new client </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the old id if this is a rejoin </dd></dl>
 
 </div>
 </div>

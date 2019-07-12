@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['readduser',['reAddUser',['../classcommunication_1_1_lobby.html#a01f2fa23a9f883dc2bef46057a2f56a8',1,'communication::Lobby']]],
   ['removeclient',['removeClient',['../classcommunication_1_1_communicator.html#a27699c7db9fcfde35b6bc11b2c4e610b',1,'communication::Communicator']]],
   ['removefromlobbyafterleft',['removeFromLobbyAfterLeft',['../classcommunication_1_1_communicator.html#a439ef0bf391ac029d664f920315e065f',1,'communication::Communicator']]],
   ['reset',['reset',['../classgame_handling_1_1_phase_manager.html#aee32a69ae32d433f572507db8ab6c7be',1,'gameHandling::PhaseManager']]],
