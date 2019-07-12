@@ -53,6 +53,29 @@ namespace communication {
         }
     }
 
+    auto Lobby::reAddUser(const Client& client, int id) -> std::optional<int> {
+        std::optional<int> oldId;
+        for (auto & it : clients) {
+            if (client.userName == it.second.userName && client.password == it.second.password) {
+                oldId = it.first;
+                if (players.first.has_value() && oldId == players.first.value()) {
+                    players.first.emplace(id);
+                } else if (players.second.has_value() && oldId == players.second.value()) {
+                    players.second.emplace(id);
+                }
+            }
+        }
+
+        if (oldId.has_value()) {
+            leaveTimers.erase(oldId.value());
+            clients.erase(oldId.value());
+            clients.emplace(id, client);
+            return oldId;
+        } else {
+            return std::nullopt;
+        }
+    }
+
     template<>
     void Lobby::onPayload<messages::request::SendDebug>(const messages::request::SendDebug &, int) {
         // Nothing to do...
@@ -108,8 +131,8 @@ namespace communication {
         if (!players.first.has_value()) {
             if (!configCheck::checkTeamConfig(teamConfig)) {
                 sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
-                kickUser(id);
                 log.warn("Got invalid team config");
+                kickUser(id);
             } else {
                 players.first = id;
                 log.debug("Got first teamConfig");
@@ -235,8 +258,8 @@ namespace communication {
                 log.warn("Got teamFormation from a spectator, kicking user");
             }
         } else {
-            this->kickUser(id);
             log.warn("Got teamFormation in wrong state");
+            this->kickUser(id);
         }
     }
 
@@ -496,14 +519,14 @@ namespace communication {
     void Lobby::onLeave(int id) {
         auto leaveTimer = std::make_shared<util::Timer>();
         leaveTimer->setTimeout(std::bind(&Lobby::onLeaveAfterTimeout, this, id, leaveTimer), RECONNECT_TIMEOUT);
-        this->leaveTimers.emplace(leaveTimer);
+        this->leaveTimers.emplace(std::make_pair(id, leaveTimer));
         log.debug("Client left starting timeout");
     }
 
     void Lobby::onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer) {
         if (timer.has_value()) {
             timer.value()->stop();
-            this->leaveTimers.erase(timer.value());
+            this->leaveTimers.erase(id);
         }
 
         if (id == players.first || id == players.second) {
@@ -634,4 +657,5 @@ namespace communication {
         }
         return ret;
     }
+
 }

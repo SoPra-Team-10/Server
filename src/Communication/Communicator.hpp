@@ -61,7 +61,7 @@ namespace communication {
         MessageHandler &messageHandler;
         std::map<int, std::shared_ptr<Lobby>> clientMapping;
         std::map<std::string, std::shared_ptr<Lobby>> lobbyMapping;
-        std::set<std::string> userNameMapping;
+        std::map<std::string, std::shared_ptr<Lobby>> userNameMapping;
         const messages::broadcast::MatchConfig matchConfig;
         util::Logging &log;
     };

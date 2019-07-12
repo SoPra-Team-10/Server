@@ -67,6 +67,14 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         /**
+         * Checks if a user with the same name and password is already in the lobby
+         * @param client the new client
+         * @param id the id of the new client
+         * @return the old id if this is a rejoin
+         */
+        auto reAddUser(const Client& client, int id) -> std::optional<int>;
+
+        /**
          * Function that gets called on a new message (except JoinRequest which are handled in the Communicator)
          */
         void onMessage(const messages::Message &message, int id);
@@ -126,7 +134,7 @@ namespace communication {
         std::map<int, Client> clients;
         std::string name;
         std::list<std::pair<std::string, std::string>> lastTenMessages;
-        std::set<std::shared_ptr<util::Timer>> leaveTimers;
+        std::map<int, std::shared_ptr<util::Timer>> leaveTimers;
 
         std::pair<std::optional<communication::messages::request::TeamConfig>,
                 std::optional<communication::messages::request::TeamConfig>> teamConfigs;
