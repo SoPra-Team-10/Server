@@ -816,7 +816,7 @@ namespace gameHandling{
         auto players = environment->getAllPlayers();
         for(const auto &player : players){
             for(const auto &op: players){
-                if(player != op && player->position == op->position){
+                if(player != op && player->position == op->position && !player->isFined && !op->isFined){
                     throw std::runtime_error("Two players on same positions");
                 }
             }
