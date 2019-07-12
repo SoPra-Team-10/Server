@@ -70,6 +70,17 @@ namespace communication {
             leaveTimers.erase(oldId.value());
             clients.erase(oldId.value());
             clients.emplace(id, client);
+            sendSingle(communication::messages::unicast::Reconnect{
+                    messages::broadcast::MatchStart{
+                            matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                            clients.at(players.first.value()).userName,
+                            clients.at(players.second.value()).userName},
+                    lastSnapshot.value(), lastNext.value()
+            }, id);
+            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
+                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
+            }
             return oldId;
         } else {
             return std::nullopt;
