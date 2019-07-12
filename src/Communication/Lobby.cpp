@@ -53,6 +53,40 @@ namespace communication {
         }
     }
 
+    auto Lobby::reAddUser(const Client& client, int id) -> std::optional<int> {
+        std::optional<int> oldId;
+        for (auto & currentClient : clients) {
+            if (client == currentClient.second) {
+                oldId = currentClient.first;
+                if (players.first.has_value() && oldId == players.first.value()) {
+                    players.first.emplace(id);
+                } else if (players.second.has_value() && oldId == players.second.value()) {
+                    players.second.emplace(id);
+                }
+            }
+        }
+
+        if (oldId.has_value()) {
+            leaveTimers.erase(oldId.value());
+            clients.erase(oldId.value());
+            clients.emplace(id, client);
+            sendSingle(communication::messages::unicast::Reconnect{
+                    messages::broadcast::MatchStart{
+                            matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                            clients.at(players.first.value()).userName,
+                            clients.at(players.second.value()).userName},
+                    lastSnapshot.value(), lastNext.value()
+            }, id);
+            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
+                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
+            }
+            return oldId;
+        } else {
+            return std::nullopt;
+        }
+    }
+
     template<>
     void Lobby::onPayload<messages::request::SendDebug>(const messages::request::SendDebug &, int) {
         // Nothing to do...
@@ -496,14 +530,14 @@ namespace communication {
     void Lobby::onLeave(int id) {
         auto leaveTimer = std::make_shared<util::Timer>();
         leaveTimer->setTimeout(std::bind(&Lobby::onLeaveAfterTimeout, this, id, leaveTimer), RECONNECT_TIMEOUT);
-        this->leaveTimers.emplace(leaveTimer);
+        this->leaveTimers.emplace(std::make_pair(id, leaveTimer));
         log.debug("Client left starting timeout");
     }
 
     void Lobby::onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer) {
         if (timer.has_value()) {
             timer.value()->stop();
-            this->leaveTimers.erase(timer.value());
+            this->leaveTimers.erase(id);
         }
 
         if (id == players.first || id == players.second) {
@@ -633,5 +667,16 @@ namespace communication {
             }
         }
         return ret;
+    }
+
+    bool Client::operator==(const Client &rhs) const {
+        return userName == rhs.userName &&
+               password == rhs.password &&
+               isAi == rhs.isAi &&
+               mods == rhs.mods;
+    }
+
+    bool Client::operator!=(const Client &rhs) const {
+        return !(rhs == *this);
     }
 }

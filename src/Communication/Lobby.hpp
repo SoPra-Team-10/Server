@@ -31,6 +31,8 @@ namespace communication {
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
         std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
+        bool operator==(const Client &rhs) const;
+        bool operator!=(const Client &rhs) const;
     };
 
     /**
@@ -65,6 +67,14 @@ namespace communication {
          * @param id the id of the player as send by the MessageHandler
          */
         void addSpectator(Client client, int id);
+
+        /**
+         * Checks if a user with the same name and password is already in the lobby
+         * @param client the new client
+         * @param id the id of the new client
+         * @return the old id if this is a rejoin
+         */
+        auto reAddUser(const Client& client, int id) -> std::optional<int>;
 
         /**
          * Function that gets called on a new message (except JoinRequest which are handled in the Communicator)
@@ -126,7 +136,7 @@ namespace communication {
         std::map<int, Client> clients;
         std::string name;
         std::list<std::pair<std::string, std::string>> lastTenMessages;
-        std::set<std::shared_ptr<util::Timer>> leaveTimers;
+        std::map<int, std::shared_ptr<util::Timer>> leaveTimers;
 
         std::pair<std::optional<communication::messages::request::TeamConfig>,
                 std::optional<communication::messages::request::TeamConfig>> teamConfigs;
