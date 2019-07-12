@@ -23,7 +23,7 @@ Get a prebuild Docker Image [here](https://hub.docker.com/r/soprateamzehn/server
 docker pull soprateamzehn/server
 ```
 
-#### Build your own Docker Image from source
+#### Build your own Docker Image from the provided Dockerfile
 In the root directory of the project build the docker image
 ("server" is the name of the container, this can be replaced by a
 different name):
