@@ -103,6 +103,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8541d8cff93200f3f651158b8478ea33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27699c7db9fcfde35b6bc11b2c4e610b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_communicator.html#a27699c7db9fcfde35b6bc11b2c4e610b">removeClient</a> (int id, const std::string &amp;name)</td></tr>
 <tr class="separator:a27699c7db9fcfde35b6bc11b2c4e610b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a439ef0bf391ac029d664f920315e065f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_communicator.html#a439ef0bf391ac029d664f920315e065f">removeFromLobbyAfterLeft</a> (bool lobbyEmpty, const std::string &amp;userName, const std::string &amp;lobbyName)</td></tr>
+<tr class="separator:a439ef0bf391ac029d664f920315e065f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -179,6 +181,47 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>receive</b> (const me
       </table>
 </div><div class="memdoc">
 <p>Remove a client from the lobby, this is used by a lobby to kick a user. </p>
+
+</div>
+</div>
+<a class="anchor" id="a439ef0bf391ac029d664f920315e065f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void communication::Communicator::removeFromLobbyAfterLeft </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>lobbyEmpty</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>userName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>lobbyName</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Removes a client after a timeout and closes the lobby if empty </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lobbyEmpty</td><td>true if the player that left was the last player </td></tr>
+    <tr><td class="paramname">userName</td><td>the name of the player </td></tr>
+    <tr><td class="paramname">lobbyName</td><td>the name of the lobby </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
