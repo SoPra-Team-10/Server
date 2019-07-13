@@ -8,7 +8,6 @@
 #include <SopraGameLogic/Interference.h>
 #include <SopraGameLogic/GameModel.h>
 #include <SopraGameLogic/conversions.h>
-#include <exception>
 
 namespace gameHandling{
     Game::Game(communication::messages::broadcast::MatchConfig matchConfig, const communication::messages::request::TeamConfig& teamConfig1,
