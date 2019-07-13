@@ -30,6 +30,26 @@ namespace communication {
         explicit AnimationQueue(Communicator &communicator);
 
         /**
+         * Explicitly delete the copy C-Tor to obey the rule of five
+         */
+        AnimationQueue(const AnimationQueue &animationQueue) = delete;
+
+        /**
+         * Explicitly delete the copy assignment to obey the rule of five
+         */
+        AnimationQueue&operator=(const AnimationQueue &animationQueue) = delete;
+
+        /**
+         * Explicitly delete the move C-Tor to obey the rule of five
+         */
+        AnimationQueue(AnimationQueue &&animationQueue) = delete;
+
+        /**
+         * Explicitly delete the move assignment to obey the rule of five
+         */
+        AnimationQueue &operator=(AnimationQueue &&AnimationQueue) = delete;
+
+        /**
          * Add an payload to the queue to send
          * @param payload the payload to send
          * @param clients list off all clients to which to send the message
