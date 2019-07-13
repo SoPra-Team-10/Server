@@ -531,7 +531,7 @@ namespace communication {
         auto leaveTimer = std::make_shared<util::Timer>();
         leaveTimer->setTimeout(std::bind(&Lobby::onLeaveAfterTimeout, this, id, leaveTimer), RECONNECT_TIMEOUT);
         this->leaveTimers.emplace(std::make_pair(id, leaveTimer));
-        log.debug("Client left starting timeout");
+        log.info("Client left, starting timeout");
     }
 
     void Lobby::onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer) {
