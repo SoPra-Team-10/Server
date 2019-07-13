@@ -24,7 +24,9 @@ namespace util {
         };
 
         int arg;
-        int portI = 8080, verbosityI = 0;
+        int portI = 8080;
+        int verbosityI = 0;
+
         while ((arg = getopt_long(argc, argv, "m:hp:v:", options, nullptr)) != -1) {
             switch (arg) {
                 case 'm':
@@ -37,14 +39,14 @@ namespace util {
                     try {
                         portI = std::stoi(optarg);
                     } catch (std::invalid_argument &e) {
-                        throw std::invalid_argument{"Port is not a valid integer"};
+                        throw std::invalid_argument{std::string{"Port is not a valid integer: "} + e.what()};
                     }
                     break;
                 case 'v':
                     try {
                         verbosityI = std::stoi(optarg);
                     } catch (std::invalid_argument &e) {
-                        throw std::invalid_argument{"Verbosity is not a valid integer"};
+                        throw std::invalid_argument{std::string{"Verbosity is not a valid integer: "} + e.what()};
                     }
                     break;
                 default:

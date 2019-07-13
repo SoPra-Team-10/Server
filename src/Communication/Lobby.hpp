@@ -26,7 +26,8 @@ namespace communication {
     /**
      * A client represents one client and all the relevant information
      */
-    struct Client {
+    class Client {
+    public:
         std::string userName; ///< Name of the user, as given at the login
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
