@@ -97,6 +97,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af994a25a574098150e4f2cdcf421a409"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#af994a25a574098150e4f2cdcf421a409">AnimationQueue</a> (<a class="el" href="classcommunication_1_1_communicator.html">Communicator</a> &amp;communicator)</td></tr>
 <tr class="separator:af994a25a574098150e4f2cdcf421a409"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2aec6700165f5192d8c91fbaa7a1e3c0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#a2aec6700165f5192d8c91fbaa7a1e3c0">AnimationQueue</a> (const <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;animationQueue)=delete</td></tr>
+<tr class="separator:a2aec6700165f5192d8c91fbaa7a1e3c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada3e79b6ef8bb1e845518c403f5deff2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#ada3e79b6ef8bb1e845518c403f5deff2">operator=</a> (const <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;animationQueue)=delete</td></tr>
+<tr class="separator:ada3e79b6ef8bb1e845518c403f5deff2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a223de3e6e6f17a39faafb450d44c38ba"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#a223de3e6e6f17a39faafb450d44c38ba">AnimationQueue</a> (<a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&amp;animationQueue)=delete</td></tr>
+<tr class="separator:a223de3e6e6f17a39faafb450d44c38ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d07b9431a65c961ee231efcf5459d48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#a9d07b9431a65c961ee231efcf5459d48">operator=</a> (<a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&amp;<a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a>)=delete</td></tr>
+<tr class="separator:a9d07b9431a65c961ee231efcf5459d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27733d89d466f28e664b1134210c58b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#a27733d89d466f28e664b1134210c58b8">add</a> (const messages::Payload &amp;payload, const std::vector&lt; int &gt; &amp;clients, std::chrono::milliseconds timeOffset=std::chrono::milliseconds{0})</td></tr>
 <tr class="separator:a27733d89d466f28e664b1134210c58b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aadc89e3e9657566643bb3932673a45df"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommunication_1_1_animation_queue.html#aadc89e3e9657566643bb3932673a45df">~AnimationQueue</a> ()</td></tr>
@@ -133,6 +141,56 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a2aec6700165f5192d8c91fbaa7a1e3c0"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">communication::AnimationQueue::AnimationQueue </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&#160;</td>
+          <td class="paramname"><em>animationQueue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Explicitly delete the copy C-Tor to obey the rule of five </p>
+
+</div>
+</div>
+<a class="anchor" id="a223de3e6e6f17a39faafb450d44c38ba"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">communication::AnimationQueue::AnimationQueue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>animationQueue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Explicitly delete the move C-Tor to obey the rule of five </p>
 
 </div>
 </div>
@@ -191,6 +249,56 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="ada3e79b6ef8bb1e845518c403f5deff2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a>&amp; communication::AnimationQueue::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&#160;</td>
+          <td class="paramname"><em>animationQueue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Explicitly delete the copy assignment to obey the rule of five </p>
+
+</div>
+</div>
+<a class="anchor" id="a9d07b9431a65c961ee231efcf5459d48"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a>&amp; communication::AnimationQueue::operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classcommunication_1_1_animation_queue.html">AnimationQueue</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>AnimationQueue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Explicitly delete the move assignment to obey the rule of five </p>
 
 </div>
 </div>
