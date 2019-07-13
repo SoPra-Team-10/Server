@@ -32,12 +32,12 @@ namespace communication {
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
         std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
-        bool operator==(const Client &rhs) const;
-        bool operator!=(const Client &rhs) const;
+        bool operator==(const Client &rhs) const; ///< Equality operator, checks if all fields are equal
+        bool operator!=(const Client &rhs) const; ///< Inequality operator, checks if !(a==b)
     };
 
     /**
-     * The current state of the lobby state machine
+     * The states of the lobby state machine
      */
     enum class LobbyState {
         INITIAL, WAITING_FORMATION, GAME, PAUSE, FINISHED
