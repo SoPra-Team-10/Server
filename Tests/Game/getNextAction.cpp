@@ -24,10 +24,8 @@ TEST(game_get_next_action, generic_name){
 
     //Ball phase
     auto next = game.getNextAction();
-    std::cout << "ID " << toString(next.getEntityId()) << " | Type " << toString(next.getTurnType()) << " | Timeout " << next.getTimout() << std::endl;
     EXPECT_EQ(next, Next(Id::BLUDGER1, TT::MOVE, 0));
     next = game.getNextAction();
-    std::cout << "ID " << toString(next.getEntityId()) << " | Type " << toString(next.getTurnType()) << " | Timeout " << next.getTimout() << std::endl;
     EXPECT_EQ(next, Next(Id::BLUDGER2, TT::MOVE, 0));
 
     //PlayerPhase
@@ -38,7 +36,6 @@ TEST(game_get_next_action, generic_name){
 
     for(int i = 0; i < 26; i++){
         auto nxt = game.getNextAction();
-        std::cout << "ID " << toString(nxt.getEntityId()) << " | Type " << toString(nxt.getTurnType()) << " | Timeout " << nxt.getTimout() << std::endl;
         EXPECT_THAT(nxt.getTurnType(), testing::AnyOf(TurnType::MOVE, TurnType::ACTION, TurnType::REMOVE_BAN));
         for(auto it = playerIds.begin(); it < playerIds.end(); it++){
             if(*it == nxt.getEntityId()){
@@ -51,7 +48,6 @@ TEST(game_get_next_action, generic_name){
     int fansLeft = 7, fansRight = 7;
     for(int i = 0; i < fansLeft + fansRight; i++){
         auto nxt = game.getNextAction();
-        std::cout << "ID " << toString(nxt.getEntityId()) << " | Type " << toString(nxt.getTurnType()) << " | Timeout " << nxt.getTimout() << std::endl;
         EXPECT_EQ(nxt.getTurnType(), TurnType::FAN);
     }
 

@@ -26,11 +26,14 @@ namespace communication {
     /**
      * A client represents one client and all the relevant information
      */
-    struct Client {
+    class Client {
+    public:
         std::string userName; ///< Name of the user, as given at the login
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
         std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
+        bool operator==(const Client &rhs) const;
+        bool operator!=(const Client &rhs) const;
     };
 
     /**
@@ -67,6 +70,14 @@ namespace communication {
         void addSpectator(Client client, int id);
 
         /**
+         * Checks if a user with the same name and password is already in the lobby
+         * @param client the new client
+         * @param id the id of the new client
+         * @return the old id if this is a rejoin
+         */
+        auto reAddUser(const Client& client, int id) -> std::optional<int>;
+
+        /**
          * Function that gets called on a new message (except JoinRequest which are handled in the Communicator)
          */
         void onMessage(const messages::Message &message, int id);
@@ -76,7 +87,7 @@ namespace communication {
          * @param id the id of the player
          * @return true if the lobby is empty after the player left and thus if the lobby should be closed
          */
-        auto onLeave(int id) -> std::pair<bool, std::string>;
+        void onLeave(int id);
 
         /**
          * Get the number of users in the lobby
@@ -113,10 +124,11 @@ namespace communication {
         void onWin(gameModel::TeamSide teamSide, communication::messages::types::VictoryReason victoryReason);
         void onFatalError(const std::string& error);
         void modifySnapshotsAddToLogAndSend(std::queue<communication::messages::broadcast::Snapshot> snapshots);
+        void onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer = std::nullopt);
 
         auto getSpectators() const -> std::vector<std::string>;
 
-        util::Logging &log;
+        util::Logging log;
         AnimationQueue animationQueue;
 
         LobbyState state;
@@ -125,6 +137,7 @@ namespace communication {
         std::map<int, Client> clients;
         std::string name;
         std::list<std::pair<std::string, std::string>> lastTenMessages;
+        std::map<int, std::shared_ptr<util::Timer>> leaveTimers;
 
         std::pair<std::optional<communication::messages::request::TeamConfig>,
                 std::optional<communication::messages::request::TeamConfig>> teamConfigs;

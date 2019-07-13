@@ -16,11 +16,12 @@
 #include "Communicator.hpp"
 
 namespace communication {
+    constexpr auto RECONNECT_TIMEOUT = 30000;
 
     Lobby::Lobby(const std::string &name, const std::string &startTime, Communicator &communicator,
             const Client& client, int id, util::Logging &log,
             const messages::broadcast::MatchConfig &matchConfig)
-             : log{log}, animationQueue{communicator}, state{LobbyState::INITIAL},
+             : log{log, name}, animationQueue{communicator}, state{LobbyState::INITIAL},
                 communicator{communicator}, matchConfig{matchConfig}, name{name},
                 replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
         this->clients.emplace(id, client);
@@ -49,6 +50,40 @@ namespace communication {
                 std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
                 sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
             }
+        }
+    }
+
+    auto Lobby::reAddUser(const Client& client, int id) -> std::optional<int> {
+        std::optional<int> oldId;
+        for (auto & currentClient : clients) {
+            if (client == currentClient.second) {
+                oldId = currentClient.first;
+                if (players.first.has_value() && oldId == players.first.value()) {
+                    players.first.emplace(id);
+                } else if (players.second.has_value() && oldId == players.second.value()) {
+                    players.second.emplace(id);
+                }
+            }
+        }
+
+        if (oldId.has_value()) {
+            leaveTimers.erase(oldId.value());
+            clients.erase(oldId.value());
+            clients.emplace(id, client);
+            sendSingle(communication::messages::unicast::Reconnect{
+                    messages::broadcast::MatchStart{
+                            matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
+                            clients.at(players.first.value()).userName,
+                            clients.at(players.second.value()).userName},
+                    lastSnapshot.value(), lastNext.value()
+            }, id);
+            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
+                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
+            }
+            return oldId;
+        } else {
+            return std::nullopt;
         }
     }
 
@@ -107,8 +142,8 @@ namespace communication {
         if (!players.first.has_value()) {
             if (!configCheck::checkTeamConfig(teamConfig)) {
                 sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
-                kickUser(id);
                 log.warn("Got invalid team config");
+                kickUser(id);
             } else {
                 players.first = id;
                 log.debug("Got first teamConfig");
@@ -117,8 +152,8 @@ namespace communication {
         } else if (!players.second.has_value()) {
             if (!configCheck::checkTeamConfig(teamConfig)) {
                 sendError(messages::request::TeamConfig::getName(), "Invalid Team Config", id);
-                kickUser(id);
                 log.warn("Got invalid team config");
+                kickUser(id);
             } else if (clients.find(players.first.value()) == clients.end()) {
                 log.warn("First client left after sending TeamConfig");
                 players.first.reset();
@@ -147,8 +182,8 @@ namespace communication {
                         std::bind(&Lobby::onTeamFormationTimeout, this), matchConfig.getTeamFormationTimeout());
             }
         } else {
-            this->kickUser(id);
             log.warn("Got more than two teamConfigs, kicking user");
+            this->kickUser(id);
         }
     }
 
@@ -160,12 +195,12 @@ namespace communication {
                     log.debug("Got teamFormation for left team");
                     if (teamFormations.first.has_value()) {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
-                        kickUser(id);
                         log.warn("Player 1 sent two teamFormations");
+                        kickUser(id);
                     } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::LEFT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
-                        kickUser(id);
                         log.warn("Got invalid team formation");
+                        kickUser(id);
                         players.first.reset();
                     } else {
                         teamFormations.first = teamFormation;
@@ -174,12 +209,12 @@ namespace communication {
                     log.debug("Got teamFormation for right team");
                     if (teamFormations.second.has_value()) {
                         sendError(messages::request::TeamFormation::getName(), "You sent two teamformations", id);
-                        kickUser(id);
                         log.warn("Player 2 sent two teamFormations");
-                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::RIGHT)) {
                         kickUser(id);
+                    } else if (!configCheck::checkTeamFormation(teamFormation, gameModel::TeamSide::RIGHT)) {
                         sendError(messages::request::TeamFormation::getName(), "TeamFormation invalid", id);
                         log.warn("Got invalid team formation");
+                        kickUser(id);
                         players.second.reset();
                     } else {
                         teamFormations.second = teamFormation;
@@ -230,12 +265,12 @@ namespace communication {
                     }
                 }
             } else {
-                this->kickUser(id);
                 log.warn("Got teamFormation from a spectator, kicking user");
+                this->kickUser(id);
             }
         } else {
-            this->kickUser(id);
             log.warn("Got teamFormation in wrong state");
+            this->kickUser(id);
         }
     }
 
@@ -292,18 +327,18 @@ namespace communication {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
                               "Invalid delta request!", clientId);
-                    this->kickUser(clientId);
                     log.warn("Client sent an invalid deltaRequest");
+                    this->kickUser(clientId);
                 }
             } else {
                 sendError(messages::request::DeltaRequest::getName(),
                           "Not in game", clientId);
-                this->kickUser(clientId);
                 log.warn("Client sent a DeltaRequest while not in game");
+                this->kickUser(clientId);
             }
         } else {
-            this->kickUser(clientId);
             log.warn("Spectator send a DeltaRequest, kicking user");
+            this->kickUser(clientId);
         }
     }
 
@@ -319,8 +354,8 @@ namespace communication {
         } else {
             sendError(messages::request::PauseRequest::getName(),
                       "Invalid pause request: either AI or Game not started", id);
-            this->kickUser(id);
             log.warn("Invalid pause request");
+            this->kickUser(id);
         }
     }
 
@@ -336,8 +371,8 @@ namespace communication {
         } else {
             sendError(messages::request::ContinueRequest::getName(),
                       "Not paused!", id);
-            this->kickUser(id);
             log.warn("Client sent a continue while not paused");
+            this->kickUser(id);
         }
     }
 
@@ -354,8 +389,8 @@ namespace communication {
     void Lobby::onPayload(const T &, int client) {
         sendError(T::getName(),
                   "The message is not a request!", client);
-        this->kickUser(client);
         log.warn("Received message is not a request, kicking user");
+        this->kickUser(client);
     }
 
     void Lobby::onMessage(const messages::Message &message, int id) {
@@ -371,7 +406,7 @@ namespace communication {
                                                          messages::types::VictoryReason::VIOLATION_OF_PROTOCOL};
             this->sendSingle(matchFinish, id);
         }
-        onLeave(id);
+        onLeaveAfterTimeout(id);
     }
 
     void Lobby::onTeamFormationTimeout() {
@@ -492,7 +527,19 @@ namespace communication {
         }
     }
 
-    auto Lobby::onLeave(int id) -> std::pair<bool, std::string> {
+    void Lobby::onLeave(int id) {
+        auto leaveTimer = std::make_shared<util::Timer>();
+        leaveTimer->setTimeout(std::bind(&Lobby::onLeaveAfterTimeout, this, id, leaveTimer), RECONNECT_TIMEOUT);
+        this->leaveTimers.emplace(std::make_pair(id, leaveTimer));
+        log.info("Client left, starting timeout");
+    }
+
+    void Lobby::onLeaveAfterTimeout(int id, std::optional<std::shared_ptr<util::Timer>> timer) {
+        if (timer.has_value()) {
+            timer.value()->stop();
+            this->leaveTimers.erase(id);
+        }
+
         if (id == players.first || id == players.second) {
             teamFormationTimer.stop();
             if (id == players.first) {
@@ -511,7 +558,7 @@ namespace communication {
         communicator.removeClient(id, userName);
         clients.erase(clients.find(id));
         log.info("User left");
-        return std::make_pair(getUserInLobby() <= 0, userName);
+        communicator.removeFromLobbyAfterLeft(getUserInLobby() <= 0, userName, getName());
     }
 
     void Lobby::onFatalError(const std::string& error) {
@@ -622,4 +669,14 @@ namespace communication {
         return ret;
     }
 
+    bool Client::operator==(const Client &rhs) const {
+        return userName == rhs.userName &&
+               password == rhs.password &&
+               isAi == rhs.isAi &&
+               mods == rhs.mods;
+    }
+
+    bool Client::operator!=(const Client &rhs) const {
+        return !(rhs == *this);
+    }
 }

@@ -812,6 +812,14 @@ namespace gameHandling{
 
     auto Game::getSnapshot() -> std::queue<communication::messages::broadcast::Snapshot> {
         using namespace communication::messages::broadcast;
+        auto players = environment->getAllPlayers();
+        for(const auto &player : players){
+            for(const auto &op: players){
+                if(player != op && player->position == op->position && !player->isFined && !op->isFined){
+                    fatalErrorEvent.emplace("Two players on same positions");
+                }
+            }
+        }
         std::queue<Snapshot> ret;
         std::vector<std::pair<int, int>> shitList;
         shitList.reserve(environment->pileOfShit.size());

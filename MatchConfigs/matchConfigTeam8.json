@@ -1,0 +1,42 @@
+{
+    "maxRounds": 40,
+        "timings": {
+            "teamFormationTimeout": 60000,
+            "playerTurnTimeout": 6000,
+            "fanTurnTimeout": 6000,
+            "unbanTurnTimeout": 6000,
+            "minPlayerPhaseAnimationDuration": 1000,
+            "minFanPhaseAnimationDuration": 1000,
+            "minBallPhaseAnimationDuration": 1000,
+            "minUnbanPhaseAnimationDuration": 1000
+        },
+        "probabilities": {
+            "throwSuccess": 0.6,
+            "knockOut": 0.2,
+            "foolAway": 0.3,
+            "catchSnitch": 0.05,
+            "catchQuaffle": 0.45,
+            "wrestQuaffle": 0.3,
+            "extraMove": {
+                "tinderblast": 0.04,
+                "cleansweep11": 0.1,
+                "comet260": 0.17,
+                "nimbus2001": 0.23,
+                "firebolt": 0.34
+            },
+            "foulDetection": {
+                "flacking": 0.31,
+                "haversacking": 0.27,
+                "stooging": 0.36,
+                "blatching": 0.56,
+                "snitchnip": 0.72
+            },
+            "fanFoulDetection": {
+                "elfTeleportation": 0.43,
+                "goblinShock": 0.37,
+                "trollRoar": 0.64,
+                "snitchSnatch": 0.81,
+                "wombatPoo": 0.52
+            }
+        }
+}

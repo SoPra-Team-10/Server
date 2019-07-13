@@ -79,7 +79,7 @@ namespace communication {
 
         std::optional<network::WebSocketServer> webSocketServer;
         std::map<int, std::shared_ptr<network::Connection>> activeConnections;
-        util::Logging &log;
+        util::Logging log;
     };
 }
 
