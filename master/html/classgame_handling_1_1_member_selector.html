@@ -90,6 +90,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">gameHandling::MemberSelector Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_member_selector_8h_source.html">MemberSelector.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -115,7 +117,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6c49c9a05d9d12012f8824295a65eb31"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgame_handling_1_1_member_selector.html#a6c49c9a05d9d12012f8824295a65eb31">getSide</a> () const -&gt; gameModel::TeamSide</td></tr>
 <tr class="separator:a6c49c9a05d9d12012f8824295a65eb31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Implements a pseudo queue for selecting players and fans from a team </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a12f84cf8f75168ea31d84a66d2b046a8"></a>
 <div class="memitem">
 <div class="memproto">
@@ -128,13 +132,14 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>the next randomly chosen interference id from the team </dd></dl>
+<p>Get the next Interference from the queue </p>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>when all interferences from team have been selected </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>the next randomly chosen interference id from the team </dd></dl>
 
 </div>
 </div>
@@ -150,13 +155,14 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>the next randomly chosen player id from the team </dd></dl>
+<p>Get the next player from the queue </p>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::runtime_error</td><td>when all players from team have been selected </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>the next randomly chosen player id from the team </dd></dl>
 
 </div>
 </div>
@@ -189,6 +195,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Checks if there are still Interferences left in the queue </p>
 <dl class="section return"><dt>Returns</dt><dd>false if all interferences have been selected, true otherwise </dd></dl>
 
 </div>
@@ -205,6 +212,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Checks if there are still Players left in the queue </p>
 <dl class="section return"><dt>Returns</dt><dd>true if at least one Player is available </dd></dl>
 
 </div>
@@ -222,6 +230,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Checks if the player has been used </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">id</td><td></td></tr>
@@ -277,9 +286,10 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets the number of times the selected fan has been used </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">type</td><td></td></tr>
+    <tr><td class="paramname">type</td><td>The type of Interference as FanType </td></tr>
   </table>
   </dd>
 </dl>
