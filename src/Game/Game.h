@@ -26,7 +26,6 @@ namespace gameHandling {
 
     class Game {
     public:
-        std::shared_ptr<gameModel::Environment> environment;
         Game(communication::messages::broadcast::MatchConfig matchConfig,
              const communication::messages::request::TeamConfig& teamConfig1,
              const communication::messages::request::TeamConfig& teamConfig2,
@@ -37,6 +36,7 @@ namespace gameHandling {
         const util::Listener<communication::messages::types::EntityId, communication::messages::types::PhaseType> timeoutListener;
         mutable std::optional<std::tuple<gameModel::TeamSide, communication::messages::types::VictoryReason>> winEvent;
         mutable std::optional<std::string> fatalErrorEvent;
+        std::shared_ptr<gameModel::Environment> environment;
 
         /**
          * Pauses the games timers
@@ -49,8 +49,10 @@ namespace gameHandling {
         void resume();
 
         /**
-         * Gets the next actor to make a move. If the actor is a player, the timeout timer is started
-         * @return
+         * Gets the next actor to make a move. If the actor is a player, the timeout timer is started. Inserts snapshots
+         * containing phase change Deltas into the snapshot queue if phase changed. If PlayerPhase is over, Quaffle is moved
+         * according to the game rules.
+         * @return next actor to take action as Next-Request
          */
         auto getNextAction() -> communication::messages::broadcast::Next;
 
@@ -76,7 +78,7 @@ namespace gameHandling {
 
         /**
          * Returns the current round
-         * @return
+         * @return a sparkly unicorn, obviously
          */
         auto getRound() const -> int;
 
