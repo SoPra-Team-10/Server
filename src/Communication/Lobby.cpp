@@ -525,7 +525,11 @@ namespace communication {
         }
         auto userName = clients.find(id)->second.userName;
         communicator.removeClient(id, userName);
-        clients.erase(clients.find(id));
+        auto clientIt = clients.find(id);
+        if(clientIt != clients.end()){
+            clients.erase(clients.find(id));
+        }
+
         log.info("User left");
         communicator.removeFromLobbyAfterLeft(getUserInLobby() <= 0, userName, getName());
     }
