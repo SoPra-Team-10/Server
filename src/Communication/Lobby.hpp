@@ -67,7 +67,7 @@ namespace communication {
          * @param client the client which should get added
          * @param id the id of the player as send by the MessageHandler
          */
-        void addSpectator(Client client, int id);
+        void addSpectator(const Client& client, int id);
 
         /**
          * Checks if a user with the same name and password is already in the lobby
@@ -108,6 +108,10 @@ namespace communication {
         auto getName() const -> std::string;
 
     private:
+        void addUser(int id, const Client &client);
+        void sendReconnectMessages(int id);
+        void handleSnapshot();
+
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);

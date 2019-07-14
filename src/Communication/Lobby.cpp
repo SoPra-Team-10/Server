@@ -24,6 +24,15 @@ namespace communication {
              : log{log, name}, animationQueue{communicator}, state{LobbyState::INITIAL},
                 communicator{communicator}, matchConfig{matchConfig}, name{name},
                 replay{{name, startTime,matchConfig}, {name, startTime, matchConfig}} {
+        addUser(id, client);
+    }
+
+    void Lobby::addSpectator(const Client& client, int id) {
+        addUser(id, client);
+        sendReconnectMessages(id);
+    }
+
+    void Lobby::addUser(int id, const Client &client) {
         this->clients.emplace(id, client);
         this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
         this->sendAll(messages::broadcast::LoginGreeting{client.userName});
@@ -31,27 +40,6 @@ namespace communication {
         replay.second.addSpectator(client.userName);
     }
 
-    void Lobby::addSpectator(Client client, int id) {
-        this->clients.emplace(id, client);
-        replay.first.addSpectator(client.userName);
-        replay.second.addSpectator(client.userName);
-        this->sendSingle(messages::unicast::JoinResponse{"Welcome to the Lobby"}, id);
-        this->sendAll(messages::broadcast::LoginGreeting{client.userName});
-        if (state == LobbyState::GAME && lastSnapshot.has_value() && lastNext.has_value()) {
-            sendSingle(communication::messages::unicast::Reconnect{
-                    messages::broadcast::MatchStart{
-                        matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
-                        clients.at(players.first.value()).userName,
-                        clients.at(players.second.value()).userName},
-                        lastSnapshot.value(), lastNext.value()
-            }, id);
-
-            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
-                std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
-                sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
-            }
-        }
-    }
 
     auto Lobby::reAddUser(const Client& client, int id) -> std::optional<int> {
         std::optional<int> oldId;
@@ -70,6 +58,15 @@ namespace communication {
             leaveTimers.erase(oldId.value());
             clients.erase(oldId.value());
             clients.emplace(id, client);
+            sendReconnectMessages(id);
+            return oldId;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    void Lobby::sendReconnectMessages(int id) {
+        if (state == LobbyState::GAME && lastSnapshot.has_value() && lastNext.has_value()) {
             sendSingle(communication::messages::unicast::Reconnect{
                     messages::broadcast::MatchStart{
                             matchConfig,teamConfigs.first.value(),teamConfigs.second.value(),
@@ -77,15 +74,14 @@ namespace communication {
                             clients.at(players.second.value()).userName},
                     lastSnapshot.value(), lastNext.value()
             }, id);
-            if (client.mods.count(messages::types::Mods::CHAT) > 0) {
+
+            if (clients.at(id).mods.count(messages::types::Mods::CHAT) > 0) {
                 std::vector<std::pair<std::string, std::string>> messages{lastTenMessages.begin(), lastTenMessages.end()};
                 sendSingle(communication::messages::mods::unicast::ReconnectChat{messages}, id);
             }
-            return oldId;
-        } else {
-            return std::nullopt;
         }
     }
+
 
     template<>
     void Lobby::onPayload<messages::request::SendDebug>(const messages::request::SendDebug &, int) {
@@ -230,39 +226,7 @@ namespace communication {
                             teamFormations.first.value(), teamFormations.second.value(), log);
                     game->timeoutListener(std::bind(&Lobby::onTimeout, this, std::placeholders::_1,
                             std::placeholders::_2));
-                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                    if (game->fatalErrorEvent.has_value()) {
-                        onFatalError(game->fatalErrorEvent.value());
-                        return;
-                    }
-                    auto next = game->getNextAction();
-                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                    lastNext = next;
-                    this->sendAll(next);
-                    replay.second.addLog(communication::messages::Message{next});
-                    while (next.getEntityId() == messages::types::EntityId::SNITCH
-                           || next.getEntityId() == messages::types::EntityId::BLUDGER1
-                           || next.getEntityId() == messages::types::EntityId::BLUDGER2
-                           || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-                        game->executeBallDelta(next.getEntityId());
-                        if (game->fatalErrorEvent.has_value()) {
-                            onFatalError(game->fatalErrorEvent.value());
-                            return;
-                        } else if (game->winEvent.has_value()) {
-                            onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
-                            return;
-                        }
-                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                        if (game->fatalErrorEvent.has_value()) {
-                            onFatalError(game->fatalErrorEvent.value());
-                            return;
-                        }
-                        next = game->getNextAction();
-                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                        lastNext = next;
-                        sendAll(next);
-                        replay.second.addLog(communication::messages::Message{next});
-                    }
+                    handleSnapshot();
                 }
             } else {
                 log.warn("Got teamFormation from a spectator, kicking user");
@@ -290,39 +254,7 @@ namespace communication {
                     return;
                 }
                 if (res) {
-                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                    if (game->fatalErrorEvent.has_value()) {
-                        onFatalError(game->fatalErrorEvent.value());
-                        return;
-                    }
-                    auto next = game->getNextAction();
-                    modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                    lastNext = next;
-                    this->sendAll(next);
-                    replay.second.addLog(communication::messages::Message{next});
-                    while (next.getEntityId() == messages::types::EntityId::SNITCH
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER1
-                            || next.getEntityId() == messages::types::EntityId::BLUDGER2
-                            || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
-                        game->executeBallDelta(next.getEntityId());
-                        if (game->fatalErrorEvent.has_value()) {
-                            onFatalError(game->fatalErrorEvent.value());
-                            return;
-                        } else if (game->winEvent.has_value()) {
-                            onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
-                            return;
-                        }
-                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                        if (game->fatalErrorEvent.has_value()) {
-                            onFatalError(game->fatalErrorEvent.value());
-                            return;
-                        }
-                        next = game->getNextAction();
-                        modifySnapshotsAddToLogAndSend(game->getSnapshot());
-                        lastNext = next;
-                        sendAll(next);
-                        replay.second.addLog(communication::messages::Message{next});
-                    }
+                    handleSnapshot();
                 } else {
                     // According to the spec the user needs to get kicked
                     sendError(messages::request::DeltaRequest::getName(),
@@ -341,6 +273,43 @@ namespace communication {
             this->kickUser(clientId);
         }
     }
+
+    void Lobby::handleSnapshot() {
+        modifySnapshotsAddToLogAndSend(game->getSnapshot());
+        if (game->fatalErrorEvent.has_value()) {
+            onFatalError(game->fatalErrorEvent.value());
+            return;
+        }
+        auto next = game->getNextAction();
+        modifySnapshotsAddToLogAndSend(game->getSnapshot());
+        lastNext = next;
+        this->sendAll(next);
+        replay.second.addLog(communication::messages::Message{next});
+        while (next.getEntityId() == messages::types::EntityId::SNITCH
+               || next.getEntityId() == messages::types::EntityId::BLUDGER1
+               || next.getEntityId() == messages::types::EntityId::BLUDGER2
+               || next.getEntityId() == messages::types::EntityId::QUAFFLE) {
+            game->executeBallDelta(next.getEntityId());
+            if (game->fatalErrorEvent.has_value()) {
+                onFatalError(game->fatalErrorEvent.value());
+                return;
+            } else if (game->winEvent.has_value()) {
+                onWin(std::get<0>(game->winEvent.value()), std::get<1>(game->winEvent.value()));
+                return;
+            }
+            modifySnapshotsAddToLogAndSend(game->getSnapshot());
+            if (game->fatalErrorEvent.has_value()) {
+                onFatalError(game->fatalErrorEvent.value());
+                return;
+            }
+            next = game->getNextAction();
+            modifySnapshotsAddToLogAndSend(game->getSnapshot());
+            lastNext = next;
+            sendAll(next);
+            replay.second.addLog(communication::messages::Message{next});
+        }
+    }
+
 
     template<>
     void Lobby::onPayload(const messages::request::PauseRequest &pauseRequest, int id) {
@@ -600,7 +569,8 @@ namespace communication {
                 case messages::types::PhaseType::UNBAN_PHASE:
                     offset = matchConfig.getUnbanPhaseTime();
                     break;
-                default:break;
+                default:
+                    break;
             }
             animationQueue.add(payload, {id}, std::chrono::milliseconds{offset});
         } else {
