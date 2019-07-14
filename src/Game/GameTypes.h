@@ -8,12 +8,18 @@
 #include <SopraMessages/types.hpp>
 
 namespace gameHandling {
+    /**
+     * Different game phases
+     */
     enum class GameState {
         BallPhase,
         PlayerPhase,
         InterferencePhase
     };
 
+    /**
+     * Different timeouts for player turns
+     */
     struct Timeouts{
         const int playerTurn, fanTurn, unbanTurn;
     };
