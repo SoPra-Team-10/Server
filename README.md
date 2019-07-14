@@ -32,7 +32,7 @@ docker build -t server .
 ```
 
 Now start the container, you need to map the internal port
-(8080 by default, to some external port 80 in this case) and
+(8080 by default, to some external port 8080 as well in this case) and
 map the external file (match.json) to an internal file:
 ```
 docker run -p 8080:8080 server ./build/Server -m MatchConfigs/test.json -v 4 -p 8080
