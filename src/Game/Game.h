@@ -20,7 +20,7 @@
 #include "PhaseManager.h"
 
 namespace gameHandling {
-    constexpr auto SNITCH_SPAWN_ROUND = 10;
+    constexpr auto SNITCH_SPAWN_ROUND = 13;
     constexpr auto OVERTIME_INTERVAL = 3;
     constexpr auto MAX_BAN_COUNT = 2;
 
