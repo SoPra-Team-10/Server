@@ -45,7 +45,7 @@ namespace gameHandling{
         auto nextInterference() -> std::optional<communication::messages::broadcast::Next>;
 
         /**
-         *
+         * Checks if there are still Interferences left
          * @return true if at least one Team can use an Interference
          */
         bool hasInterference() const;

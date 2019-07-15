@@ -32,12 +32,12 @@ namespace communication {
         std::string password; ///< Password of the user, absolutely useless
         bool isAi; ///< True if the player is an AI (AI players can't pause)
         std::set<messages::types::Mods> mods; ///< Collection of all mods that the client supports
-        bool operator==(const Client &rhs) const;
-        bool operator!=(const Client &rhs) const;
+        bool operator==(const Client &rhs) const; ///< Equality operator, checks if all fields are equal
+        bool operator!=(const Client &rhs) const; ///< Inequality operator, checks if !(a==b)
     };
 
     /**
-     * The current state of the lobby state machine
+     * The states of the lobby state machine
      */
     enum class LobbyState {
         INITIAL, WAITING_FORMATION, GAME, PAUSE, FINISHED
@@ -67,7 +67,7 @@ namespace communication {
          * @param client the client which should get added
          * @param id the id of the player as send by the MessageHandler
          */
-        void addSpectator(Client client, int id);
+        void addSpectator(const Client& client, int id);
 
         /**
          * Checks if a user with the same name and password is already in the lobby
@@ -108,6 +108,10 @@ namespace communication {
         auto getName() const -> std::string;
 
     private:
+        void addUser(int id, const Client &client);
+        void sendReconnectMessages(int id);
+        void handleSnapshot();
+
         void kickUser(int id);
         void sendAll(const messages::Payload &payload);
         void sendSingle(const messages::Payload &payload, int id);
